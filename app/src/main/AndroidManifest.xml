@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="app.zengpu.com.myexercisedemo">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:largeHeap="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".tupianlunbo0.TuPianLunBoActivity"
+            android:label="图片轮播:ViewPager+Handler">
+        </activity>
+        <activity
+            android:name=".tupianlunbo1.ImageLoopActivity"
+            android:label="图片轮播:ViewPager+定时任务">
+        </activity>
+        <activity
+            android:name=".pull_refresh_load_0.RefreshAndLoadActivity"
+            android:label="下拉刷新/上拉加载">
+        </activity>
+        <activity
+            android:name=".pull_refresh_load_1.RefreshAndLoadBaseActivity"
+            android:label="下拉刷新/上拉加载 自定义">
+        </activity>
+
+    </application>
+
+</manifest>
