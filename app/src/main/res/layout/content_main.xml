@@ -38,5 +38,17 @@
         android:layout_height="wrap_content"
         android:text="下拉刷新，上拉加载（自定义）"
         android:textAllCaps="false"/>
+    <Button
+        android:id="@+id/go_to_refresh_load_general"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="下拉刷新，上拉加载（通用）"
+        android:textAllCaps="false"/>
+    <Button
+        android:id="@+id/go_to_multi_drawer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="多层抽屉"
+        android:textAllCaps="false"/>
 
 </LinearLayout>

@@ -37,6 +37,15 @@
             android:name=".pull_refresh_load_1.RefreshAndLoadBaseActivity"
             android:label="下拉刷新/上拉加载 自定义">
         </activity>
+        <activity android:name=".pull_refresh_load_1.GeneralRefreshLoadActivity"
+            android:label="下拉刷新/上拉加载 通用">
+
+        </activity>
+        <activity
+            android:name=".multi_drawer.MultiDrawerActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:label="多层抽屉">
+        </activity>
 
     </application>
 

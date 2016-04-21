@@ -11,7 +11,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import app.zengpu.com.myexercisedemo.multi_drawer.MultiDrawerActivity;
 import app.zengpu.com.myexercisedemo.pull_refresh_load_0.RefreshAndLoadActivity;
+import app.zengpu.com.myexercisedemo.pull_refresh_load_1.GeneralRefreshLoadActivity;
 import app.zengpu.com.myexercisedemo.pull_refresh_load_1.RefreshAndLoadBaseActivity;
 import app.zengpu.com.myexercisedemo.tupianlunbo0.TuPianLunBoActivity;
 import app.zengpu.com.myexercisedemo.tupianlunbo1.ImageLoopActivity;
@@ -25,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button imageLoop;
     private Button refreshandLoad;
     private Button refreshandLoad1;
+    private Button refreshandLoadGeneral;
+    private Button multiDrawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +49,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imageLoop = (Button) findViewById(R.id.go_to_image_loop);
         refreshandLoad = (Button) findViewById(R.id.go_to_refresh_load);
         refreshandLoad1 = (Button) findViewById(R.id.go_to_refresh_load1);
+        refreshandLoadGeneral = (Button) findViewById(R.id.go_to_refresh_load_general);
+        multiDrawer = (Button) findViewById(R.id.go_to_multi_drawer);
 
         tuPianLunBo.setOnClickListener(this);
         imageLoop.setOnClickListener(this);
         refreshandLoad.setOnClickListener(this);
         refreshandLoad1.setOnClickListener(this);
+        refreshandLoadGeneral.setOnClickListener(this);
+        multiDrawer.setOnClickListener(this);
 
     }
 
@@ -73,6 +81,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.go_to_refresh_load1:
                 Intent intent3 = new Intent(this, RefreshAndLoadBaseActivity.class);
                 startActivity(intent3);
+                break;
+            case R.id.go_to_refresh_load_general:
+                Intent intent5 = new Intent(this, GeneralRefreshLoadActivity.class);
+                startActivity(intent5);
+                break;
+            case R.id.go_to_multi_drawer:
+                Intent intent4 = new Intent(this, MultiDrawerActivity.class);
+                startActivity(intent4);
                 break;
         }
 
