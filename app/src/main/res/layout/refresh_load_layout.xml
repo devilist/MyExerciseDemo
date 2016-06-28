@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<app.zengpu.com.myexercisedemo.pull_refresh_load_0.RefreshAndLoadLayout
+<app.zengpu.com.myexercisedemo.demolist.pull_refresh_load_0.RefreshAndLoadLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/refresh_load_layout"
     android:layout_width="match_parent"
@@ -11,6 +11,6 @@
         android:layout_height="match_parent">
     </ListView>
 
-</app.zengpu.com.myexercisedemo.pull_refresh_load_0.RefreshAndLoadLayout>
+</app.zengpu.com.myexercisedemo.demolist.pull_refresh_load_0.RefreshAndLoadLayout>
 
 

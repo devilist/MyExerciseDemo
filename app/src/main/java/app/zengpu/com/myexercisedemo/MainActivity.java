@@ -1,118 +1,142 @@
 package app.zengpu.com.myexercisedemo;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
-import app.zengpu.com.myexercisedemo.multi_drawer.MultiDrawerActivity;
-import app.zengpu.com.myexercisedemo.pull_refresh_load_0.RefreshAndLoadActivity;
-import app.zengpu.com.myexercisedemo.pull_refresh_load_1.GeneralRefreshLoadActivity;
-import app.zengpu.com.myexercisedemo.pull_refresh_load_1.RefreshAndLoadBaseActivity;
-import app.zengpu.com.myexercisedemo.tupianlunbo0.TuPianLunBoActivity;
-import app.zengpu.com.myexercisedemo.tupianlunbo1.ImageLoopActivity;
+import java.util.ArrayList;
+import java.util.List;
+
+import app.zengpu.com.myexercisedemo.MainActivity.RecyclerViewAdapter.OnItemClickListener;
+import app.zengpu.com.myexercisedemo.demolist.multi_drawer.MultiDrawerActivity;
+import app.zengpu.com.myexercisedemo.demolist.photoloop0.PhotoLoopActivity;
+import app.zengpu.com.myexercisedemo.demolist.photoloop1.ImageLoopActivity;
+import app.zengpu.com.myexercisedemo.demolist.pull_refresh_load_0.RefreshAndLoadActivity;
+import app.zengpu.com.myexercisedemo.demolist.pull_refresh_load_1.GeneralRefreshLoadActivity;
+import app.zengpu.com.myexercisedemo.demolist.pull_refresh_load_1.RefreshAndLoadBaseActivity;
 
 /**
  * Created by zengpu on 16/3/30.
  */
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity {
 
-    private Button tuPianLunBo;
-    private Button imageLoop;
-    private Button refreshandLoad;
-    private Button refreshandLoad1;
-    private Button refreshandLoadGeneral;
-    private Button multiDrawer;
+    private RecyclerView mRecyclerView;
+    private RecyclerViewAdapter mAdapter;
+    private List<String[]> demoList = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+
+        initView();
+    }
+
+    private void initView() {
+
+        demoList.add(new String[]{"图片轮播:ViewPager+Handler", PhotoLoopActivity.class.getName()});
+        demoList.add(new String[]{"图片轮播:ViewPager+定时任务", ImageLoopActivity.class.getName()});
+        demoList.add(new String[]{"下拉刷新，上拉加载", RefreshAndLoadActivity.class.getName()});
+        demoList.add(new String[]{"下拉刷新，上拉加载（自定义）", RefreshAndLoadBaseActivity.class.getName()});
+        demoList.add(new String[]{"下拉刷新，上拉加载（通用）", GeneralRefreshLoadActivity.class.getName()});
+        demoList.add(new String[]{"多层抽屉 ", MultiDrawerActivity.class.getName()});
+        demoList.add(new String[]{"GalleryFinal图片查看器", MultiDrawerActivity.class.getName()});
+
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.rv_demolist);
+
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        mAdapter = new RecyclerViewAdapter(this, demoList);
+
+        mRecyclerView.setAdapter(mAdapter);
+
+        mAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onItemClick(View view, int position) {
+
+                try {
+                    Class<?> activityClazz = Class.forName(demoList.get(position)[1]);
+
+                    Intent intent = new Intent(getApplicationContext(), activityClazz);
+
+                    startActivity(intent);
+
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
-        tuPianLunBo = (Button) findViewById(R.id.go_to_tupianlunbo);
-        imageLoop = (Button) findViewById(R.id.go_to_image_loop);
-        refreshandLoad = (Button) findViewById(R.id.go_to_refresh_load);
-        refreshandLoad1 = (Button) findViewById(R.id.go_to_refresh_load1);
-        refreshandLoadGeneral = (Button) findViewById(R.id.go_to_refresh_load_general);
-        multiDrawer = (Button) findViewById(R.id.go_to_multi_drawer);
-
-        tuPianLunBo.setOnClickListener(this);
-        imageLoop.setOnClickListener(this);
-        refreshandLoad.setOnClickListener(this);
-        refreshandLoad1.setOnClickListener(this);
-        refreshandLoadGeneral.setOnClickListener(this);
-        multiDrawer.setOnClickListener(this);
-
     }
 
-    @Override
-    public void onClick(View v) {
 
-        switch (v.getId()) {
-            case R.id.go_to_tupianlunbo:
-                Intent intent = new Intent(this, TuPianLunBoActivity.class);
-                startActivity(intent);
-                break;
+    public static class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-            case R.id.go_to_image_loop:
-                Intent intent1 = new Intent(this, ImageLoopActivity.class);
-                startActivity(intent1);
-                break;
-            case R.id.go_to_refresh_load:
-                Intent intent2 = new Intent(this, RefreshAndLoadActivity.class);
-                startActivity(intent2);
-                break;
-            case R.id.go_to_refresh_load1:
-                Intent intent3 = new Intent(this, RefreshAndLoadBaseActivity.class);
-                startActivity(intent3);
-                break;
-            case R.id.go_to_refresh_load_general:
-                Intent intent5 = new Intent(this, GeneralRefreshLoadActivity.class);
-                startActivity(intent5);
-                break;
-            case R.id.go_to_multi_drawer:
-                Intent intent4 = new Intent(this, MultiDrawerActivity.class);
-                startActivity(intent4);
-                break;
+        private Context context;
+        private List<String[]> demoList;
+        private OnItemClickListener mOnItemClickListener;
+
+
+        public class ViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
+
+            private TextView itemTv;
+            private OnItemClickListener mListener;
+
+            public ViewHolder(View itemView, OnItemClickListener listener) {
+                super(itemView);
+                mListener = listener;
+
+                itemTv = (TextView) itemView.findViewById(R.id.tv_item);
+
+                itemTv.setOnClickListener(this);
+            }
+
+            @Override
+            public void onClick(View v) {
+                mListener.onItemClick(v, getLayoutPosition());
+            }
         }
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        public RecyclerViewAdapter(Context context, List<String[]> demoList) {
+            this.context = context;
+            this.demoList = demoList;
         }
 
-        return super.onOptionsItemSelected(item);
+
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(context).inflate(R.layout.item_mainactivity_recyclerview, parent, false);
+            return new ViewHolder(v, mOnItemClickListener);
+        }
+
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            ViewHolder mViewHolder = (ViewHolder) holder;
+            mViewHolder.itemTv.setText(demoList.get(position)[0]);
+        }
+
+        @Override
+        public int getItemCount() {
+            return demoList.size();
+        }
+
+        public interface OnItemClickListener {
+            void onItemClick(View view, int position);
+        }
+
+        public void setOnItemClickListener(OnItemClickListener listener) {
+            mOnItemClickListener = listener;
+        }
     }
 }
