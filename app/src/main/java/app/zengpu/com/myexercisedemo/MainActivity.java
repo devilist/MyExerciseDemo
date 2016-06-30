@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import app.zengpu.com.myexercisedemo.MainActivity.RecyclerViewAdapter.OnItemClickListener;
+import app.zengpu.com.myexercisedemo.demolist.galleryfinaldemo.GalleryFinalActivity;
 import app.zengpu.com.myexercisedemo.demolist.multi_drawer.MultiDrawerActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop0.PhotoLoopActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop1.ImageLoopActivity;
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         demoList.add(new String[]{"下拉刷新，上拉加载（自定义）", RefreshAndLoadBaseActivity.class.getName()});
         demoList.add(new String[]{"下拉刷新，上拉加载（通用）", GeneralRefreshLoadActivity.class.getName()});
         demoList.add(new String[]{"多层抽屉 ", MultiDrawerActivity.class.getName()});
-        demoList.add(new String[]{"GalleryFinal图片查看器", MultiDrawerActivity.class.getName()});
+        demoList.add(new String[]{"GalleryFinal图片查看器", GalleryFinalActivity.class.getName()});
 
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_demolist);

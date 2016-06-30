@@ -240,7 +240,7 @@ public class PhotoEditActivity extends CropImageActivity implements AdapterView.
             }
 
             if (GalleryFinal.getFunctionConfig().isCamera()) {
-                mIvTakePhoto.setVisibility(View.VISIBLE);
+                mIvTakePhoto.setVisibility(View.GONE);
             }
 
             if (GalleryFinal.getFunctionConfig().isCrop()) {
@@ -248,7 +248,7 @@ public class PhotoEditActivity extends CropImageActivity implements AdapterView.
             }
 
             if (GalleryFinal.getFunctionConfig().isRotate()) {
-                mIvRotate.setVisibility(View.VISIBLE);
+                mIvRotate.setVisibility(View.GONE);
             }
 
             if (!GalleryFinal.getFunctionConfig().isMutiSelect()) {
@@ -275,9 +275,11 @@ public class PhotoEditActivity extends CropImageActivity implements AdapterView.
             }
 
             if(GalleryFinal.getFunctionConfig().isEnablePreview()){
-                mIvPreView.setVisibility(View.VISIBLE);
+                mIvPreView.setVisibility(View.GONE);
             }
         }
+
+        mIvCrop.performClick();
     }
 
     private void setTheme() {
@@ -357,7 +359,7 @@ public class PhotoEditActivity extends CropImageActivity implements AdapterView.
             resultAction();
         } else {
             if (GalleryFinal.getFunctionConfig().isEnablePreview()) {
-                mIvPreView.setVisibility(View.VISIBLE);
+                mIvPreView.setVisibility(View.GONE);
             }
             mPhotoEditListAdapter.notifyDataSetChanged();
 
@@ -646,7 +648,7 @@ public class PhotoEditActivity extends CropImageActivity implements AdapterView.
             }
 
             if (GalleryFinal.getFunctionConfig().isCamera()) {
-                mIvTakePhoto.setVisibility(View.VISIBLE);
+                mIvTakePhoto.setVisibility(View.GONE);
             }
 
             if (GalleryFinal.getFunctionConfig().isMutiSelect()) {

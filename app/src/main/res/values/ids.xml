@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2014 pengjianbo(pengjianbosoft@gmail.com), Inc.
   ~
@@ -15,11 +16,5 @@
   -->
 
 <resources>
-    <dimen name="gf_title_bar_height">45dp</dimen>
-
-    <dimen name="fab_size_normal">56dp</dimen>
-    <dimen name="fab_icon_size">24dp</dimen>
-    <dimen name="fab_shadow_offset">3dp</dimen>
-    <dimen name="fab_shadow_radius">9dp</dimen>
-    <dimen name="fab_stroke_width">0.0dp</dimen>
+    <item name="adapter_item_tag_key" type="id"/>
 </resources>

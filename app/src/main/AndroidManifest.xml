@@ -53,6 +53,11 @@
             android:label="多层抽屉">
         </activity>
 
+        <activity
+            android:name=".demolist.galleryfinaldemo.GalleryFinalActivity"
+            android:label="GarellyFinal图片选择器">
+        </activity>
+
     </application>
 
 </manifest>

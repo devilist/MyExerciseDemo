@@ -102,16 +102,19 @@
             android:id="@+id/iv_source_photo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/bg_gf_crop_texture"
+            android:background="@android:color/black"
             />
+        <!--android:background="@drawable/bg_gf_crop_texture"-->
+
 
         <cn.finalteam.galleryfinal.widget.crop.CropImageView
             android:id="@+id/iv_crop_photo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/bg_gf_crop_texture"
+            android:background="@android:color/black"
             android:visibility="gone"
             />
+        <!--android:background="@drawable/bg_gf_crop_texture"-->
 
         <TextView
             android:id="@+id/tv_empty_view"

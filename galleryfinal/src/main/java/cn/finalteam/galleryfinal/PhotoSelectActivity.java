@@ -74,6 +74,7 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
     private TextView mTvEmptyView;
     private RelativeLayout mTitlebar;
     private TextView mTvTitle;
+    private TextView mTvOk;
     private ImageView mIvFolderArrow;
 
     private List<PhotoFolderInfo> mAllPhotoFolderList;
@@ -145,7 +146,8 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
 
             if (GalleryFinal.getFunctionConfig().isMutiSelect()) {
                 mTvChooseCount.setVisibility(View.VISIBLE);
-                mFabOk.setVisibility(View.VISIBLE);
+//                mFabOk.setVisibility(View.VISIBLE);
+                mTvOk.setVisibility(View.VISIBLE);
             }
 
             setTheme();
@@ -215,6 +217,7 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
         mIvClear = (ImageView) findViewById(R.id.iv_clear);
         mTitlebar = (RelativeLayout) findViewById(R.id.titlebar);
         mTvTitle = (TextView) findViewById(R.id.tv_title);
+        mTvOk = (TextView) findViewById(R.id.tv_ok);
         mIvFolderArrow = (ImageView) findViewById(R.id.iv_folder_arrow);
         mIvPreView = (ImageView) findViewById(R.id.iv_preview);
     }
@@ -228,6 +231,7 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
         mLvFolderList.setOnItemClickListener(this);
         mGvPhotoList.setOnItemClickListener(this);
         mFabOk.setOnClickListener(this);
+        mTvOk.setOnClickListener(this);
         mIvClear.setOnClickListener(this);
         mIvPreView.setOnClickListener(this);
     }
@@ -381,7 +385,7 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
             } else {
                 finish();
             }
-        } else if ( id == R.id.fab_ok ) {
+        } else if ( id == R.id.fab_ok || id == R.id.tv_ok ) {
             if(mSelectPhotoList.size() > 0) {
                 if (!GalleryFinal.getFunctionConfig().isEditPhoto()) {
                     resultData(mSelectPhotoList);

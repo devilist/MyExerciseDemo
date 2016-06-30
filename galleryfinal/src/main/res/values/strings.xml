@@ -1,5 +1,7 @@
 <resources>
     <string name="gallery">Gallery</string>
+    <string name="gallery_select_photo">select photo</string>
+    <string name="gallery_select_photo_ok">OK</string>
     <string name="all_photo">All Photo</string>
     <string name="selected">selected(%1$d/%2$d)</string>
     <string name="folder_photo_size">%1$d Piece</string>
