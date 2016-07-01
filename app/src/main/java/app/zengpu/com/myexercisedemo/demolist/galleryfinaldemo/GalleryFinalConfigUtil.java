@@ -2,11 +2,13 @@ package app.zengpu.com.myexercisedemo.demolist.galleryfinaldemo;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.widget.Toast;
 
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
+import java.io.File;
 import java.util.List;
 
 import app.zengpu.com.myexercisedemo.R;
@@ -56,12 +58,15 @@ public class GalleryFinalConfigUtil {
         // 初始化GalleryFinal
         initGalleryFinal(context, themeConfig, functionConfig);
 
+        String path = "/storage/emulated/0/DCIM/Camera/IMG_20160102_120534.jpg";
+
         // 打开GalleryFinal
         if (isSingle)
             GalleryFinal.openGallerySingle(REQUEST_CODE_GALLERY, functionConfig, mOnHanlderResultCallback);
-        else if (!isCrop)
+        else
             GalleryFinal.openGalleryMuti(REQUEST_CODE_GALLERY, functionConfig, mOnHanlderResultCallback);
     }
+
     /**
      * 打开GalleryFinal take photo
      *
@@ -71,9 +76,9 @@ public class GalleryFinalConfigUtil {
      * @param mOnHanlderResultCallback 结果回调接口
      */
     public static void openGalleryFinal_TakePhoto(Context context,
-                                        List<PhotoInfo> mPhotoList,
-                                        boolean isCrop,
-                                        GalleryFinal.OnHanlderResultCallback mOnHanlderResultCallback) {
+                                                  List<PhotoInfo> mPhotoList,
+                                                  boolean isCrop,
+                                                  GalleryFinal.OnHanlderResultCallback mOnHanlderResultCallback) {
 
         // 配置主题
         ThemeConfig themeConfig = initThemeConfig();
@@ -84,7 +89,36 @@ public class GalleryFinalConfigUtil {
         initGalleryFinal(context, themeConfig, functionConfig);
 
         // 打开GalleryFinal
-            GalleryFinal.openCamera(REQUEST_CODE_GALLERY, functionConfig, mOnHanlderResultCallback);
+        GalleryFinal.openCamera(REQUEST_CODE_CAMERA, functionConfig, mOnHanlderResultCallback);
+    }
+
+    /**
+     * 打开GalleryFinal剪切图片 crop photo
+     *
+     * @param context
+     * @param mPhotoList               返回选择的图片
+     * @param path                     图片路径
+     * @param mOnHanlderResultCallback 结果回调接口
+     */
+    public static void openGalleryFinal_Crop(Context context,
+                                             List<PhotoInfo> mPhotoList,
+                                             String path,
+                                             GalleryFinal.OnHanlderResultCallback mOnHanlderResultCallback) {
+
+        // 配置主题
+        ThemeConfig themeConfig = initThemeConfig();
+        // 选择需要的功能
+        final FunctionConfig functionConfig = initFunctionConfig(mPhotoList, true, true, 1);
+
+        // 初始化GalleryFinal
+        initGalleryFinal(context, themeConfig, functionConfig);
+
+        // 打开GalleryFinal
+        if (new File(path).exists()) {
+            GalleryFinal.openCrop(REQUEST_CODE_CROP, functionConfig, path, mOnHanlderResultCallback);
+        } else {
+            Toast.makeText(context, "图片不存在", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -134,16 +168,39 @@ public class GalleryFinalConfigUtil {
      * @return
      */
     private static ThemeConfig initThemeConfig() {
+
+//        setTitleBarTextColor//标题栏文本字体颜色
+//        setTitleBarBgColor//标题栏背景颜色
+//        setTitleBarIconColor//标题栏icon颜色，如果设置了标题栏icon，设置setTitleBarIconColor将无效
+//        setCheckNornalColor//选择框未选颜色
+//        setCheckSelectedColor//选择框选中颜色
+//        setCropControlColor//设置裁剪控制点和裁剪框颜色
+//        setFabNornalColor//设置Floating按钮Nornal状态颜色
+//        setFabPressedColor//设置Floating按钮Pressed状态颜色
+//        setIconBack//设置返回按钮icon
+//        setIconCamera//设置相机icon
+//        setIconCrop//设置裁剪icon
+//        setIconRotate//设置旋转icon
+//        setIconClear//设置清楚选择按钮icon（标题栏清除选择按钮）
+//        setIconFolderArrow//设置标题栏文件夹下拉arrow图标
+//        setIconDelete//设置多选编辑页删除按钮icon
+//        setIconCheck//设置checkbox和文件夹已选icon
+//        setIconFab//设置Floating按钮icon
+//        setEditPhotoBgTexture//设置图片编辑页面图片margin外背景
+//        setIconPreview设置预览按钮icon
+//        setPreviewBg设置预览页背景
+
         //设置主题
         ThemeConfig themeConfig = new ThemeConfig.Builder()
-                .setTitleBarBgColor(Color.rgb(0xFF, 0x57, 0x22))
-                .setTitleBarTextColor(Color.BLACK)
-                .setTitleBarIconColor(Color.BLACK)
-                .setFabNornalColor(Color.RED)
+                .setTitleBarBgColor(Color.parseColor("#bb000000"))
+                .setBottomBarBgColor(Color.parseColor("#bb000000"))
+                .setTitleBarTextColor(Color.WHITE)
+                .setTitleBarIconColor(Color.WHITE)
+                .setFabNornalColor(Color.BLACK)
                 .setFabPressedColor(Color.BLUE)
                 .setCheckNornalColor(Color.WHITE)
                 .setCheckSelectedColor(Color.BLACK)
-                .setIconBack(R.mipmap.ic_action_previous_item)
+//                .setIconBack(R.mipmap.ic_action_previous_item)
                 .setIconRotate(R.mipmap.ic_action_repeat)
                 .setIconCrop(R.mipmap.ic_action_crop)
                 .setIconCamera(R.mipmap.ic_action_camera)
@@ -196,6 +253,8 @@ public class GalleryFinalConfigUtil {
                 .setEnablePreview(true)
                 .setEnableCamera(true)
                 .setSelected(mPhotoList)
+                .setForceCrop(isCropped)//启动强制裁剪功能,一进入编辑页面就开启图片裁剪，不需要用户手动点击裁剪，此功能只针对单选操作
+                .setForceCropEdit(false)//在开启强制裁剪功能时是否可以对图片进行编辑（也就是是否显示旋转图标和拍照图标）
                 .build();
 
         return functionConfig;

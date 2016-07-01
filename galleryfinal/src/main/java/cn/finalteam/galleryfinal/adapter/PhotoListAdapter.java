@@ -23,13 +23,14 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.ImageView;
+
+import java.util.List;
+
 import cn.finalteam.galleryfinal.GalleryFinal;
 import cn.finalteam.galleryfinal.R;
 import cn.finalteam.galleryfinal.model.PhotoInfo;
 import cn.finalteam.galleryfinal.widget.GFImageView;
 import cn.finalteam.toolsfinal.adapter.ViewHolderAdapter;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Desction:

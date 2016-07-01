@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data unit="元">
+    <item id="0" label="少于2000"/>
+    <item id="1" label="2000-3000"/>
+    <item id="2" label="3000-5000"/>
+    <item id="3" label="5000-8000"/>
+    <item id="4" label="8000-12000"/>
+    <item id="5" label="12000-20000"/>
+    <item id="6" label="多于20000"/>
+</data>

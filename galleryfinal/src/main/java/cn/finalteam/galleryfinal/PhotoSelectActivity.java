@@ -73,6 +73,7 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
     private FloatingActionButton mFabOk;
     private TextView mTvEmptyView;
     private RelativeLayout mTitlebar;
+    private RelativeLayout mBottombar;
     private TextView mTvTitle;
     private TextView mTvOk;
     private ImageView mIvFolderArrow;
@@ -196,6 +197,7 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
         mFabOk.setIcon(GalleryFinal.getGalleryTheme().getIconFab());
 
         mTitlebar.setBackgroundColor(GalleryFinal.getGalleryTheme().getTitleBarBgColor());
+        mBottombar.setBackgroundColor(GalleryFinal.getGalleryTheme().getBottomBarBgColor());
         mTvSubTitle.setTextColor(GalleryFinal.getGalleryTheme().getTitleBarTextColor());
         mTvTitle.setTextColor(GalleryFinal.getGalleryTheme().getTitleBarTextColor());
         mTvChooseCount.setTextColor(GalleryFinal.getGalleryTheme().getTitleBarTextColor());
@@ -216,6 +218,7 @@ public class PhotoSelectActivity extends PhotoBaseActivity implements View.OnCli
         mLlTitle = (LinearLayout) findViewById(R.id.ll_title);
         mIvClear = (ImageView) findViewById(R.id.iv_clear);
         mTitlebar = (RelativeLayout) findViewById(R.id.titlebar);
+        mBottombar = (RelativeLayout) findViewById(R.id.bottombar);
         mTvTitle = (TextView) findViewById(R.id.tv_title);
         mTvOk = (TextView) findViewById(R.id.tv_ok);
         mIvFolderArrow = (ImageView) findViewById(R.id.iv_folder_arrow);

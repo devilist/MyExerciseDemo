@@ -11,11 +11,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import app.zengpu.com.myexercisedemo.MainActivity.RecyclerViewAdapter.OnItemClickListener;
+import app.zengpu.com.myexercisedemo.Utils.CustomAlertDialog;
 import app.zengpu.com.myexercisedemo.demolist.galleryfinaldemo.GalleryFinalActivity;
 import app.zengpu.com.myexercisedemo.demolist.multi_drawer.MultiDrawerActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop0.PhotoLoopActivity;
@@ -39,19 +41,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initData();
         initView();
     }
 
     private void initView() {
-
-        demoList.add(new String[]{"图片轮播:ViewPager+Handler", PhotoLoopActivity.class.getName()});
-        demoList.add(new String[]{"图片轮播:ViewPager+定时任务", ImageLoopActivity.class.getName()});
-        demoList.add(new String[]{"下拉刷新，上拉加载", RefreshAndLoadActivity.class.getName()});
-        demoList.add(new String[]{"下拉刷新，上拉加载（自定义）", RefreshAndLoadBaseActivity.class.getName()});
-        demoList.add(new String[]{"下拉刷新，上拉加载（通用）", GeneralRefreshLoadActivity.class.getName()});
-        demoList.add(new String[]{"多层抽屉 ", MultiDrawerActivity.class.getName()});
-        demoList.add(new String[]{"GalleryFinal图片查看器", GalleryFinalActivity.class.getName()});
-
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_demolist);
 
@@ -65,19 +59,44 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(View view, int position) {
 
-                try {
-                    Class<?> activityClazz = Class.forName(demoList.get(position)[1]);
+                if (position == 0) {
+                    new CustomAlertDialog(MainActivity.this,
+                            R.string.dialog_title,
+                            R.string.dialog_message,
+                            null, new CustomAlertDialog.AlertDialogClickListener() {
+                        @Override
+                        public void onResult(boolean confirmed, Bundle bundle) {
 
-                    Intent intent = new Intent(getApplicationContext(), activityClazz);
+                            Toast.makeText(MainActivity.this, String.valueOf(confirmed), Toast.LENGTH_SHORT).show();
+                        }
+                    }, true, R.style.MyAlertDialog).show();
+                } else {
+                    try {
+                        Class<?> activityClazz = Class.forName(demoList.get(position)[1]);
 
-                    startActivity(intent);
+                        Intent intent = new Intent(getApplicationContext(), activityClazz);
 
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+                        startActivity(intent);
+
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
 
+    }
+
+
+    private void initData() {
+        demoList.add(new String[]{"自定义CustomAlertDialog", CustomAlertDialog.class.getName()});
+        demoList.add(new String[]{"图片轮播:ViewPager+Handler", PhotoLoopActivity.class.getName()});
+        demoList.add(new String[]{"图片轮播:ViewPager+定时任务", ImageLoopActivity.class.getName()});
+        demoList.add(new String[]{"下拉刷新，上拉加载", RefreshAndLoadActivity.class.getName()});
+        demoList.add(new String[]{"下拉刷新，上拉加载（自定义）", RefreshAndLoadBaseActivity.class.getName()});
+        demoList.add(new String[]{"下拉刷新，上拉加载（通用）", GeneralRefreshLoadActivity.class.getName()});
+        demoList.add(new String[]{"多层抽屉 ", MultiDrawerActivity.class.getName()});
+        demoList.add(new String[]{"GalleryFinal图片查看器", GalleryFinalActivity.class.getName()});
     }
 
 

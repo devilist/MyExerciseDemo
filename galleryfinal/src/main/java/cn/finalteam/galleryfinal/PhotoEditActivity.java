@@ -279,7 +279,7 @@ public class PhotoEditActivity extends CropImageActivity implements AdapterView.
             }
         }
 
-        mIvCrop.performClick();
+//        mIvCrop.performClick();
     }
 
     private void setTheme() {

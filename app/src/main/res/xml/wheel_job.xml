@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data>
+    <item-a id="0" label="酒店餐饮">
+        <item id="0" label="员工"/>
+        <item id="1" label="主管"/>
+        <item id="2" label="经理"/>
+    </item-a>
+    <item-a id="1" label="生产加工">
+        <item id="0" label="员工"/>
+        <item id="1" label="主管"/>
+        <item id="2" label="经理"/>
+    </item-a>
+    <item-a id="2" label="美容美发">
+        <item id="0" label="员工"/>
+        <item id="1" label="主管"/>
+        <item id="2" label="经理"/>
+    </item-a>
+    <item-a id="3" label="娱乐休闲">
+        <item id="0" label="员工"/>
+        <item id="1" label="主管"/>
+        <item id="2" label="经理"/>
+    </item-a>
+    <item-a id="4" label="家政服务">
+        <item id="0" label="员工"/>
+        <item id="1" label="主管"/>
+        <item id="2" label="经理"/>
+    </item-a>
+    <item-a id="5" label="保安安保">
+        <item id="0" label="员工"/>
+        <item id="1" label="主管"/>
+        <item id="2" label="经理"/>
+    </item-a>
+    <item-a id="6" label="建筑装饰">
+        <item id="0" label="员工"/>
+        <item id="1" label="主管"/>
+        <item id="2" label="经理"/>
+    </item-a>
+    <item-a id="7" label="商场零售">
+        <item id="0" label="员工"/>
+        <item id="1" label="主管"/>
+        <item id="2" label="经理"/>
+    </item-a>
+    <item-a id="8" label="交通物流">
+        <item id="0" label="员工"/>
+        <item id="1" label="主管"/>
+        <item id="2" label="经理"/>
+    </item-a>
+    <item-a id="9" label="健身旅游">
+        <item id="0" label="员工"/>
+        <item id="1" label="主管"/>
+        <item id="2" label="经理"/>
+    </item-a>
+    <item-a id="10" label="办公室职员"/>
+    <item-a id="11" label="自营生意"/>
+    <item-a id="12" label="其他"/>
+</data>

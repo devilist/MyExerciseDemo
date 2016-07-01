@@ -30,6 +30,7 @@ import cn.finalteam.galleryfinal.PhotoPreviewActivity;
 import cn.finalteam.galleryfinal.model.PhotoInfo;
 
 /**
+ * 图片选择器
  * Created by zengpu on 2016/6/28.
  */
 public class GalleryFinalActivity extends AppCompatActivity {
@@ -74,8 +75,12 @@ public class GalleryFinalActivity extends AppCompatActivity {
                 isCrop = mCbCrop.isChecked();
                 isTakePhoto = mCbTakePhoto.isChecked();
 
+                String path = "/storage/emulated/0/DCIM/Camera/IMG_20160102_120534.jpg";
+
                 if (isTakePhoto)
                     GalleryFinalConfigUtil.openGalleryFinal_TakePhoto(GalleryFinalActivity.this, mPhotoList, isCrop, mOnHanlderResultCallback);
+                else if (isCrop && !isSingle && !isMuti)
+                    GalleryFinalConfigUtil.openGalleryFinal_Crop(GalleryFinalActivity.this, mPhotoList, path, mOnHanlderResultCallback);
                 else
                     GalleryFinalConfigUtil.openGalleryFinal(GalleryFinalActivity.this, mPhotoList, isSingle, isCrop, 9, mOnHanlderResultCallback);
 
@@ -109,7 +114,7 @@ public class GalleryFinalActivity extends AppCompatActivity {
                 mPhotoList.addAll(resultList);
                 for (int i = 0; i < mPhotoList.size(); i++) {
 //                    Log.d("GalleryFinalActivity", "getPhotoId " + i + "is: " + mPhotoList.get(i).getPhotoId());
-//                    Log.d("GalleryFinalActivity", "getPhotoPath " + i + "is: " + mPhotoList.get(i).getPhotoPath());
+                    Log.d("GalleryFinalActivity", "getPhotoPath " + i + "is: " + mPhotoList.get(i).getPhotoPath());
                 }
 
                 Log.d("GalleryFinalActivity", "mPhotoList size is: " + mPhotoList.size());

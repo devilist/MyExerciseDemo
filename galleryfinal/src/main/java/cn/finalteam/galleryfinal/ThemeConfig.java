@@ -74,6 +74,7 @@ public class ThemeConfig implements Serializable{
     private int titleBarTextColor;
     private int titleBarBgColor;
     private int titleBarIconColor;
+    private int bottomBarBgColor;
     private int checkNornalColor;
     private int checkSelectedColor;
     private int fabNornalColor;
@@ -97,6 +98,7 @@ public class ThemeConfig implements Serializable{
     private ThemeConfig(Builder builder) {
         this.titleBarTextColor = builder.titleBarTextColor;
         this.titleBarBgColor = builder.titleBarBgColor;
+        this.bottomBarBgColor = builder.bottomBarBgColor;
         this.titleBarIconColor = builder.titleBarIconColor;
         this.checkNornalColor = builder.checkNornalColor;
         this.checkSelectedColor = builder.checkSelectedColor;
@@ -120,6 +122,7 @@ public class ThemeConfig implements Serializable{
     public static class Builder {
         private int titleBarTextColor = Color.WHITE;
         private int titleBarBgColor = Color.rgb(0x3F, 0x51, 0xB5);
+        private int bottomBarBgColor = Color.rgb(0x3F, 0x51, 0xB5);
         private int titleBarIconColor = Color.WHITE;
         private int checkNornalColor = Color.rgb(0xd2, 0xd2, 0xd7);
         private int checkSelectedColor = Color.rgb(0x3F, 0x51, 0xB5);
@@ -143,6 +146,10 @@ public class ThemeConfig implements Serializable{
 
         public Builder setTitleBarTextColor(int titleBarTextColor) {
             this.titleBarTextColor = titleBarTextColor;
+            return this;
+        }
+        public Builder setBottomBarBgColor(int bottomBarBgColor) {
+            this.bottomBarBgColor = bottomBarBgColor;
             return this;
         }
 
@@ -248,6 +255,9 @@ public class ThemeConfig implements Serializable{
 
     public int getTitleBarTextColor() {
         return titleBarTextColor;
+    }
+    public int getBottomBarBgColor() {
+        return bottomBarBgColor;
     }
 
     public int getTitleBarBgColor() {

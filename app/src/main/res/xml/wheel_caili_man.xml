@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data>
+    <item id="0" label="5w以内"/>
+    <item id="1" label="5~10w"/>
+    <item id="2" label="10~20w"/>
+    <item id="3" label="20w以上"/>
+</data>

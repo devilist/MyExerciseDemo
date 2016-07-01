@@ -38,6 +38,7 @@
             android:layout_gravity="center_vertical"
             android:scaleType="centerInside"
             android:src="@drawable/ic_gf_back"
+            android:padding="7dp"
             />
 
         <TextView

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data unit="cm" unitA="cm" unitB="cm">
+    <item-a id="-1" label="请选择"/>
+    <range start="120" end="220"/>
+</data>

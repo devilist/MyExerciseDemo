@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data unitA="岁" unitB="岁">
+    <item-a id="-1" label="请选择"/>
+    <range start="18" end="100"/>
+</data>
