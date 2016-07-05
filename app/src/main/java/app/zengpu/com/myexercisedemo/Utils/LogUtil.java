@@ -7,7 +7,7 @@ import android.util.Log;
  * Created by tao on 2016/4/9.
  */
 public class LogUtil {
-    public static boolean isDebugMode = false;
+    public static boolean isDebugMode = true;
     public static final int VERBOSE = 1;
 
     public static final int DEBUG = 2;

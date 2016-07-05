@@ -23,7 +23,7 @@ public class RefreshAndLoadBaseActivity extends AppCompatActivity {
         refreshAndLoadLayout = new RefreshAndLoadLayoutBase(this);
 
         final List<String> datas = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             datas.add("item" + i);
         }
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,

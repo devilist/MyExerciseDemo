@@ -22,9 +22,9 @@ import app.zengpu.com.myexercisedemo.demolist.galleryfinaldemo.GalleryFinalActiv
 import app.zengpu.com.myexercisedemo.demolist.multi_drawer.MultiDrawerActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop0.PhotoLoopActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop1.ImageLoopActivity;
-import app.zengpu.com.myexercisedemo.demolist.pull_refresh_load_0.RefreshAndLoadActivity;
 import app.zengpu.com.myexercisedemo.demolist.pull_refresh_load_1.GeneralRefreshLoadActivity;
 import app.zengpu.com.myexercisedemo.demolist.pull_refresh_load_1.RefreshAndLoadBaseActivity;
+import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.PullToRefreshActivity;
 
 /**
  * Created by zengpu on 16/3/30.
@@ -92,7 +92,8 @@ public class MainActivity extends AppCompatActivity {
         demoList.add(new String[]{"自定义CustomAlertDialog", CustomAlertDialog.class.getName()});
         demoList.add(new String[]{"图片轮播:ViewPager+Handler", PhotoLoopActivity.class.getName()});
         demoList.add(new String[]{"图片轮播:ViewPager+定时任务", ImageLoopActivity.class.getName()});
-        demoList.add(new String[]{"下拉刷新，上拉加载", RefreshAndLoadActivity.class.getName()});
+
+        demoList.add(new String[]{"下拉刷新", PullToRefreshActivity.class.getName()});
         demoList.add(new String[]{"下拉刷新，上拉加载（自定义）", RefreshAndLoadBaseActivity.class.getName()});
         demoList.add(new String[]{"下拉刷新，上拉加载（通用）", GeneralRefreshLoadActivity.class.getName()});
         demoList.add(new String[]{"多层抽屉 ", MultiDrawerActivity.class.getName()});

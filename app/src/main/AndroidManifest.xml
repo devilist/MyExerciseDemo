@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="app.zengpu.com.myexercisedemo">
+<manifest package="app.zengpu.com.myexercisedemo"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--在SDCard中创建与删除文件权限-->
-    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
     <!--往SDCard写入数据权限-->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <!--从SDCard读取数据权限-->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true"
         android:largeHeap="true"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
@@ -35,29 +35,29 @@
             android:name=".demolist.photoloop1.ImageLoopActivity"
             android:label="图片轮播:ViewPager+定时任务">
         </activity>
-        <activity
-            android:name=".demolist.pull_refresh_load_0.RefreshAndLoadActivity"
-            android:label="下拉刷新/上拉加载">
-        </activity>
+
         <activity
             android:name=".demolist.pull_refresh_load_1.RefreshAndLoadBaseActivity"
             android:label="下拉刷新/上拉加载 自定义">
         </activity>
-        <activity android:name=".demolist.pull_refresh_load_1.GeneralRefreshLoadActivity"
+        <activity
+            android:name=".demolist.pull_refresh_load_1.GeneralRefreshLoadActivity"
             android:label="下拉刷新/上拉加载 通用">
 
         </activity>
         <activity
             android:name=".demolist.multi_drawer.MultiDrawerActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:label="多层抽屉">
+            android:label="多层抽屉"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
 
         <activity
             android:name=".demolist.galleryfinaldemo.GalleryFinalActivity"
             android:label="GarellyFinal图片选择器">
         </activity>
-
+        <activity
+            android:name=".demolist.pull_to_refresh.PullToRefreshActivity"
+            android:label="PullToRefresh"/>
     </application>
 
 </manifest>
