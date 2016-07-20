@@ -1,6 +1,7 @@
 package app.zengpu.com.myexercisedemo.demolist.pull_to_refresh;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -27,7 +28,7 @@ import app.zengpu.com.myexercisedemo.Utils.LogUtil;
  * setContentViewScrollListener();   为ListView / GridView / RecyclerView等 添加滚动监听
  * isTop();   是否滚动到了头部
  * isBottom();   是否滚动到了底部
- * <p>
+ * <p/>
  * Created by zengpu on 2016/4/22.
  */
 public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup implements
@@ -132,15 +133,24 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
     /**
      * header 中的文本标签
      */
-    private TextView mTipsTextView;
+    protected TextView mHeaderTipsTextView;
     /**
      * header中的时间标签
      */
-    private TextView mTimeTextView;
+    protected TextView mTimeTextView;
     /**
      * header中的进度条
      */
-    private ProgressBar mProgressBar;
+    protected ProgressBar mHeaderProgressBar;
+
+    /**
+     * footer 中的文本标签
+     */
+    protected TextView mFooterTipsTextView;
+    /**
+     * footer 中的进度条
+     */
+    protected ProgressBar mFooterProgressBar;
     /**
      * 屏幕高度
      */
@@ -164,8 +174,6 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
 
     protected Context context;
 
-    protected int color;
-
 
     public RefreshAndLoadViewBase(Context context) {
         this(context, null);
@@ -183,11 +191,10 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         // 获取屏幕高度
         mScreenHeight = context.getResources().getDisplayMetrics().heightPixels;
         // header 的高度为屏幕高度的 1/4
-        mHeaderHeight = mScreenHeight / 4;
-        mFooterHeight = mScreenHeight / 4;
+        mHeaderHeight = mScreenHeight / 5;
+        mFooterHeight = mScreenHeight / 5;
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
-//        setHeaderBackgroundColor();
         // 初始化整个布局
         initLayout(context);
     }
@@ -203,17 +210,23 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         mHeaderView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, mHeaderHeight));
         mHeaderView.setPadding(0, mHeaderHeight / 2, 0, 0);
         addView(mHeaderView);
+
         // HEADER VIEWS
         mArrowImageView = (ImageView) mHeaderView.findViewById(R.id.pull_to_arrow_image);
-        mTipsTextView = (TextView) mHeaderView.findViewById(R.id.pull_to_refresh_text);
+        mHeaderTipsTextView = (TextView) mHeaderView.findViewById(R.id.pull_to_refresh_text);
         mTimeTextView = (TextView) mHeaderView.findViewById(R.id.pull_to_refresh_updated_at);
-        mProgressBar = (ProgressBar) mHeaderView.findViewById(R.id.pull_to_refresh_progress);
+        mHeaderProgressBar = (ProgressBar) mHeaderView.findViewById(R.id.pull_to_refresh_progress);
+
         /* 初始化footerView，添加到布局里,mFooterView = getChildAt(1); */
         mFooterView = LayoutInflater.from(context).inflate(R.layout.pull_to_refresh_footer, this, false);
         mFooterView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, mFooterHeight));
         mFooterView.setPadding(0, 0, 0, mFooterHeight / 2);
-        mFooterView.setVisibility(VISIBLE);
         addView(mFooterView);
+
+        mFooterProgressBar = (ProgressBar) mFooterView.findViewById(R.id.pull_to_loading_progress);
+        mFooterTipsTextView = (TextView) mFooterView.findViewById(R.id.pull_to_loading_text);
+
+        configHeaderAndFooter();
     }
 
     /**
@@ -305,7 +318,7 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
 
     /**
      * 在适当的时候拦截触摸事件，两种情况：
-     * <p>
+     * <p/>
      * 1.当mContentView滑动到顶部，并且是下拉时拦截触摸事件，
      * 2.当mContentView滑动到底部，并且是上拉时拦截触摸事件，
      * 其它情况不拦截，交给其childview 来处理。
@@ -332,10 +345,6 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
                 mLastY = (int) ev.getRawY();
                 break;
             case MotionEvent.ACTION_MOVE:
-                LogUtil.d("RefreshAndLoadViewBase", "ACTION_MOVE getScrollY is: " + getScrollY());
-//                LogUtil.d("RefreshAndLoadViewBase", "ACTION_MOVE header height is: " + mHeaderView.getMeasuredHeight());
-//                LogUtil.d("RefreshAndLoadViewBase", "ACTION_MOVE list height is: " + mContentView.getHeight());
-//                LogUtil.d("RefreshAndLoadViewBase", "ACTION_MOVE mScreen height is: " + mScreenHeight);
                 // int yDistance = (int) ev.getRawY() - mYDown;
                 mYOffset = (int) ev.getRawY() - mLastY;
                 // 如果拉到了顶部, 并且是下拉,则拦截触摸事件,从而转到onTouchEvent来处理下拉刷新事件
@@ -367,15 +376,20 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         LogUtil.d(VIEW_LOG_TAG, "@@@ onTouchEvent : action = " + event.getAction());
         switch (event.getAction()) {
             case MotionEvent.ACTION_MOVE:
+
                 int currentY = (int) event.getRawY();
                 mYOffset = currentY - mLastY;
 
-                changeScrollY(mYOffset);
+                //当处于刷新状态时，不能继续下拉或上拉
+                if (mCurrentStatus == STATUS_REFRESHING && mYOffset > 0)
+                    break;
 
-                if (isScrollToTop && mCurrentStatus != STATUS_LOADING) {
-                    changeTips();
-                    rotateHeaderArrow();
-                }
+                if (mCurrentStatus == STATUS_LOADING && mYOffset < 0)
+                    break;
+
+                changeScrollY(mYOffset);
+                changeTips();
+                rotateHeaderArrow();
 
                 mLastY = currentY;
 
@@ -386,6 +400,7 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
                     doRefresh();
                 if (isScrollToBottom && mCurrentStatus != STATUS_REFRESHING)
                     doLoadMore();
+
                 break;
             default:
                 break;
@@ -446,8 +461,6 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
                 mCurrentStatus = STATUS_RELEASE_TO_LOAD;
             }
         }
-
-
     }
 
     /**
@@ -456,47 +469,61 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
      */
     protected void rotateHeaderArrow() {
 
-        if (mCurrentStatus == STATUS_REFRESHING) {
-            return;
-        } else if (mCurrentStatus == STATUS_PULL_TO_REFRESH && !isArrowUp) {
-            return;
-        } else if (mCurrentStatus == STATUS_RELEASE_TO_REFRESH && isArrowUp) {
-            return;
-        }
-        mProgressBar.setVisibility(View.GONE);
-        mArrowImageView.setVisibility(View.VISIBLE);
-        float pivotX = mArrowImageView.getWidth() / 2f;
-        float pivotY = mArrowImageView.getHeight() / 2f;
-        float fromDegrees = 0f;
-        float toDegrees = 0f;
-        if (mCurrentStatus == STATUS_PULL_TO_REFRESH) {
-            fromDegrees = 180f;
-            toDegrees = 360f;
-        } else if (mCurrentStatus == STATUS_RELEASE_TO_REFRESH) {
-            fromDegrees = 0f;
-            toDegrees = 180f;
+        if (isScrollToTop) {
+
+            if (mCurrentStatus == STATUS_REFRESHING) {
+                return;
+            } else if (mCurrentStatus == STATUS_PULL_TO_REFRESH && !isArrowUp) {
+                return;
+            } else if (mCurrentStatus == STATUS_RELEASE_TO_REFRESH && isArrowUp) {
+                return;
+            }
+            mHeaderProgressBar.setVisibility(View.GONE);
+            mArrowImageView.setVisibility(View.VISIBLE);
+            float pivotX = mArrowImageView.getWidth() / 2f;
+            float pivotY = mArrowImageView.getHeight() / 2f;
+            float fromDegrees = 0f;
+            float toDegrees = 0f;
+            if (mCurrentStatus == STATUS_PULL_TO_REFRESH) {
+                fromDegrees = 180f;
+                toDegrees = 360f;
+            } else if (mCurrentStatus == STATUS_RELEASE_TO_REFRESH) {
+                fromDegrees = 0f;
+                toDegrees = 180f;
+            }
+
+            RotateAnimation animation = new RotateAnimation(fromDegrees, toDegrees, pivotX, pivotY);
+            animation.setDuration(100);
+            animation.setFillAfter(true);
+            mArrowImageView.startAnimation(animation);
+
+            if (mCurrentStatus == STATUS_RELEASE_TO_REFRESH) {
+                isArrowUp = true;
+            } else {
+                isArrowUp = false;
+            }
         }
 
-        RotateAnimation animation = new RotateAnimation(fromDegrees, toDegrees, pivotX, pivotY);
-        animation.setDuration(100);
-        animation.setFillAfter(true);
-        mArrowImageView.startAnimation(animation);
-
-        if (mCurrentStatus == STATUS_RELEASE_TO_REFRESH) {
-            isArrowUp = true;
-        } else {
-            isArrowUp = false;
-        }
     }
 
     /**
-     * 下拉刷新根据当前状态修改header view中的文本标签
+     * 下拉刷新或上拉加载
+     * 根据当前状态修改header view中的文本标签
      */
     protected void changeTips() {
-        if (mCurrentStatus == STATUS_PULL_TO_REFRESH) {
-            mTipsTextView.setText("下拉刷新");
-        } else if (mCurrentStatus == STATUS_RELEASE_TO_REFRESH) {
-            mTipsTextView.setText("松开可刷新");
+        if (isScrollToTop) {
+            if (mCurrentStatus == STATUS_PULL_TO_REFRESH) {
+                mHeaderTipsTextView.setText("下拉刷新");
+            } else if (mCurrentStatus == STATUS_RELEASE_TO_REFRESH) {
+                mHeaderTipsTextView.setText("松开可刷新");
+            }
+        }
+        if (isScrollToBottom) {
+            if (mCurrentStatus == STATUS_PULL_TO_LOAD) {
+                mFooterTipsTextView.setText("加载更多...");
+            } else if (mCurrentStatus == STATUS_RELEASE_TO_LOAD) {
+                mFooterTipsTextView.setText("松开可刷新");
+            }
         }
     }
 
@@ -508,14 +535,14 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
     private void changeHeaderViewStaus() {
         int curScrollY = getScrollY();
         // 超过1/2则认为是有效的下拉刷新, 否则还原
-        if (curScrollY < mInitScrollY / 2) {
+        if (curScrollY <= mInitScrollY / 2) {
             mScroller.startScroll(getScrollX(), curScrollY, 0, mHeaderView.getPaddingTop()
                     - curScrollY);
             mCurrentStatus = STATUS_REFRESHING;
-            mTipsTextView.setText("加载中...");
+            mHeaderTipsTextView.setText("加载中...");
             mArrowImageView.clearAnimation();
             mArrowImageView.setVisibility(View.GONE);
-            mProgressBar.setVisibility(View.VISIBLE);
+            mHeaderProgressBar.setVisibility(View.VISIBLE);
         } else {
             mScroller.startScroll(getScrollX(), curScrollY, 0, mInitScrollY - curScrollY);
             mCurrentStatus = STATUS_IDLE;
@@ -535,6 +562,8 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
             mScroller.startScroll(getScrollX(), curScrollY, 0, mHeaderHeight + mFooterView.getPaddingBottom()
                     - curScrollY);
             mCurrentStatus = STATUS_LOADING;
+            mFooterTipsTextView.setText("加载更多...");
+            mFooterProgressBar.setVisibility(View.VISIBLE);
 
         } else {
             mScroller.startScroll(getScrollX(), curScrollY, 0, mHeaderHeight - curScrollY);
@@ -548,17 +577,16 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
      */
     public void refreshComplete() {
         mScroller.startScroll(getScrollX(), getScrollY(), 0, mInitScrollY - getScrollY());
-//        hiddenFooterView();
         mCurrentStatus = STATUS_IDLE;
         invalidate();
-        updateHeaderTimeStamp();
+//        updateHeaderTimeStamp();
         // 200毫秒后处理arrow和progressbar,免得太突兀
-        this.postDelayed(new Runnable() {
+        postDelayed(new Runnable() {
 
             @Override
             public void run() {
                 mArrowImageView.setVisibility(View.VISIBLE);
-                mProgressBar.setVisibility(View.GONE);
+                mHeaderProgressBar.setVisibility(View.GONE);
             }
         }, 100);
     }
@@ -571,17 +599,15 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         mScroller.startScroll(getScrollX(), getScrollY(), 0, mInitScrollY - getScrollY());
         invalidate();
         mCurrentStatus = STATUS_IDLE;
-    }
+        // 200毫秒后处理arrow和progressbar,免得太突兀
+        postDelayed(new Runnable() {
 
-    /**
-     * 显示footer view
-     */
-    protected void showFooterView() {
-        mScroller.startScroll(getScrollX(), getScrollY(), 0, mFooterView.getMeasuredHeight());
-        invalidate();
-        mCurrentStatus = STATUS_LOADING;
+            @Override
+            public void run() {
+                mFooterProgressBar.setVisibility(View.GONE);
+            }
+        }, 100);
     }
-
 
     /**
      * 执行下拉刷新
@@ -615,43 +641,47 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         mTimeTextView.append(sdf.format(new Date()));
     }
 
+
+    /**
+     * 手动设置刷新
+     */
+    public void refreshing() {
+
+        scrollTo(0, mInitScrollY/2);
+        mCurrentStatus = STATUS_REFRESHING;
+        mHeaderTipsTextView.setText("加载中...");
+        mArrowImageView.clearAnimation();
+        mArrowImageView.setVisibility(View.GONE);
+        mHeaderProgressBar.setVisibility(View.VISIBLE);
+
+        doRefresh();
+
+    }
+
+
+    /**
+     * 配置头和尾
+     */
+    protected void configHeaderAndFooter() {
+        mHeaderView.setBackgroundColor(Color.YELLOW);
+        mHeaderTipsTextView.setTextColor(Color.BLACK);
+        mHeaderTipsTextView.setTextSize(16);
+
+        mFooterView.setBackgroundColor(Color.YELLOW);
+        mFooterTipsTextView.setTextColor(Color.BLACK);
+        mFooterTipsTextView.setTextSize(16);
+
+    }
+
+
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
 
     }
 
-    /**
-     * 滚动监听，当滚动到最底部，且用户设置了加载更多的监听器时触发加载更多操作.
-     *
-     * @param view
-     * @param firstVisibleItem
-     * @param visibleItemCount
-     * @param totalItemCount
-     */
     @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
-                         int totalItemCount) {
-        // 用户设置了加载更多监听器，且到了最底部，并且是上拉操作，那么执行加载更多.
-        if (mLoadListener != null && isBottom() && mYOffset < -mTouchSlop
-                && mCurrentStatus == STATUS_IDLE) {
-//            showFooterView();
-//            doLoadMore();
-        }
-    }
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
-
-    /**
-     * @return
-     */
-    public View getHeaderView() {
-        return mHeaderView;
-    }
-
-    /**
-     * @return
-     */
-    public View getFooterView() {
-        return mFooterView;
     }
 
     /**

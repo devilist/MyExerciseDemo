@@ -4,17 +4,18 @@
     android:layout_height="wrap_content"
     android:background="#444444"
     android:gravity="center"
-    android:padding="8dp" >
+    android:padding="8dp">
 
     <ProgressBar
         android:id="@+id/pull_to_loading_progress"
         style="@android:style/Widget.ProgressBar.Small.Inverse"
         android:layout_width="wrap_content"
         android:layout_height="30dp"
-        android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:indeterminate="true"
         android:paddingRight="100dp"
-        android:indeterminate="true" />
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/pull_to_loading_text"
@@ -22,7 +23,7 @@
         android:layout_height="30dp"
         android:layout_centerInParent="true"
         android:gravity="center"
-        android:text="加载更多"
+        android:text="加载更多..."
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@android:color/darker_gray"
         android:textSize="16sp" />

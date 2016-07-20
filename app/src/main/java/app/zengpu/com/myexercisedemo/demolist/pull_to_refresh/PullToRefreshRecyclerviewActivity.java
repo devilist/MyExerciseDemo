@@ -20,11 +20,13 @@ import app.zengpu.com.myexercisedemo.R;
 /**
  * Created by zengpu on 2016/7/20.
  */
-public class PullToRefreshRecyclerviewActivity extends AppCompatActivity {
+public class PullToRefreshRecyclerviewActivity extends AppCompatActivity implements
+        RefreshAndLoadViewBase.OnRefreshListener,RefreshAndLoadViewBase.OnLoadListener{
 
     private RefreshAndLoadRecyclerView refreshAndLoadRecyclerView;
     private RecyclerView recyclerView;
     private RecyclerViewAdapter mAdapter;
+    private List<String> datas = new ArrayList<>();
 
 
     @Override
@@ -32,19 +34,21 @@ public class PullToRefreshRecyclerviewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pull_to_refresh_recyclerview);
 
+
         refreshAndLoadRecyclerView = (RefreshAndLoadRecyclerView) findViewById(R.id.rllv_list);
+        refreshAndLoadRecyclerView.setOnRefreshListener(this);
+        refreshAndLoadRecyclerView.setOnLoadListener(this);
+
 
         recyclerView = (RecyclerView) findViewById(R.id.lv_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        final List<String> datas = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
             datas.add("item" + i);
         }
 
         mAdapter = new RecyclerViewAdapter(this, datas);
         recyclerView.setAdapter(mAdapter);
-
         mAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -53,39 +57,39 @@ public class PullToRefreshRecyclerviewActivity extends AppCompatActivity {
         });
 
 
-        refreshAndLoadRecyclerView.setOnRefreshListener(new RefreshAndLoadViewBase.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshAndLoadRecyclerView.postDelayed(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        // 更新数据
-                        datas.add(new Date().toGMTString());
-                        mAdapter.notifyDataSetChanged();
-                        // 更新完后调用该方法结束刷新
-                        refreshAndLoadRecyclerView.refreshComplete();
-                    }
-                }, 1500);
-            }
-        });
-
-        refreshAndLoadRecyclerView.setOnLoadListener(new RefreshAndLoadViewBase.OnLoadListener() {
-            @Override
-            public void onLoad() {
-                refreshAndLoadRecyclerView.postDelayed(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        datas.add(new Date().toGMTString());
-                        mAdapter.notifyDataSetChanged();
-                        refreshAndLoadRecyclerView.loadCompelte();
-                    }
-                }, 2000);
-            }
-        });
+        //第一次进入刷新
+        refreshAndLoadRecyclerView.refreshing();
 
     }
+
+    @Override
+    public void onRefresh() {
+        refreshAndLoadRecyclerView.postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                // 更新数据
+                datas.add(new Date().toGMTString());
+                mAdapter.notifyDataSetChanged();
+                // 更新完后调用该方法结束刷新
+                refreshAndLoadRecyclerView.refreshComplete();
+            }
+        }, 1500);
+    }
+
+    @Override
+    public void onLoad() {
+        refreshAndLoadRecyclerView.postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                datas.add(new Date().toGMTString());
+                mAdapter.notifyDataSetChanged();
+                refreshAndLoadRecyclerView.loadCompelte();
+            }
+        }, 2000);
+    }
+
 
 
     public static class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

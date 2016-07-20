@@ -1,6 +1,7 @@
 package app.zengpu.com.myexercisedemo.demolist.pull_to_refresh;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -10,6 +11,7 @@ import android.util.AttributeSet;
  * Created by tao on 2016/4/22.
  */
 public class RefreshAndLoadRecyclerView extends RefreshAndLoadViewBase<RecyclerView> {
+
 
     public RefreshAndLoadRecyclerView(Context context) {
         super(context);
@@ -23,18 +25,13 @@ public class RefreshAndLoadRecyclerView extends RefreshAndLoadViewBase<RecyclerV
         super(context, attrs, defStyle);
     }
 
+
     @Override
     protected void setContentViewScrollListener() {
         mContentView= (RecyclerView) getChildAt(2);
         mContentView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                // 用户设置了加载更多监听器，且到了最底部，并且是上拉操作，那么执行加载更多.
-                if (mLoadListener != null && isBottom() && mYOffset < -mTouchSlop
-                        && mCurrentStatus == STATUS_IDLE) {
-//                    showFooterView();
-//                    doLoadMore();
-                }
             }
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -57,4 +54,86 @@ public class RefreshAndLoadRecyclerView extends RefreshAndLoadViewBase<RecyclerV
                 && lm.findLastCompletelyVisibleItemPosition() ==
                 mContentView.getAdapter().getItemCount() - 1;
     }
+
+    /**
+     * 配置头和尾
+     */
+    @Override
+    protected void configHeaderAndFooter() {
+        mHeaderView.setBackgroundColor(Color.DKGRAY);
+        mHeaderTipsTextView.setTextColor(Color.WHITE);
+        mHeaderTipsTextView.setTextSize(16);
+
+        mFooterView.setBackgroundColor(Color.GRAY);
+        mFooterTipsTextView.setTextColor(Color.WHITE);
+        mFooterTipsTextView.setTextSize(16);
+    }
+
+
+//    /**
+//     * 配置header和footer
+//     */
+//    static class Builder {
+//
+//        private int headerBgColor;
+//        private String headerTipText;
+//        private int headerTipTextColor;
+//        private int headerTipTextSize;
+//        private int headerProgressHeight;
+//
+//        private int footerBgColor;
+//        private String footerTipText;
+//        private int footerTipTextColor;
+//        private int footerTipTextSize;
+//        private int footerProgressHeight;
+//
+//        public Builder headerBgColor(int headerBgColor) {
+//            this.headerBgColor = headerBgColor;
+//            return this;
+//        }
+//        public Builder headerTipText(String headerTipText) {
+//            this.headerTipText = headerTipText;
+//            return this;
+//        }
+//        public Builder headerTipTextColor(int headerTipTextColor) {
+//            this.headerTipTextColor = headerTipTextColor;
+//            return this;
+//        }
+//        public Builder headerTipTextSize(int headerTipTextSize) {
+//            this.headerTipTextSize = headerTipTextSize;
+//            return this;
+//        }
+//        public Builder headerProgressHeight(int headerProgressHeight) {
+//            this.headerProgressHeight = headerProgressHeight;
+//            return this;
+//        }
+//
+//        public Builder footerBgColor(int footerBgColor) {
+//            this.footerBgColor = footerBgColor;
+//            return this;
+//        }
+//        public Builder footerTipText(String footerTipText) {
+//            this.footerTipText = footerTipText;
+//            return this;
+//        }
+//        public Builder footerTipTextColor(int footerTipTextColor) {
+//            this.footerTipTextColor = footerTipTextColor;
+//            return this;
+//        }
+//        public Builder footerTipTextSize(int footerTipTextSize) {
+//            this.footerTipTextSize = footerTipTextSize;
+//            return this;
+//        }
+//        public Builder footerProgressHeight(int footerProgressHeight) {
+//            this.footerProgressHeight = footerProgressHeight;
+//            return this;
+//        }
+//
+//        public RefreshAndLoadRecyclerView create(Context context) {
+//
+//            return new RefreshAndLoadRecyclerView(context);
+//
+//        }
+//
+//    }
 }
