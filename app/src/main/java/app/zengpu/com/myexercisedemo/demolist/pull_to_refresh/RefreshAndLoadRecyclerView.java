@@ -32,8 +32,8 @@ public class RefreshAndLoadRecyclerView extends RefreshAndLoadViewBase<RecyclerV
                 // 用户设置了加载更多监听器，且到了最底部，并且是上拉操作，那么执行加载更多.
                 if (mLoadListener != null && isBottom() && mYOffset < -mTouchSlop
                         && mCurrentStatus == STATUS_IDLE) {
-                    showFooterView();
-                    doLoadMore();
+//                    showFooterView();
+//                    doLoadMore();
                 }
             }
             @Override

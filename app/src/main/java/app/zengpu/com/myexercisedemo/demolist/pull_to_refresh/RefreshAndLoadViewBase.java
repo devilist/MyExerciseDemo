@@ -27,7 +27,7 @@ import app.zengpu.com.myexercisedemo.Utils.LogUtil;
  * setContentViewScrollListener();   为ListView / GridView / RecyclerView等 添加滚动监听
  * isTop();   是否滚动到了头部
  * isBottom();   是否滚动到了底部
- * <p/>
+ * <p>
  * Created by zengpu on 2016/4/22.
  */
 public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup implements
@@ -78,12 +78,12 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
     public static final int STATUS_IDLE = 0;
 
     /**
-     * 下拉或者上拉状态, 还没有到达可刷新的状态
+     * 下拉状态, 还没有到达可刷新的状态
      */
     public static final int STATUS_PULL_TO_REFRESH = 1;
 
     /**
-     * 下拉或者上拉状态，达到可刷新状态
+     * 下拉状态，达到可刷新状态
      */
     public static final int STATUS_RELEASE_TO_REFRESH = 2;
     /**
@@ -92,14 +92,34 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
     public static final int STATUS_REFRESHING = 3;
 
     /**
+     * 上拉状态, 还没有到达可加载更多的状态
+     */
+    public static final int STATUS_PULL_TO_LOAD = 4;
+
+    /**
+     * 上拉状态，达到可加载更多状态
+     */
+    public static final int STATUS_RELEASE_TO_LOAD = 5;
+
+    /**
      * 加载更多中
      */
-    public static final int STATUS_LOADING = 4;
+    public static final int STATUS_LOADING = 6;
 
     /**
      * 当前状态
      */
     protected int mCurrentStatus = STATUS_IDLE;
+
+    /**
+     * 是否滚到了底部。滚到底部后执行上拉加载
+     */
+    protected boolean isScrollToBottom = false;
+    /**
+     * 是否滚到了顶部。滚到底部后执行下拉刷新
+     */
+    protected boolean isScrollToTop = false;
+
 
     /**
      * header中的箭头图标
@@ -164,7 +184,7 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         mScreenHeight = context.getResources().getDisplayMetrics().heightPixels;
         // header 的高度为屏幕高度的 1/4
         mHeaderHeight = mScreenHeight / 4;
-        mFooterHeight = mScreenHeight / 12;
+        mFooterHeight = mScreenHeight / 4;
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
 //        setHeaderBackgroundColor();
@@ -191,7 +211,8 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         /* 初始化footerView，添加到布局里,mFooterView = getChildAt(1); */
         mFooterView = LayoutInflater.from(context).inflate(R.layout.pull_to_refresh_footer, this, false);
         mFooterView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, mFooterHeight));
-        mFooterView.setVisibility(GONE);
+        mFooterView.setPadding(0, 0, 0, mFooterHeight / 2);
+        mFooterView.setVisibility(VISIBLE);
         addView(mFooterView);
     }
 
@@ -252,14 +273,6 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         scrollTo(0, mInitScrollY);
     }
 
-    public void setHeaderBackgroundColor(int color) {
-        mHeaderView.setBackgroundColor(color);
-    }
-
-    public void setFooterBackgroundColor(int color) {
-        mFooterView.setBackgroundColor(color);
-    }
-
     /**
      * 是否已经到了最顶部,子类需覆写该方法,使得mContentView滑动到最顶端时返回true,
      * 如果到达最顶端用户继续下拉则拦截事件;
@@ -291,8 +304,11 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
     }
 
     /**
-     * 在适当的时候拦截触摸事件，这里指的适当的时候是当mContentView滑动到顶部，
-     * 并且是下拉时拦截触摸事件，否则不拦截，交给其childview 来处理。
+     * 在适当的时候拦截触摸事件，两种情况：
+     * <p>
+     * 1.当mContentView滑动到顶部，并且是下拉时拦截触摸事件，
+     * 2.当mContentView滑动到底部，并且是上拉时拦截触摸事件，
+     * 其它情况不拦截，交给其childview 来处理。
      *
      * @param ev
      * @return
@@ -316,10 +332,22 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
                 mLastY = (int) ev.getRawY();
                 break;
             case MotionEvent.ACTION_MOVE:
+                LogUtil.d("RefreshAndLoadViewBase", "ACTION_MOVE getScrollY is: " + getScrollY());
+//                LogUtil.d("RefreshAndLoadViewBase", "ACTION_MOVE header height is: " + mHeaderView.getMeasuredHeight());
+//                LogUtil.d("RefreshAndLoadViewBase", "ACTION_MOVE list height is: " + mContentView.getHeight());
+//                LogUtil.d("RefreshAndLoadViewBase", "ACTION_MOVE mScreen height is: " + mScreenHeight);
                 // int yDistance = (int) ev.getRawY() - mYDown;
                 mYOffset = (int) ev.getRawY() - mLastY;
                 // 如果拉到了顶部, 并且是下拉,则拦截触摸事件,从而转到onTouchEvent来处理下拉刷新事件
                 if (isTop() && mYOffset > 0) {
+                    isScrollToTop = true;
+                    isScrollToBottom = false;
+                    return true;
+                }
+                // 如果拉到了底部, 并且是下上拉,则拦截触摸事件,从而转到onTouchEvent来处理下拉刷新事件
+                if (isBottom() && mYOffset < 0) {
+                    isScrollToTop = false;
+                    isScrollToBottom = true;
                     return true;
                 }
                 break;
@@ -341,16 +369,23 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
             case MotionEvent.ACTION_MOVE:
                 int currentY = (int) event.getRawY();
                 mYOffset = currentY - mLastY;
-                if (mCurrentStatus != STATUS_LOADING) {
-                    changeScrollY(mYOffset);
+
+                changeScrollY(mYOffset);
+
+                if (isScrollToTop && mCurrentStatus != STATUS_LOADING) {
+                    changeTips();
+                    rotateHeaderArrow();
                 }
-                rotateHeaderArrow();
-                changeTips();
+
                 mLastY = currentY;
+
                 break;
             case MotionEvent.ACTION_UP:
-                // 下拉刷新的具体操作
-                doRefresh();
+                //
+                if (isScrollToTop && mCurrentStatus != STATUS_LOADING)
+                    doRefresh();
+                if (isScrollToBottom && mCurrentStatus != STATUS_REFRESHING)
+                    doLoadMore();
                 break;
             default:
                 break;
@@ -359,34 +394,65 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
     }
 
     /**
+     * 根据下拉刷新或上拉加载的距离改变header或footer状态
+     *
      * @param distance
      * @return
      */
     protected void changeScrollY(int distance) {
         // 最大值为 scrollY(header 隐藏), 最小值为0 ( header 完全显示).
         //curY是当前Y的偏移量，在下拉过程中curY从最大值mInitScrollY逐渐变为0.
-        int curY = getScrollY();
-        LogUtil.d("RefreshAndLoadViewBase", "getScrollY is: " + curY);
-        LogUtil.d("RefreshAndLoadViewBase", "distance is: " + distance);
-        // 下拉
-        if (distance > 0 && curY - distance > getPaddingTop()) {
-            scrollBy(0, -distance);
-        } else if (distance < 0 && curY - distance <= mInitScrollY) {
-            // 上拉过程
-            scrollBy(0, -distance);
+
+        // 下拉刷新过程
+        if (isScrollToTop && mCurrentStatus != STATUS_LOADING) {
+            int curY = getScrollY();
+            LogUtil.d("RefreshAndLoadViewBase", "下拉刷新 curY is: " + curY);
+            LogUtil.d("RefreshAndLoadViewBase", "下拉刷新 distance is: " + distance);
+            // 下拉过程边界处理
+            if (distance > 0 && curY - distance > getPaddingTop()) {
+                scrollBy(0, -distance);
+            } else if (distance < 0 && curY - distance <= mInitScrollY) {
+                // 上拉过程边界处理
+                scrollBy(0, -distance);
+            }
+            curY = getScrollY();
+            int slop = mInitScrollY / 2;
+            // curY是当前Y的偏移量，在下拉过程中curY从最大值mInitScrollY逐渐变为0.
+            if (curY > 0 && curY < slop) {
+                mCurrentStatus = STATUS_RELEASE_TO_REFRESH;
+            } else if (curY > 0 && curY > slop) {
+                mCurrentStatus = STATUS_PULL_TO_REFRESH;
+            }
         }
-        curY = getScrollY();
-        int slop = mInitScrollY / 2;
-        // curY是当前Y的偏移量，在下拉过程中curY从最大值mInitScrollY逐渐变为0.
-        if (curY > 0 && curY < slop) {
-            mCurrentStatus = STATUS_RELEASE_TO_REFRESH;
-        } else if (curY > 0 && curY > slop) {
-            mCurrentStatus = STATUS_PULL_TO_REFRESH;
+
+        // 上拉加载过程
+        if (isScrollToBottom && mCurrentStatus != STATUS_REFRESHING) {
+            int curY = getScrollY() - mHeaderHeight;
+            LogUtil.d("RefreshAndLoadViewBase", "上拉加载 curY is: " + curY);
+            LogUtil.d("RefreshAndLoadViewBase", "上拉加载 distance is: " + distance);
+            // 下拉过程边界处理
+            if (distance > 0 && curY - distance > 0) {
+                scrollBy(0, -distance);
+            } else if (distance < 0 && curY - distance <= mFooterHeight) {
+                // 上拉过程边界处理
+                scrollBy(0, -distance);
+            }
+            curY = getScrollY() - mHeaderHeight;
+            int slop = mInitScrollY / 2;
+
+            if (curY > 0 && curY < slop) {
+                mCurrentStatus = STATUS_PULL_TO_LOAD;
+            } else if (curY > 0 && curY > slop) {
+                mCurrentStatus = STATUS_RELEASE_TO_LOAD;
+            }
         }
+
+
     }
 
     /**
-     * 旋转箭头图标
+     * 下拉刷新
+     * 改变旋转箭头图标
      */
     protected void rotateHeaderArrow() {
 
@@ -424,7 +490,7 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
     }
 
     /**
-     * 根据当前状态修改header view中的文本标签
+     * 下拉刷新根据当前状态修改header view中的文本标签
      */
     protected void changeTips() {
         if (mCurrentStatus == STATUS_PULL_TO_REFRESH) {
@@ -435,6 +501,7 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
     }
 
     /**
+     * 下拉刷新
      * 手指抬起时,根据用户下拉的高度来判断是否是有效的下拉刷新操作。如果下拉的距离超过header view的
      * 1/2那么则认为是有效的下拉刷新操作，否则恢复原来的视图状态.
      */
@@ -451,6 +518,26 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
             mProgressBar.setVisibility(View.VISIBLE);
         } else {
             mScroller.startScroll(getScrollX(), curScrollY, 0, mInitScrollY - curScrollY);
+            mCurrentStatus = STATUS_IDLE;
+        }
+        invalidate();
+    }
+
+    /**
+     * 上拉加载
+     * 手指抬起时,根据用户上拉的高度来判断是否是有效的下拉刷新操作。如果上拉的距离超过footer view的
+     * 1/2那么则认为是有效的上拉加载操作，否则恢复原来的视图状态.
+     */
+    private void changeFooterViewStatus() {
+        int curScrollY = getScrollY();
+        // 超过1/2则认为是有效的下拉刷新, 否则还原
+        if (curScrollY > mFooterHeight / 2) {
+            mScroller.startScroll(getScrollX(), curScrollY, 0, mHeaderHeight + mFooterView.getPaddingBottom()
+                    - curScrollY);
+            mCurrentStatus = STATUS_LOADING;
+
+        } else {
+            mScroller.startScroll(getScrollX(), curScrollY, 0, mHeaderHeight - curScrollY);
             mCurrentStatus = STATUS_IDLE;
         }
         invalidate();
@@ -495,18 +582,6 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         mCurrentStatus = STATUS_LOADING;
     }
 
-    /**
-     * 当ListView高度小于父容器高度时，隐藏footerview
-     */
-    private void hiddenFooterView() {
-        mFooterView.setVisibility(VISIBLE);
-        int childHeight = mContentView.getMeasuredHeight();
-        View parent = (View) getParent();
-        int height = parent.getMeasuredHeight();
-        if (childHeight - height < 0) {
-            mFooterView.setVisibility(GONE);
-        }
-    }
 
     /**
      * 执行下拉刷新
@@ -516,6 +591,16 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         // 执行刷新操作
         if (mCurrentStatus == STATUS_REFRESHING && mOnRefreshListener != null) {
             mOnRefreshListener.onRefresh();
+        }
+    }
+
+    /**
+     * 执行下拉(自动)加载更多的操作
+     */
+    protected void doLoadMore() {
+        changeFooterViewStatus();
+        if (mCurrentStatus == STATUS_LOADING && mLoadListener != null) {
+            mLoadListener.onLoad();
         }
     }
 
@@ -549,19 +634,11 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         // 用户设置了加载更多监听器，且到了最底部，并且是上拉操作，那么执行加载更多.
         if (mLoadListener != null && isBottom() && mYOffset < -mTouchSlop
                 && mCurrentStatus == STATUS_IDLE) {
-            showFooterView();
-            doLoadMore();
+//            showFooterView();
+//            doLoadMore();
         }
     }
 
-    /**
-     * 执行下拉(自动)加载更多的操作
-     */
-    protected void doLoadMore() {
-        if (mLoadListener != null) {
-            mLoadListener.onLoad();
-        }
-    }
 
     /**
      * @return
@@ -584,19 +661,6 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
      */
     public void setOnRefreshListener(OnRefreshListener listener) {
         mOnRefreshListener = listener;
-    }
-
-    public void setRefresh() {
-        int curScrollY = mInitScrollY / 2 - 2;
-        mScroller.startScroll(getScrollX(), curScrollY, 0, mHeaderView.getPaddingTop()
-                - curScrollY);
-        mCurrentStatus = STATUS_REFRESHING;
-        mTipsTextView.setText("加载中...");
-        mArrowImageView.clearAnimation();
-        mArrowImageView.setVisibility(View.GONE);
-        mProgressBar.setVisibility(View.VISIBLE);
-        invalidate();
-        mOnRefreshListener.onRefresh();
     }
 
     /**

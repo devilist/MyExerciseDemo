@@ -58,6 +58,9 @@
         <activity
             android:name=".demolist.pull_to_refresh.PullToRefreshActivity"
             android:label="PullToRefresh"/>
+        <activity
+            android:name=".demolist.pull_to_refresh.PullToRefreshRecyclerviewActivity"
+            android:label="PullToRefresh"/>
     </application>
 
 </manifest>

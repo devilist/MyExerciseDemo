@@ -30,7 +30,7 @@ public class PullToRefreshActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.lv_list);
 
         final List<String> datas = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 10; i++) {
             datas.add("item" + i);
         }
 

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#cc000000"
+                android:orientation="vertical">
+
+    <app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.RefreshAndLoadRecyclerView
+        android:id="@+id/rllv_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/lv_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </android.support.v7.widget.RecyclerView>
+
+    </app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.RefreshAndLoadRecyclerView>
+
+</RelativeLayout>
