@@ -27,12 +27,12 @@ public class TextViewActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_pull_to_refresh_textview);
 
         refreshAndLoadTextView = (RefreshAndLoadTextView) findViewById(R.id.rllv_list);
-        textView = (TextView) findViewById(R.id.tv_list);
-
-        textView.setText(text);
         refreshAndLoadTextView.setOnRefreshListener(this);
         refreshAndLoadTextView.setOnLoadListener(this);
 //        refreshAndLoadTextView.setCanLoad(false);
+
+        textView = (TextView) findViewById(R.id.tv_list);
+        textView.setText(text);
     }
 
 

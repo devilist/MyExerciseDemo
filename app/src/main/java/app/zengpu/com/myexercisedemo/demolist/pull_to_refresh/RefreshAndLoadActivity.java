@@ -70,9 +70,9 @@ public class RefreshAndLoadActivity extends AppCompatActivity {
 
     private void initData() {
         demoList.add(new String[]{"listview", ListviewActivity.class.getName()});
+        demoList.add(new String[]{"textview", TextViewActivity.class.getName()});
         demoList.add(new String[]{"gridview", GridViewActivity.class.getName()});
         demoList.add(new String[]{"recyclerview", RecyclerviewActivity.class.getName()});
-        demoList.add(new String[]{"textview", TextViewActivity.class.getName()});
     }
 
 
