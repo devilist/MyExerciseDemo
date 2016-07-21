@@ -5,7 +5,7 @@
                 android:background="#cc000000"
                 android:orientation="vertical">
 
-    <app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.RefreshAndLoadRecyclerView
+    <app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view.RefreshAndLoadRecyclerView
         android:id="@+id/rllv_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -18,6 +18,6 @@
 
         </android.support.v7.widget.RecyclerView>
 
-    </app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.RefreshAndLoadRecyclerView>
+    </app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view.RefreshAndLoadRecyclerView>
 
 </RelativeLayout>

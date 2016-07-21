@@ -1,4 +1,4 @@
-package app.zengpu.com.myexercisedemo.demolist.pull_to_refresh;
+package app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view.core;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -174,6 +174,24 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
 
     protected Context context;
 
+    /**
+     * 是否需要下拉刷新功能
+     */
+    private boolean isCanRefresh = true;
+    /**
+     * 是否需要上拉加载功能
+     */
+    private boolean isCanLoad = true;
+
+    /**
+     * 下拉刷新是否失败，用于处理失败后header的隐藏问题
+     */
+    private boolean isRefreshFailure = false;
+    /**
+     * 上拉加载是否失败，用于处理失败后footer的隐藏问题
+     */
+    private boolean isLoadFailure = false;
+
 
     public RefreshAndLoadViewBase(Context context) {
         this(context, null);
@@ -284,6 +302,10 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         // 要移动view到坐标点（100，100），那么偏移量就是(0，0)-(100，100）=（-100 ，-100）,
         // 就要执行view.scrollTo(-100,-100),达到这个效果。
         scrollTo(0, mInitScrollY);
+
+        // 显示或隐藏footer
+        if (iscontentViewCompletelyShow()) mFooterView.setVisibility(GONE);
+        else mFooterView.setVisibility(VISIBLE);
     }
 
     /**
@@ -303,11 +325,20 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
     protected abstract boolean isBottom();
 
     /**
+     * contentView 是否充满整个屏幕
+     * 如果没有充满整个屏幕，禁用上拉加载更多
+     *
+     * @return
+     */
+    protected abstract boolean iscontentViewCompletelyShow();
+
+    /**
      * 与Scroller合作,实现平滑滚动。在该方法中调用Scroller的computeScrollOffset来判断滚动是否结束。
      * 如果没有结束，那么滚动到相应的位置，并且调用postInvalidate方法重绘界面，
      * 从而再次进入到这个computeScroll流程，直到滚动结束。
      * view重绘时会调用此方法
      */
+
     @Override
     public void computeScroll() {
         if (mScroller.computeScrollOffset()) {
@@ -328,15 +359,9 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
      */
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        /*
-         * This method JUST determines whether we want to intercept the motion.
-         * If we return true, onTouchEvent will be called and we do the actual
-         * scrolling there.
-         */
+
         final int action = MotionEventCompat.getActionMasked(ev);
-        // Always handle the case of the touch gesture being complete.
         if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
-            // Do not intercept touch event, let the child handle it
             return false;
         }
 
@@ -345,23 +370,66 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
                 mLastY = (int) ev.getRawY();
                 break;
             case MotionEvent.ACTION_MOVE:
-                // int yDistance = (int) ev.getRawY() - mYDown;
                 mYOffset = (int) ev.getRawY() - mLastY;
+
+                // 处理加载失败时，header和footer的隐藏问题
+                if (isRefreshFailure && mYOffset < 0) {
+                    mHeaderView.setVisibility(GONE);
+                    isRefreshFailure = false;
+                } else mHeaderView.setVisibility(VISIBLE);
+
+                if (isLoadFailure && mYOffset >= 0) {
+                    mFooterView.setVisibility(GONE);
+                    isLoadFailure = false;
+                } else mFooterView.setVisibility(VISIBLE);
+
                 // 如果拉到了顶部, 并且是下拉,则拦截触摸事件,从而转到onTouchEvent来处理下拉刷新事件
                 if (isTop() && mYOffset > 0) {
                     isScrollToTop = true;
                     isScrollToBottom = false;
+
+                    // 如果contentview没有完全占满屏幕，隐藏footer
+                    if (iscontentViewCompletelyShow()) {
+                        mFooterView.setVisibility(GONE);
+                    } else {
+                        mFooterView.setVisibility(VISIBLE);
+                    }
                     return true;
                 }
-                // 如果拉到了底部, 并且是下上拉,则拦截触摸事件,从而转到onTouchEvent来处理下拉刷新事件
+                // 如果拉到了底部, 并且是上拉,则拦截触摸事件,从而转到onTouchEvent来处理上拉刷新事件
                 if (isBottom() && mYOffset < 0) {
                     isScrollToTop = false;
-                    isScrollToBottom = true;
+
+                    // 如果contentview没有完全占满屏幕，隐藏footer，并禁用上拉加载功能
+                    if (iscontentViewCompletelyShow()) {
+                        mFooterView.setVisibility(GONE);
+                        isScrollToBottom = false;
+                    } else {
+                        mFooterView.setVisibility(VISIBLE);
+                        isScrollToBottom = true;
+                    }
+
+                    // 是否需要上拉加载功能
+                    if (isCanLoad) {
+                        // 如果contentview没有完全占满屏幕，隐藏footer，并禁用上拉加载功能
+                        if (iscontentViewCompletelyShow()) {
+                            mFooterView.setVisibility(GONE);
+                            isScrollToBottom = false;
+                        } else {
+                            mFooterView.setVisibility(VISIBLE);
+                            isScrollToBottom = true;
+                        }
+                    } else {
+//                        if (iscontentViewCompletelyShow()) mFooterView.setVisibility(GONE);
+//                        else mFooterView.setVisibility(VISIBLE);
+                        mFooterView.setVisibility(GONE);
+                        isScrollToBottom = false;
+                    }
+
                     return true;
                 }
                 break;
         }
-        // Do not intercept touch event, let the child handle it
         return false;
     }
 
@@ -373,7 +441,6 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        LogUtil.d(VIEW_LOG_TAG, "@@@ onTouchEvent : action = " + event.getAction());
         switch (event.getAction()) {
             case MotionEvent.ACTION_MOVE:
 
@@ -381,10 +448,10 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
                 mYOffset = currentY - mLastY;
 
                 //当处于刷新状态时，不能继续下拉或上拉
-                if (mCurrentStatus == STATUS_REFRESHING && mYOffset > 0)
+                if (mCurrentStatus == STATUS_REFRESHING && mYOffset >= 0)
                     break;
 
-                if (mCurrentStatus == STATUS_LOADING && mYOffset < 0)
+                if (mCurrentStatus == STATUS_LOADING && mYOffset <= 0)
                     break;
 
                 changeScrollY(mYOffset);
@@ -392,13 +459,12 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
                 rotateHeaderArrow();
 
                 mLastY = currentY;
-
                 break;
             case MotionEvent.ACTION_UP:
-                //
-                if (isScrollToTop && mCurrentStatus != STATUS_LOADING)
+
+                if (isScrollToTop && mCurrentStatus != STATUS_LOADING && mCurrentStatus != STATUS_REFRESHING)
                     doRefresh();
-                if (isScrollToBottom && mCurrentStatus != STATUS_REFRESHING)
+                if (isScrollToBottom && mCurrentStatus != STATUS_REFRESHING && mCurrentStatus != STATUS_LOADING)
                     doLoadMore();
 
                 break;
@@ -558,55 +624,17 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
     private void changeFooterViewStatus() {
         int curScrollY = getScrollY();
         // 超过1/2则认为是有效的下拉刷新, 否则还原
-        if (curScrollY > mFooterHeight / 2) {
-            mScroller.startScroll(getScrollX(), curScrollY, 0, mHeaderHeight + mFooterView.getPaddingBottom()
-                    - curScrollY);
+        if (curScrollY >= mHeaderHeight + mFooterHeight / 2) {
+            mScroller.startScroll(getScrollX(), curScrollY, 0, mHeaderHeight + mFooterView.getPaddingBottom() - curScrollY);
             mCurrentStatus = STATUS_LOADING;
             mFooterTipsTextView.setText("加载更多...");
             mFooterProgressBar.setVisibility(View.VISIBLE);
-
         } else {
             mScroller.startScroll(getScrollX(), curScrollY, 0, mHeaderHeight - curScrollY);
             mCurrentStatus = STATUS_IDLE;
+            mFooterProgressBar.setVisibility(View.GONE);
         }
         invalidate();
-    }
-
-    /**
-     * 刷新结束，恢复状态
-     */
-    public void refreshComplete() {
-        mScroller.startScroll(getScrollX(), getScrollY(), 0, mInitScrollY - getScrollY());
-        mCurrentStatus = STATUS_IDLE;
-        invalidate();
-//        updateHeaderTimeStamp();
-        // 200毫秒后处理arrow和progressbar,免得太突兀
-        postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                mArrowImageView.setVisibility(View.VISIBLE);
-                mHeaderProgressBar.setVisibility(View.GONE);
-            }
-        }, 100);
-    }
-
-    /**
-     * 加载结束，恢复状态
-     */
-    public void loadCompelte() {
-        // 隐藏footer
-        mScroller.startScroll(getScrollX(), getScrollY(), 0, mInitScrollY - getScrollY());
-        invalidate();
-        mCurrentStatus = STATUS_IDLE;
-        // 200毫秒后处理arrow和progressbar,免得太突兀
-        postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                mFooterProgressBar.setVisibility(View.GONE);
-            }
-        }, 100);
     }
 
     /**
@@ -631,6 +659,115 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
     }
 
     /**
+     * 刷新结束，恢复状态
+     */
+    public void refreshComplete() {
+        mScroller.startScroll(getScrollX(), getScrollY(), 0, mInitScrollY - getScrollY());
+        mCurrentStatus = STATUS_IDLE;
+        invalidate();
+        isRefreshFailure = false;
+        mHeaderTipsTextView.setOnClickListener(null);
+//        updateHeaderTimeStamp();
+        // 延迟处理,免得太突兀
+        postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                mArrowImageView.setVisibility(View.VISIBLE);
+                mHeaderProgressBar.setVisibility(View.GONE);
+            }
+        }, 100);
+    }
+
+    /**
+     * 加载结束，恢复状态
+     */
+    public void loadCompelte() {
+        mFooterTipsTextView.setText("加载完成");
+        // 隐藏footer
+        mScroller.startScroll(getScrollX(), getScrollY(), 0, mInitScrollY - getScrollY());
+        invalidate();
+        isLoadFailure = false;
+        mCurrentStatus = STATUS_IDLE;
+        mFooterProgressBar.setVisibility(View.GONE);
+        mFooterTipsTextView.setOnClickListener(null);
+    }
+
+    /**
+     * 下拉刷新或上拉加载没有更多数据
+     */
+    public void refreshAndLoadNoMore() {
+
+        if (mCurrentStatus == STATUS_REFRESHING) {
+
+            mHeaderTipsTextView.setText("已是最新数据");
+            mHeaderProgressBar.setVisibility(INVISIBLE);
+            isRefreshFailure = false;
+            mHeaderTipsTextView.setOnClickListener(null);
+
+        } else if (mCurrentStatus == STATUS_LOADING) {
+
+            mFooterTipsTextView.setText("没有更多了");
+            mFooterProgressBar.setVisibility(View.INVISIBLE);
+            isLoadFailure = false;
+            mFooterTipsTextView.setOnClickListener(null);
+        }
+
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // 隐藏header
+                mScroller.startScroll(getScrollX(), getScrollY(), 0, mInitScrollY - getScrollY());
+                invalidate();
+                mCurrentStatus = STATUS_IDLE;
+            }
+        }, 1000);
+
+    }
+
+    /**
+     * 下拉刷新上拉加载失败
+     */
+    public void refreshAndLoadFailure() {
+
+        if (mCurrentStatus == STATUS_REFRESHING) {
+
+            mHeaderTipsTextView.setText("加载失败，点击重新加载");
+            mHeaderProgressBar.setVisibility(INVISIBLE);
+            isRefreshFailure = true;
+
+        } else if (mCurrentStatus == STATUS_LOADING) {
+
+            mFooterTipsTextView.setText("加载失败，点击重新加载");
+            mFooterProgressBar.setVisibility(View.INVISIBLE);
+            isLoadFailure = true;
+        }
+
+        mCurrentStatus = STATUS_IDLE;
+
+        mHeaderTipsTextView.setOnClickListener(loadFailureLisenter);
+        mFooterTipsTextView.setOnClickListener(loadFailureLisenter);
+    }
+
+    /**
+     * 加载失败时点击重新加载
+     */
+    private OnClickListener loadFailureLisenter = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.pull_to_refresh_text:
+                    refreshing();
+                    break;
+                case R.id.pull_to_loading_text:
+                    loading();
+                    break;
+            }
+        }
+    };
+
+
+    /**
      * 修改header上的最近更新时间
      */
     private void updateHeaderTimeStamp() {
@@ -641,13 +778,12 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         mTimeTextView.append(sdf.format(new Date()));
     }
 
-
     /**
      * 手动设置刷新
      */
     public void refreshing() {
 
-        scrollTo(0, mInitScrollY/2);
+        scrollTo(0, mInitScrollY / 2);
         mCurrentStatus = STATUS_REFRESHING;
         mHeaderTipsTextView.setText("加载中...");
         mArrowImageView.clearAnimation();
@@ -655,9 +791,20 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         mHeaderProgressBar.setVisibility(View.VISIBLE);
 
         doRefresh();
-
     }
 
+    /**
+     * 手动上拉加载
+     */
+    private void loading() {
+
+        scrollTo(0, mInitScrollY + mFooterHeight / 2);
+        mCurrentStatus = STATUS_LOADING;
+        mFooterTipsTextView.setText("加载更多...");
+        mFooterProgressBar.setVisibility(View.VISIBLE);
+
+        doLoadMore();
+    }
 
     /**
      * 配置头和尾
@@ -673,6 +820,36 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
 
     }
 
+    /**
+     * 设置是否需要下拉加载功能
+     *
+     * @param canLoad
+     */
+    public void setCanLoad(boolean canLoad) {
+        this.isCanLoad = canLoad;
+    }
+
+//    public void setCanRefresh(boolean canRefresh) {
+//        this.isCanRefresh = canRefresh;
+//    }
+
+    /**
+     * 当前是否处于加载状态
+     *
+     * @return
+     */
+    public boolean isLoading() {
+        return mCurrentStatus == STATUS_LOADING;
+    }
+
+    /**
+     * 当前是否处于刷新状态
+     *
+     * @return
+     */
+    public boolean isRefreshing() {
+        return mCurrentStatus == STATUS_REFRESHING;
+    }
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -694,7 +871,7 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
     }
 
     /**
-     * 设置滑动到底部时自动加载更多的监听器
+     * 设置上拉加载更多的监听器
      *
      * @param listener
      */

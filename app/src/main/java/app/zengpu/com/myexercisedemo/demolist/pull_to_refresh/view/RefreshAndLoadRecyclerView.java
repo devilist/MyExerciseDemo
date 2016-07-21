@@ -1,13 +1,15 @@
-package app.zengpu.com.myexercisedemo.demolist.pull_to_refresh;
+package app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
+import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view.core.RefreshAndLoadViewBase;
+
 /**
- *  具有下拉刷新和上拉加载功能的RecyclerView;
+ * 具有下拉刷新和上拉加载功能的RecyclerView;
  * Created by tao on 2016/4/22.
  */
 public class RefreshAndLoadRecyclerView extends RefreshAndLoadViewBase<RecyclerView> {
@@ -28,11 +30,12 @@ public class RefreshAndLoadRecyclerView extends RefreshAndLoadViewBase<RecyclerV
 
     @Override
     protected void setContentViewScrollListener() {
-        mContentView= (RecyclerView) getChildAt(2);
+        mContentView = (RecyclerView) getChildAt(2);
         mContentView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             }
+
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
@@ -42,17 +45,28 @@ public class RefreshAndLoadRecyclerView extends RefreshAndLoadViewBase<RecyclerV
 
     @Override
     protected boolean isTop() {
-        LinearLayoutManager lm= (LinearLayoutManager) mContentView.getLayoutManager();
+//        LinearLayoutManager lm = (LinearLayoutManager) mContentView.getLayoutManager();
+        GridLayoutManager lm = (GridLayoutManager) mContentView.getLayoutManager();
         return lm.findFirstCompletelyVisibleItemPosition() == 0
                 && getScrollY() <= mHeaderView.getMeasuredHeight();
     }
 
     @Override
     protected boolean isBottom() {
-        LinearLayoutManager lm= (LinearLayoutManager) mContentView.getLayoutManager();
+//        LinearLayoutManager lm = (LinearLayoutManager) mContentView.getLayoutManager();
+        GridLayoutManager lm = (GridLayoutManager) mContentView.getLayoutManager();
         return mContentView != null && mContentView.getAdapter() != null
                 && lm.findLastCompletelyVisibleItemPosition() ==
                 mContentView.getAdapter().getItemCount() - 1;
+    }
+
+    @Override
+    protected boolean iscontentViewCompletelyShow() {
+//        LinearLayoutManager lm = (LinearLayoutManager) mContentView.getLayoutManager();
+        GridLayoutManager lm = (GridLayoutManager) mContentView.getLayoutManager();
+        return mContentView != null && mContentView.getAdapter() != null
+                && lm.findFirstCompletelyVisibleItemPosition() == 0
+                && lm.findLastCompletelyVisibleItemPosition() == mContentView.getAdapter().getItemCount() - 1;
     }
 
     /**

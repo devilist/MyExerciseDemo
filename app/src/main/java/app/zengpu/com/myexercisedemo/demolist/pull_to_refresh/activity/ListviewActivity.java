@@ -1,4 +1,4 @@
-package app.zengpu.com.myexercisedemo.demolist.pull_to_refresh;
+package app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,11 +11,13 @@ import java.util.Date;
 import java.util.List;
 
 import app.zengpu.com.myexercisedemo.R;
+import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view.RefreshAndLoadListView;
+import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view.core.RefreshAndLoadViewBase;
 
 /**
  * Created by zengpu on 2016/7/4.
  */
-public class PullToRefreshActivity extends AppCompatActivity {
+public class ListviewActivity extends AppCompatActivity {
 
     private RefreshAndLoadListView refreshAndLoadListView;
     private ListView listView;
@@ -24,19 +26,22 @@ public class PullToRefreshActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pull_to_refresh);
+        setContentView(R.layout.activity_pull_to_refresh_listview);
 
         refreshAndLoadListView = (RefreshAndLoadListView) findViewById(R.id.rllv_list);
+        refreshAndLoadListView.setCanLoad(false);
+
         listView = (ListView) findViewById(R.id.lv_list);
 
         final List<String> datas = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             datas.add("item" + i);
         }
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_expandable_list_item_1, datas);
         listView.setAdapter(adapter);
+
 
         refreshAndLoadListView.setOnRefreshListener(new RefreshAndLoadViewBase.OnRefreshListener() {
             @Override
@@ -69,6 +74,5 @@ public class PullToRefreshActivity extends AppCompatActivity {
                 }, 1500);
             }
         });
-
     }
 }

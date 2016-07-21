@@ -1,8 +1,8 @@
 package app.zengpu.com.myexercisedemo.demolist.pull_to_refresh;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,90 +12,74 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import app.zengpu.com.myexercisedemo.R;
+import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.activity.GridViewActivity;
+import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.activity.ListviewActivity;
+import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.activity.RecyclerviewActivity;
+import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.activity.TextViewActivity;
 
 /**
- * Created by zengpu on 2016/7/20.
+ * Created by zengpu on 2016/7/21.
  */
-public class PullToRefreshRecyclerviewActivity extends AppCompatActivity implements
-        RefreshAndLoadViewBase.OnRefreshListener,RefreshAndLoadViewBase.OnLoadListener{
+public class RefreshAndLoadActivity extends AppCompatActivity {
 
-    private RefreshAndLoadRecyclerView refreshAndLoadRecyclerView;
-    private RecyclerView recyclerView;
+    private RecyclerView mRecyclerView;
     private RecyclerViewAdapter mAdapter;
-    private List<String> datas = new ArrayList<>();
+    private List<String[]> demoList = new ArrayList<>();
 
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pull_to_refresh_recyclerview);
+        setContentView(R.layout.activity_main);
 
+        initData();
+        initView();
+    }
 
-        refreshAndLoadRecyclerView = (RefreshAndLoadRecyclerView) findViewById(R.id.rllv_list);
-        refreshAndLoadRecyclerView.setOnRefreshListener(this);
-        refreshAndLoadRecyclerView.setOnLoadListener(this);
+    private void initView() {
 
+        mRecyclerView = (RecyclerView) findViewById(R.id.rv_demolist);
 
-        recyclerView = (RecyclerView) findViewById(R.id.lv_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        for (int i = 0; i < 15; i++) {
-            datas.add("item" + i);
-        }
+        mAdapter = new RecyclerViewAdapter(this, demoList);
 
-        mAdapter = new RecyclerViewAdapter(this, datas);
-        recyclerView.setAdapter(mAdapter);
+        mRecyclerView.setAdapter(mAdapter);
+
         mAdapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
 
+                try {
+                    Class<?> activityClazz = Class.forName(demoList.get(position)[1]);
+
+                    Intent intent = new Intent(getApplicationContext(), activityClazz);
+
+                    startActivity(intent);
+
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
-
-        //第一次进入刷新
-        refreshAndLoadRecyclerView.refreshing();
-
     }
 
-    @Override
-    public void onRefresh() {
-        refreshAndLoadRecyclerView.postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                // 更新数据
-                datas.add(new Date().toGMTString());
-                mAdapter.notifyDataSetChanged();
-                // 更新完后调用该方法结束刷新
-                refreshAndLoadRecyclerView.refreshComplete();
-            }
-        }, 1500);
+    private void initData() {
+        demoList.add(new String[]{"listview", ListviewActivity.class.getName()});
+        demoList.add(new String[]{"gridview", GridViewActivity.class.getName()});
+        demoList.add(new String[]{"recyclerview", RecyclerviewActivity.class.getName()});
+        demoList.add(new String[]{"textview", TextViewActivity.class.getName()});
     }
-
-    @Override
-    public void onLoad() {
-        refreshAndLoadRecyclerView.postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                datas.add(new Date().toGMTString());
-                mAdapter.notifyDataSetChanged();
-                refreshAndLoadRecyclerView.loadCompelte();
-            }
-        }, 2000);
-    }
-
 
 
     public static class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         private Context context;
-        private List<String> demoList;
+        private List<String[]> demoList;
         private OnItemClickListener mOnItemClickListener;
 
 
@@ -119,7 +103,7 @@ public class PullToRefreshRecyclerviewActivity extends AppCompatActivity impleme
             }
         }
 
-        public RecyclerViewAdapter(Context context, List<String> demoList) {
+        public RecyclerViewAdapter(Context context, List<String[]> demoList) {
             this.context = context;
             this.demoList = demoList;
         }
@@ -135,7 +119,7 @@ public class PullToRefreshRecyclerviewActivity extends AppCompatActivity impleme
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             ViewHolder mViewHolder = (ViewHolder) holder;
-            mViewHolder.itemTv.setText(demoList.get(position));
+            mViewHolder.itemTv.setText(demoList.get(position)[0]);
         }
 
         @Override
@@ -151,7 +135,6 @@ public class PullToRefreshRecyclerviewActivity extends AppCompatActivity impleme
             mOnItemClickListener = listener;
         }
     }
-
-
 }
+
 

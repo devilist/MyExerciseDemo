@@ -1,8 +1,10 @@
-package app.zengpu.com.myexercisedemo.demolist.pull_to_refresh;
+package app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ListView;
+
+import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view.core.RefreshAndLoadViewBase;
 
 /**
  * 具有下拉刷新和上拉加载功能的ListView;
@@ -39,5 +41,12 @@ public class RefreshAndLoadListView extends RefreshAndLoadViewBase<ListView> {
         return mContentView != null && mContentView.getAdapter() != null
                 && mContentView.getLastVisiblePosition() ==
                 mContentView.getAdapter().getCount() - 1;
+    }
+
+    @Override
+    protected boolean iscontentViewCompletelyShow() {
+        return mContentView != null && mContentView.getAdapter() != null
+                && mContentView.getFirstVisiblePosition() == 0
+                && mContentView.getLastVisiblePosition() == mContentView.getAdapter().getCount() - 1;
     }
 }

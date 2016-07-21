@@ -37,15 +37,6 @@
         </activity>
 
         <activity
-            android:name=".demolist.pull_refresh_load_1.RefreshAndLoadBaseActivity"
-            android:label="下拉刷新/上拉加载 自定义">
-        </activity>
-        <activity
-            android:name=".demolist.pull_refresh_load_1.GeneralRefreshLoadActivity"
-            android:label="下拉刷新/上拉加载 通用">
-
-        </activity>
-        <activity
             android:name=".demolist.multi_drawer.MultiDrawerActivity"
             android:label="多层抽屉"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
@@ -55,12 +46,22 @@
             android:name=".demolist.galleryfinaldemo.GalleryFinalActivity"
             android:label="GarellyFinal图片选择器">
         </activity>
+
         <activity
-            android:name=".demolist.pull_to_refresh.PullToRefreshActivity"
-            android:label="PullToRefresh"/>
+            android:name=".demolist.pull_to_refresh.RefreshAndLoadActivity"
+            android:label="下拉刷新，上拉加载"/>
         <activity
-            android:name=".demolist.pull_to_refresh.PullToRefreshRecyclerviewActivity"
-            android:label="PullToRefresh"/>
+            android:name=".demolist.pull_to_refresh.activity.ListviewActivity"
+            android:label="Listview"/>
+        <activity
+            android:name=".demolist.pull_to_refresh.activity.RecyclerviewActivity"
+            android:label="Recyclerview"/>
+        <activity
+            android:name=".demolist.pull_to_refresh.activity.TextViewActivity"
+            android:label="TextView"/>
+        <activity
+            android:name=".demolist.pull_to_refresh.activity.GridViewActivity"
+            android:label="gridView"/>
     </application>
 
 </manifest>

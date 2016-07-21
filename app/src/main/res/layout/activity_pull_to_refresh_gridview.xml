@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view.RefreshAndLoadGridView
+        android:id="@+id/rllv_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <GridView
+            android:id="@+id/gv_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textColor="@android:color/white">
+
+        </GridView>
+
+    </app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view.RefreshAndLoadGridView>
+
+</LinearLayout>

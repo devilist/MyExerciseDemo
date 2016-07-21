@@ -4,7 +4,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.RefreshAndLoadListView
+    <app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view.RefreshAndLoadListView
         android:id="@+id/rllv_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -16,6 +16,6 @@
 
         </ListView>
 
-    </app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.RefreshAndLoadListView>
+    </app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view.RefreshAndLoadListView>
 
 </LinearLayout>
