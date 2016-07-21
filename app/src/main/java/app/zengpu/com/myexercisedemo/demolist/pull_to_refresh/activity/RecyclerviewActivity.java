@@ -51,8 +51,8 @@ public class RecyclerviewActivity extends AppCompatActivity implements
 //        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setLayoutManager(new GridLayoutManager(this, 1));
 
-        for (int i = 0; i < 20; i++) {
-            datas.add("item" + i);
+        for (int i = 0; i < 6; i++) {
+            datas.add("<<<<<<<测试>>>>> " + i);
         }
 
         mAdapter = new RecyclerViewAdapter(this, datas);
@@ -82,13 +82,16 @@ public class RecyclerviewActivity extends AppCompatActivity implements
                 // 加载失败
                 if (textFlag == 0) {
                     refreshAndLoadRecyclerView.refreshAndLoadFailure();
+//                    datas.add("下拉刷新：加载失败 "+ new Date().toLocaleString());
                     textFlag = 1;
                     return;
                 }
                 // 加载成功
                 if (textFlag == 1) {
                     // 更新数据
-                    datas.add(new Date().toGMTString());
+                    datas.add("下拉刷新：加载成功1 "+ new Date().toLocaleString());
+                    datas.add("下拉刷新：加载成功2 "+ new Date().toLocaleString());
+                    datas.add("下拉刷新：加载成功3 "+ new Date().toLocaleString());
                     mAdapter.notifyDataSetChanged();
                     // 更新完后调用该方法结束刷新
                     refreshAndLoadRecyclerView.refreshComplete();
@@ -98,6 +101,7 @@ public class RecyclerviewActivity extends AppCompatActivity implements
                 // 没有更多数据
                 if (textFlag == 2) {
                     refreshAndLoadRecyclerView.refreshAndLoadNoMore();
+//                    datas.add("下拉刷新：数据已经最新 "+ new Date().toLocaleString());
                     textFlag = 0;
                     return;
                 }
@@ -114,12 +118,15 @@ public class RecyclerviewActivity extends AppCompatActivity implements
 
                 if (textFlag == 0) {
                     refreshAndLoadRecyclerView.refreshAndLoadFailure();
+//                    datas.add("上拉加载：加载失败 "+ new Date().toLocaleString());
                     textFlag = 1;
                     return;
                 }
                 if (textFlag == 1) {
                     // 更新数据
-                    datas.add(new Date().toGMTString());
+                    datas.add("上拉加载：加载成功1 "+ new Date().toLocaleString());
+                    datas.add("上拉加载：加载成功2 "+ new Date().toLocaleString());
+                    datas.add("上拉加载：加载成功3 "+ new Date().toLocaleString());
                     mAdapter.notifyDataSetChanged();
                     // 更新完后调用该方法结束刷新
                     refreshAndLoadRecyclerView.loadCompelte();
@@ -128,6 +135,7 @@ public class RecyclerviewActivity extends AppCompatActivity implements
                 }
                 if (textFlag == 2) {
                     refreshAndLoadRecyclerView.refreshAndLoadNoMore();
+//                    datas.add("上拉加载：没有更多数据 "+ new Date().toLocaleString());
                     textFlag = 0;
                     return;
                 }

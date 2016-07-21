@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import app.zengpu.com.myexercisedemo.R;
+import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.activity.CustomViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.activity.GridViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.activity.ListviewActivity;
 import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.activity.RecyclerviewActivity;
@@ -70,9 +71,10 @@ public class RefreshAndLoadActivity extends AppCompatActivity {
 
     private void initData() {
         demoList.add(new String[]{"listview", ListviewActivity.class.getName()});
-        demoList.add(new String[]{"textview", TextViewActivity.class.getName()});
         demoList.add(new String[]{"gridview", GridViewActivity.class.getName()});
         demoList.add(new String[]{"recyclerview", RecyclerviewActivity.class.getName()});
+        demoList.add(new String[]{"textview", TextViewActivity.class.getName()});
+        demoList.add(new String[]{"customview", CustomViewActivity.class.getName()});
     }
 
 

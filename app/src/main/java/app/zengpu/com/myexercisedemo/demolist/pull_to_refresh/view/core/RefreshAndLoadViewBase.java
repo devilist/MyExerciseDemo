@@ -373,15 +373,21 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
                 mYOffset = (int) ev.getRawY() - mLastY;
 
                 // 处理加载失败时，header和footer的隐藏问题
-                if (isRefreshFailure && mYOffset < 0) {
-                    mHeaderView.setVisibility(GONE);
+                if (isRefreshFailure && mYOffset < -2) {
+                    mScroller.startScroll(getScrollX(), getScrollY(), 0, mInitScrollY - getScrollY());
+                    invalidate();
+//                    mHeaderView.setVisibility(GONE);
                     isRefreshFailure = false;
-                } else mHeaderView.setVisibility(VISIBLE);
+                }
+//                else mHeaderView.setVisibility(VISIBLE);
 
-                if (isLoadFailure && mYOffset >= 0) {
-                    mFooterView.setVisibility(GONE);
+                if (isLoadFailure && mYOffset >= 2) {
+                    mScroller.startScroll(getScrollX(), getScrollY(), 0, mInitScrollY - getScrollY());
+                    invalidate();
+//                    mFooterView.setVisibility(GONE);
                     isLoadFailure = false;
-                } else mFooterView.setVisibility(VISIBLE);
+                }
+//                else mFooterView.setVisibility(VISIBLE);
 
                 // 如果拉到了顶部, 并且是下拉,则拦截触摸事件,从而转到onTouchEvent来处理下拉刷新事件
                 if (isTop() && mYOffset > 0) {

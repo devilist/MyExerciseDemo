@@ -3,11 +3,13 @@ package app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import app.zengpu.com.myexercisedemo.R;
@@ -37,12 +39,22 @@ public class GridViewActivity extends AppCompatActivity implements
         gridView = (GridView) findViewById(R.id.gv_list);
 
         datas = new ArrayList<>();
-        for (int i = 0; i < 40; i++) {
+        for (int i = 0; i < 20; i++) {
             datas.add("item" + i);
         }
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_expandable_list_item_1, datas);
         gridView.setAdapter(adapter);
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                if (!refreshAndLoadGridView.isLoading() && !refreshAndLoadGridView.isRefreshing())
+
+                    Toast.makeText(GridViewActivity.this, datas.get(position), Toast.LENGTH_SHORT).show();
+
+            }
+        });
 
     }
 
@@ -64,7 +76,7 @@ public class GridViewActivity extends AppCompatActivity implements
                 // 加载成功
                 if (textFlag == 1) {
                     // 更新数据
-                    datas.add(new Date().toGMTString());
+                    datas.add("下拉刷新" + "\n" + datas.size());
                     adapter.notifyDataSetChanged();
                     // 更新完后调用该方法结束刷新
                     refreshAndLoadGridView.refreshComplete();
@@ -98,7 +110,7 @@ public class GridViewActivity extends AppCompatActivity implements
                 // 加载成功
                 if (textFlag == 1) {
                     // 更新数据
-                    datas.add(new Date().toGMTString());
+                    datas.add("上拉加载" + "\n" + datas.size());
                     adapter.notifyDataSetChanged();
                     // 更新完后调用该方法结束刷新
                     refreshAndLoadGridView.loadCompelte();

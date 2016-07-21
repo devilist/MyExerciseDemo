@@ -62,6 +62,9 @@
         <activity
             android:name=".demolist.pull_to_refresh.activity.GridViewActivity"
             android:label="gridView"/>
+        <activity
+            android:name=".demolist.pull_to_refresh.activity.CustomViewActivity"
+            android:label="CustomView"/>
     </application>
 
 </manifest>

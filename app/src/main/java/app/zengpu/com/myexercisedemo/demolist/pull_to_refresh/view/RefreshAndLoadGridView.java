@@ -27,7 +27,7 @@ public class RefreshAndLoadGridView extends RefreshAndLoadViewBase<GridView>{
     protected void setContentViewScrollListener() {
         mContentView = (GridView) getChildAt(2);
 
-        mContentView.setNumColumns(4);
+        mContentView.setNumColumns(3);
         mContentView.setHorizontalSpacing(8);
         mContentView.setVerticalSpacing(8);
         // 设置滚动监听器
