@@ -75,9 +75,11 @@
             android:label="CustomView"/>
         <activity
             android:name=".demolist.videoRecord.VideoAppendActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:label="视频拍摄拼接"/>
         <activity
             android:name=".demolist.videoRecord.VideoPreviewActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:label="视频预览"/>
     </application>
 

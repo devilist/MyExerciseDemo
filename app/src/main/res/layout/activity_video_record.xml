@@ -29,7 +29,7 @@
         android:layout_alignParentTop="true"
         android:layout_gravity="left|top"
         android:layout_marginLeft="32dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="30dp"
         android:orientation="horizontal">
 
         <ImageView
@@ -100,7 +100,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="18dp"
         android:background="@drawable/shape_video_record_button"
-        android:text="播放"
+        android:text="预览"
         android:textSize="16sp"
         android:visibility="invisible"
         />

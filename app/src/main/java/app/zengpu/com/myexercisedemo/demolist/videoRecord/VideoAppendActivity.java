@@ -1,6 +1,7 @@
 package app.zengpu.com.myexercisedemo.demolist.videoRecord;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaRecorder;
@@ -11,19 +12,18 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,7 +34,6 @@ import java.util.Locale;
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.Utils.LogUtil;
 import app.zengpu.com.myexercisedemo.demolist.videoRecord.model.VideoInfo;
-import app.zengpu.com.myexercisedemo.demolist.videoRecord.util.SupportedSizesReflect;
 import app.zengpu.com.myexercisedemo.demolist.videoRecord.util.VideoUtil;
 
 /**
@@ -42,6 +41,7 @@ import app.zengpu.com.myexercisedemo.demolist.videoRecord.util.VideoUtil;
  * Created by zengpu on 2016/4/10.
  */
 public class VideoAppendActivity extends AppCompatActivity implements View.OnClickListener {
+
     private static final String TAG = "VideoAppendActivity";
 
     /**
@@ -56,19 +56,15 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
     /**
      * 长按拍摄视频
      */
-    private Button shiPinPaiSheButton;
+    private Button recordButton;
     /**
      * 点击取消拍摄视频
      */
-    private Button quXiaoButton;
+    private Button deleteButton;
     /**
-     * 拍摄视频完后点击确认
+     * 拍摄视频播放
      */
-    private Button queRenButton;
-    /**
-     * 视频录制进度条
-     */
-    private ProgressBar progressBar;
+    private Button playButton;
     /**
      * 是否正在录制中
      */
@@ -124,22 +120,19 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
      * 合并后保存的的视频的完整路径，初始为空
      */
     private String saveVideoPath = "";
+
+    private String saveVideoPicPath = "";
+
+    private int[] oritationMap = null;
+
     /**
-     * progressBar更新
+     * time 更新
      */
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0:
-//                    if (currentRecordingTime > MAX_RECORDING_TIME ) {
-//                        currentRecordingTime = MAX_RECORDING_TIME;
-//                        progressBar.setProgress((int) MAX_RECORDING_TIME);
-//                        stop();
-//                        break;
-//                    } else {
-//                        progressBar.setProgress(msg.arg1);
-//                    }
                     time_tv.setText(timeFormat((int) currentRecordingTime / 1000));
                     LogUtil.d(TAG, "currentRecordingTime is : " + msg.arg1);
                     postDelayed(timeRun, 1000);
@@ -165,22 +158,22 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_record);
+        oritationMap = VideoUtil.getOritationMap();
         makeDirs();
         initView();
     }
 
     private void initView() {
         changeCameraButton = (Button) findViewById(R.id.btn_camera);
-        quXiaoButton = (Button) findViewById(R.id.btn_video_clear);
-        queRenButton = (Button) findViewById(R.id.btn_video_play);
+        deleteButton = (Button) findViewById(R.id.btn_video_clear);
+        playButton = (Button) findViewById(R.id.btn_video_play);
         time_tv = (TextView) findViewById(R.id.time);
-        changeCameraButton.setOnClickListener(this);
-        quXiaoButton.setOnClickListener(this);
-        queRenButton.setOnClickListener(this);
 
-        shiPinPaiSheButton = (Button) findViewById(R.id.btn_video_record);
-        progressBar = (ProgressBar) findViewById(R.id.paishe_progressbar);
-        progressBar.setMax((int) MAX_RECORDING_TIME);
+        changeCameraButton.setOnClickListener(this);
+        deleteButton.setOnClickListener(this);
+        playButton.setOnClickListener(this);
+
+        recordButton = (Button) findViewById(R.id.btn_video_record);
         surfaceView = (SurfaceView) findViewById(R.id.paishe_surfaceview);
 
         WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
@@ -217,7 +210,6 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
                         }
                     }
                     try {
-                        camera = deal(camera);
                         camera.setPreviewDisplay(surfaceHolder);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -250,11 +242,12 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
-        shiPinPaiSheButton.setOnTouchListener(new View.OnTouchListener() {
+        recordButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+
                         if (currentRecordingTime >= MAX_RECORDING_TIME) {
                             stop();
                         } else {
@@ -343,7 +336,6 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
                             }
                         }
                         try {
-                            camera = deal(camera);
                             camera.setPreviewDisplay(surfaceHolder);
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -362,7 +354,6 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
                             }
                         }
                         try {
-                            camera = deal(camera);
                             camera.setPreviewDisplay(surfaceHolder);
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -382,6 +373,7 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
                     //视频压缩，预览
                     /* 组装视频信息 */
                     VideoInfo videoInfo = setVideoInfo(saveVideoPath, vd_name);
+                    saveVideoPicPath = videoInfo.getThumbPath();
 
                     LogUtil.d("video", "filePath is : " + videoInfo.getFilePath());
                     LogUtil.d("video", "thumbPath is : " + videoInfo.getThumbPath());
@@ -402,7 +394,6 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
                 currentVideoFilePath = "";
                 currentRecordingTime = 0;
                 time_tv.setText("00:00");
-                progressBar.setProgress((int) currentRecordingTime);
                 isRecording = false;
                 break;
         }
@@ -445,6 +436,11 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
      * 开始录制
      */
     protected void start() {
+
+        deleteButton.setVisibility(View.GONE);
+        changeCameraButton.setVisibility(View.GONE);
+        playButton.setVisibility(View.GONE);
+
         vd_name = "VD_" + getCurrentTime() + ".mp4";
         file = new File(VideoUtil.getSDPath(this) + vd_name);
         if (file.exists()) {
@@ -460,13 +456,22 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
         mediarecorder.setVideoSource(MediaRecorder.VideoSource.DEFAULT);
         mediarecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
         // 录像旋转90度
-        mediarecorder.setOrientationHint(270);
+        if (cameraPosition == 0)
+        mediarecorder.setOrientationHint(oritationMap[2]);
+        if (cameraPosition == 1)
+        mediarecorder.setOrientationHint(oritationMap[3]);
         // 设置录制完成后视频的封装格式为mp4
         mediarecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         // 设置录制的视频编码h263 h264
         mediarecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+
         // 设置视频录制的分辨率。必须放在设置编码和格式的后面，否则报错  分辨率不能设置成长宽一样
-        mediarecorder.setVideoSize(720, 480);
+        List<Camera.Size> sizes = params.getSupportedPictureSizes();
+        Camera.Size pictureSize = getOptimalPreviewSize(sizes, screenW, screenH);
+
+        mediarecorder.setVideoSize(pictureSize != null ? pictureSize.width : 720,
+                pictureSize != null ? pictureSize.height : 480);
+
         mediarecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         // 设置高质量录制,改变编码速率
         mediarecorder.setVideoEncodingBitRate(BitRate * 1024 * 512);
@@ -514,8 +519,11 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
      * 停止录制
      */
     protected void stop() {
-        queRenButton.setVisibility(View.VISIBLE);
-        quXiaoButton.setVisibility(View.VISIBLE);
+
+        changeCameraButton.setVisibility(View.VISIBLE);
+        playButton.setVisibility(View.VISIBLE);
+        deleteButton.setVisibility(View.VISIBLE);
+
         if (mediarecorder != null) {
             mediarecorder.setOnErrorListener(null);
             mediarecorder.setPreviewDisplay(null);
@@ -534,100 +542,86 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
      * 摄像头初始化，设置摄像头参数
      */
     private void initCamera() {
+
         try {
-//            camera.stopPreview();
             params = camera.getParameters();
-            params.setPreviewSize(720, 480);
-            params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+            params.setRotation(90);
+            params.set("orientation", "portrait");
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>以下代码用以获取最佳的预览比例 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
+
+            Camera.Size pictureSize = null;
+            Camera.Size previewSize = null;
+            List<Camera.Size> supportedPictureSizes = params.getSupportedPictureSizes();
+            List<Camera.Size> supportedPreviewSizes = params.getSupportedPreviewSizes();
+
+
+            if (supportedPictureSizes != null && supportedPreviewSizes != null &&
+                    supportedPictureSizes.size() > 0 && supportedPreviewSizes.size() > 0) {
+
+
+                pictureSize = getOptimalPreviewSize(supportedPictureSizes, screenW, screenH);
+                previewSize = getOptimalPreviewSize(supportedPreviewSizes, screenW, screenH);
+
+                params.setPictureSize(pictureSize.width, pictureSize.height);
+                params.setPreviewSize(previewSize.width, previewSize.height);
+
+                LogUtil.d("VideoAppendActivity1", "android.os.Build.MODEL is : " + android.os.Build.MODEL);
+                LogUtil.d("VideoAppendActivity1", "pictureSize.width is : " + pictureSize.width);
+                LogUtil.d("VideoAppendActivity1", "pictureSize.height is : " + pictureSize.height);
+                LogUtil.d("VideoAppendActivity1", "previewSize.width is : " + previewSize.width);
+                LogUtil.d("VideoAppendActivity1", "previewSize.height is : " + previewSize.height);
+
+            } else {
+                params.setPictureSize(720, 480);
+                params.setPreviewSize(720, 480);
+            }
+
+/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>以上代码用以获取最佳的预览比例 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
+
+            if (cameraPosition == 0) {
+                camera.setDisplayOrientation(oritationMap[0]);
+            } else {
+                params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE); // 后置才设置
+                camera.setDisplayOrientation(oritationMap[1]);
+            }
+
             camera.setParameters(params);
             camera.startPreview();
-//             设置方向
-//            params.set("orientation", "portrait");
-//            if (cameraPosition == 0) camera.setDisplayOrientation(180);
-//            else camera.setDisplayOrientation(270);
-
-//            if (this.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE){
-//                params.set("orientation","portrait");
-//                camera.setDisplayOrientation(0);
-//            }else {
-//                params.set("orientation","landscape");
-//                camera.setDisplayOrientation(0);
-//            }
-
-//            camera.startPreview();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
-    private Camera deal(Camera camera){
-        //设置camera预览的角度，因为默认图片是倾斜90度的
-        camera.setDisplayOrientation(90);
 
-        Camera.Size pictureSize=null;
-        Camera.Size previewSize=null;
-        Camera.Parameters parameters = camera.getParameters();
-        parameters.setPreviewFrameRate(5);
-        //设置旋转代码
-        parameters.setRotation(90);
-//			parameters.setPictureFormat(PixelFormat.JPEG);
-
-        List<Camera.Size> supportedPictureSizes
-                = SupportedSizesReflect.getSupportedPictureSizes(parameters);
-        List<Camera.Size> supportedPreviewSizes
-                = SupportedSizesReflect.getSupportedPreviewSizes(parameters);
-
-        if ( supportedPictureSizes != null &&
-                supportedPreviewSizes != null &&
-                supportedPictureSizes.size() > 0 &&
-                supportedPreviewSizes.size() > 0) {
-
-            //2.x
-            pictureSize = supportedPictureSizes.get(0);
-
-            int maxSize = 1280;
-            if(maxSize > 0){
-                for(Camera.Size size : supportedPictureSizes){
-                    if(maxSize >= Math.max(size.width,size.height)){
-                        pictureSize = size;
-                        break;
-                    }
-                }
-            }
-
-            WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-            Display display = windowManager.getDefaultDisplay();
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            display.getMetrics(displayMetrics);
-
-            previewSize = getOptimalPreviewSize(
-                    supportedPreviewSizes,
-                    display.getWidth(),
-                    display.getHeight());
-
-            parameters.setPictureSize(pictureSize.width, pictureSize.height);
-            parameters.setPreviewSize(previewSize.width, previewSize.height);
-
-        }
-        camera.setParameters(parameters);
-        return camera;
-    }
-
+    /**
+     * 获得最优尺寸
+     *
+     * @param sizes
+     * @param w
+     * @param h
+     * @return
+     */
     private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
+
         final double ASPECT_TOLERANCE = 0.1;
-        double targetRatio = (double) w / h;
-        if (sizes == null) return null;
+        double targetRatio = w > h ? (double) w / h : (double) h / w;
+
+        if (sizes == null)
+            return null;
 
         Camera.Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;
 
-        int targetHeight = h;
+        int targetHeight = w > h ? h : w;
 
         // Try to find an size match aspect ratio and size
         for (Camera.Size size : sizes) {
             double ratio = (double) size.width / size.height;
-            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE)
+                continue;
             if (Math.abs(size.height - targetHeight) < minDiff) {
                 optimalSize = size;
                 minDiff = Math.abs(size.height - targetHeight);
@@ -644,6 +638,7 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
                 }
             }
         }
+
         return optimalSize;
     }
 
@@ -659,7 +654,7 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
             sdDir = Environment.getExternalStorageDirectory();
         } else if (!sdCardExist) {
         }
-        File dirs_v = new File(sdDir + "/Video");
+        File dirs_v = new File(sdDir + "/VideoTemp");
         Log.d(TAG, "dirs_v is : " + dirs_v);
         if (!dirs_v.exists())
             dirs_v.mkdirs();
@@ -679,7 +674,11 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
             file.delete();
             Toast.makeText(this, "视频已清除", Toast.LENGTH_SHORT).show();
         }
-
+        file = new File(saveVideoPicPath);
+        if (file.exists()) {
+            file.delete();
+            Toast.makeText(this, "视频已清除", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
@@ -691,10 +690,13 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
      * @return VideoInfo
      */
     private VideoInfo setVideoInfo(String filePath, String fileName) {
+
         VideoInfo videoInfo = new VideoInfo();
+
         videoInfo.setFilePath(filePath);
         videoInfo.setMimeType("video/mp4");
         videoInfo.setTitle(fileName);
+
         // 获得视频大小，MB
         long videoSize = 0;
         try {
@@ -702,13 +704,40 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         videoInfo.setVideoSize(videoSize);
+
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         mmr.setDataSource(videoInfo.getFilePath());
+
         // 获得视频时长，宽，高
         videoInfo.setVideoDuration(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
         videoInfo.setVideoWidth(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
         videoInfo.setVideoHight(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+
+
+        // 获得缩略图
+        Bitmap bitmap = mmr.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST);
+
+        String path = Environment.getExternalStorageDirectory() + "/VideoTemp/" + 0 + ".jpg";
+        FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = new FileOutputStream(path);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (fileOutputStream != null) {
+                try {
+                    fileOutputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        bitmap.recycle();
+
+        videoInfo.setThumbPath(path);
 
         return videoInfo;
     }

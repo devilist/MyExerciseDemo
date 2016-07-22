@@ -43,11 +43,6 @@ public class VideoPreviewActivity extends AppCompatActivity implements View.OnCl
 
 
     /* * 视频信息 */
-    private String vd_File_Path;  // 视频存储路径
-    private String pic_File_Path; // 视频图片存储路径
-    private int vd_size;          // 视频大小
-    private String vd_pic_size;   // 视频图片大小
-
     private VideoInfo videoInfo;
 
 
@@ -113,16 +108,6 @@ public class VideoPreviewActivity extends AppCompatActivity implements View.OnCl
     protected void onDestroy() {
         surfaceVideoHolder.release();
         super.onDestroy();
-    }
-
-
-    /**
-     * 重置
-     */
-    private void resetVideoPreview() {
-        roundProgressPlayerButton.setVisibility(View.VISIBLE);
-        surfaceVideoHolder = null;
-        surfaceVideoHolder = new SurfaceVideoHolder(this, surfaceView, progressBar, roundProgressPlayerButton, vd_File_Path, pic_File_Path, videoPicIv);
     }
 
 }

@@ -1,8 +1,11 @@
 package app.zengpu.com.myexercisedemo.demolist.videoRecord.util;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.view.SurfaceHolder;
@@ -10,6 +13,11 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+
+import com.bumptech.glide.Glide;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 
 import app.zengpu.com.myexercisedemo.Utils.LogUtil;
 
@@ -65,18 +73,20 @@ public class SurfaceVideoHolder implements View.OnClickListener,
         };
 
         // 显示视频图片
-//        if (filePicPath.startsWith("http")) {
-//            Glide.with(context).load(filePicPath).into(filePreviewPicIv);
-//        } else {
-//            try {
-//                Bitmap bitmap = BitmapFactory.decodeStream(context.getContentResolver()
-//                        .openInputStream(Uri.fromFile(new File(filePicPath))));
-//                filePreviewPicIv.setImageBitmap(bitmap);
-//            } catch (FileNotFoundException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        filePreviewPicIv.setVisibility(View.VISIBLE);
+        if (!TextUtils.isEmpty(filePicPath) ) {
+            if (filePicPath.startsWith("http")) {
+                Glide.with(context).load(filePicPath).into(filePreviewPicIv);
+            } else {
+                try {
+                    Bitmap bitmap = BitmapFactory.decodeStream(context.getContentResolver()
+                            .openInputStream(Uri.fromFile(new File(filePicPath))));
+                    filePreviewPicIv.setImageBitmap(bitmap);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            filePreviewPicIv.setVisibility(View.VISIBLE);
+        }
         // 加载进度条
         this.mPlayerBtn.setMax(100);
         this.mPlayerBtn.setOnRoundProgressListener(this);
