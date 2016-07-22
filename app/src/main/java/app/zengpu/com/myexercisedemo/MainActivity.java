@@ -23,6 +23,7 @@ import app.zengpu.com.myexercisedemo.demolist.multi_drawer.MultiDrawerActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop0.PhotoLoopActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop1.ImageLoopActivity;
 import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.RefreshAndLoadActivity;
+import app.zengpu.com.myexercisedemo.demolist.videoRecord.VideoAppendActivity;
 
 /**
  * Created by zengpu on 16/3/30.
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         demoList.add(new String[]{"图片轮播:ViewPager+定时任务", ImageLoopActivity.class.getName()});
         demoList.add(new String[]{"下拉刷新，上拉加载", RefreshAndLoadActivity.class.getName()});
         demoList.add(new String[]{"GalleryFinal图片查看器", GalleryFinalActivity.class.getName()});
+        demoList.add(new String[]{"视频拍摄拼接", VideoAppendActivity.class.getName()});
     }
 
     public static class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

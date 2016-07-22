@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?><!--视频预览布局-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/rl_video_preview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <SurfaceView
+            android:id="@+id/shipin_surfaceview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ImageView
+            android:id="@+id/iv_video_pic"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <app.zengpu.com.myexercisedemo.demolist.videoRecord.util.RoundProgressPlayerButton
+            android:id="@+id/rppb_progress"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:layout_centerInParent="true"
+            app:gap="5dp"
+            app:roundButtonColor="@android:color/white"
+            app:roundButtonWidth="1dp"
+            app:roundProgressColor="#e1ffffff"
+            app:roundProgressWidth="2dp"
+            app:style="STROKE"
+            app:textColor="#77000000"
+            app:textIsDisplayable="true"
+            app:textSize="16sp"
+            app:triangleColor="#99ffffff"
+            app:triangleWidth="4dp" />
+
+        <ProgressBar
+            android:id="@+id/video_progressbar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_alignParentTop="true"
+            android:progressDrawable="@drawable/video_progress_style" />
+
+    </RelativeLayout>
+
+</RelativeLayout>
