@@ -87,13 +87,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        demoList.add(new String[]{"多层抽屉 ", MultiDrawerActivity.class.getName()});
         demoList.add(new String[]{"自定义CustomAlertDialog", CustomAlertDialog.class.getName()});
+        demoList.add(new String[]{"多层抽屉 ", MultiDrawerActivity.class.getName()});
         demoList.add(new String[]{"图片轮播:ViewPager+Handler", PhotoLoopActivity.class.getName()});
         demoList.add(new String[]{"图片轮播:ViewPager+定时任务", ImageLoopActivity.class.getName()});
         demoList.add(new String[]{"下拉刷新，上拉加载", RefreshAndLoadActivity.class.getName()});
         demoList.add(new String[]{"GalleryFinal图片查看器", GalleryFinalActivity.class.getName()});
-        demoList.add(new String[]{"视频拍摄拼接", VideoAppendActivity.class.getName()});
+        demoList.add(new String[]{"视频断点拍摄", VideoAppendActivity.class.getName()});
     }
 
     public static class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

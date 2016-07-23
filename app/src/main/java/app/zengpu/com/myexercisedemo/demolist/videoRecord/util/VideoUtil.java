@@ -3,9 +3,12 @@ package app.zengpu.com.myexercisedemo.demolist.videoRecord.util;
 import android.content.Context;
 import android.os.Environment;
 
+import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.Container;
 import com.coremedia.iso.boxes.MovieHeaderBox;
+import com.coremedia.iso.boxes.TrackBox;
 import com.googlecode.mp4parser.authoring.Movie;
+import com.googlecode.mp4parser.authoring.Mp4TrackImpl;
 import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
 import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
@@ -18,7 +21,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,6 +34,9 @@ import app.zengpu.com.myexercisedemo.Utils.LogUtil;
  * Created by tao on 2016/4/14.
  */
 public final class VideoUtil {
+
+    public static String videoFolderName = "VideoTemp";
+    public static String videoTempFolderName = "VideoTemp/temp";
 
     /**
      * 拼接两段视频。拼接后的视频名字默认为第一段视频的名字。拼接成功后将删除原来的视频
@@ -44,7 +52,7 @@ public final class VideoUtil {
         String[] videos = new String[]{saveVideoPath, currentVideoFilePath};
         Movie[] inMovies = new Movie[videos.length];
         //拼接完成后的临时视频文件名
-        String appendVideoPath = getSDPath(context) + "append.mp4";
+        String appendVideoPath = getSDPath(context, videoFolderName) + "append.mp4";
 
         //以下开始拼接视频
         int index = 0;
@@ -137,7 +145,7 @@ public final class VideoUtil {
 
 
     public static void rotateVideo(Context context, String currentVideoPath) {
-        String rotateVideoPath = getSDPath(context) + "rotate.mp4";
+        String rotateVideoPath = getSDPath(context, videoFolderName) + "rotate.mp4";
         Movie result = new Movie();
         try {
             result = MovieCreator.build(currentVideoPath);
@@ -171,13 +179,83 @@ public final class VideoUtil {
 
     }
 
+    public static void rotateVideo(Context context, String currentVideoPath,int rotateDegree) {
+
+        // 1.获取视频文件对应的TrackBoxes；
+        IsoFile isoFile = null;
+        try {
+            isoFile = new IsoFile(currentVideoPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<TrackBox> trackBoxes = isoFile.getMovieBox().getBoxes(TrackBox.class);
+        LogUtil.e("VideoUtil", "trackBoxes size  is: " + trackBoxes.size());
+
+        // 2.根据TrackBoxes获取旋转后的Movie对象；
+        Movie rotatedMovie = new Movie();
+
+        for (int i = 0; i< trackBoxes.size();i++) {
+            TrackBox trackBox = trackBoxes.get(i);
+            LogUtil.e("VideoUtil", "matrix is: " + trackBox.getTrackHeaderBox().getMatrix());
+            Matrix matrix = trackBox.getTrackHeaderBox().getMatrix();
+
+            switch (matrix.toString()) {
+                case "Rotate 0°":
+                    trackBox.getTrackHeaderBox().setMatrix(Matrix.ROTATE_180);
+                    break;
+                case "Rotate 90°":
+                    trackBox.getTrackHeaderBox().setMatrix(Matrix.ROTATE_270);
+                    break;
+                case "Rotate 180°":
+                    trackBox.getTrackHeaderBox().setMatrix(Matrix.ROTATE_0);
+                    break;
+                case "Rotate 270°":
+                    trackBox.getTrackHeaderBox().setMatrix(Matrix.ROTATE_90);
+                    break;
+            }
+
+            LogUtil.e("VideoUtil", "matrix after is: " + trackBox.getTrackHeaderBox().getMatrix());
+
+//            trackBox.getTrackHeaderBox().setMatrix(Matrix.ROTATE_180);
+            rotatedMovie.addTrack(new Mp4TrackImpl(trackBox));
+        }
+
+        // 3.将Movie对象写入文件。
+        String rotateVideoPath = getSDPath(context, videoFolderName) + "rotate.mp4";
+        Container container = new DefaultMp4Builder().build(rotatedMovie);
+        //旋转后的临时文件
+        File roratedVideoFile = new File(rotateVideoPath);
+        FileOutputStream fos;
+        try {
+            fos = new FileOutputStream(roratedVideoFile);
+            WritableByteChannel bb = Channels.newChannel(fos);
+            container.writeContainer(bb);
+            // 关闭文件流
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //视频旋转完成后的后续处理
+        //原始视频文件
+        File origVideo = new File(currentVideoPath);
+        //旋转后的临时文件名字改为原始视频文件的名字，并覆盖
+        roratedVideoFile.renameTo(origVideo);
+        if (origVideo.exists()) {
+            //拼接后的临时文件删掉
+            roratedVideoFile.delete();
+        }
+
+    }
+
+
     /**
      * 获得SD卡路径
      *
      * @param context
      * @return
      */
-    public static String getSDPath(Context context) {
+    public static String getSDPath(Context context, String filePath) {
         File sdDir = null;
         boolean sdCardExist = Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED); // 判断sd卡是否存在
@@ -188,7 +266,7 @@ public final class VideoUtil {
             LogUtil.e("Video", "SD卡不存在");
 
         }
-        File eis = new File(sdDir.toString() + "/Video/");
+        File eis = new File(sdDir + "/" + filePath);
         try {
             if (!eis.exists()) {
                 eis.mkdir();
@@ -196,7 +274,7 @@ public final class VideoUtil {
         } catch (Exception e) {
 
         }
-        return sdDir.toString() + "/Video/";
+        return sdDir + "/" + filePath + "/";
     }
 
 

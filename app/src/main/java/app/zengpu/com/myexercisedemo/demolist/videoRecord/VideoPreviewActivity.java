@@ -8,6 +8,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.demolist.videoRecord.model.VideoInfo;
@@ -52,6 +53,7 @@ public class VideoPreviewActivity extends AppCompatActivity implements View.OnCl
         setContentView(R.layout.activity_video_preview);
 
         videoInfo = (VideoInfo) getIntent().getSerializableExtra("videoInfo");
+        Toast.makeText(this, "视频路径： " + videoInfo.getFilePath(), Toast.LENGTH_LONG).show();
 
         initView();
     }

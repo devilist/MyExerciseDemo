@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -159,7 +158,6 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_record);
         oritationMap = VideoUtil.getOritationMap();
-        makeDirs();
         initView();
     }
 
@@ -280,7 +278,12 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
                             stop();
                             LogUtil.d(TAG, "currentRecordingTime0 is : " + currentRecordingTime);
                             file = new File(currentVideoFilePath);
+                            Toast.makeText(VideoAppendActivity.this, "录制时间太短,请重录", Toast.LENGTH_SHORT).show();
                             file.delete();
+                            currentRecordingTime = 0;
+                            time_tv.setText("00:00");
+                            deleteButton.setVisibility(View.GONE);
+                            playButton.setVisibility(View.GONE);
                             break;
                         }
 
@@ -296,6 +299,8 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
                                     currentVideoFilePath = "";
                                 } else if (!(currentVideoFilePath.equals(""))) {
                                     try {
+//                                        if (cameraPosition == 0)
+//                                            VideoUtil.rotateVideo(VideoAppendActivity.this, currentVideoFilePath,180);
                                         VideoUtil.appendVideo(VideoAppendActivity.this, saveVideoPath, currentVideoFilePath);
                                         currentVideoFilePath = "";
                                     } catch (Exception e) {
@@ -365,7 +370,7 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.btn_video_play:
                 //拍完视频后，确认逻辑,合并
-                if (currentRecordingTime < 3 * 1000) {
+                if (currentRecordingTime <= 1 * 1000) {
                     Toast.makeText(VideoAppendActivity.this, "录制时间太短!", Toast.LENGTH_SHORT).show();
                     break;
                 } else {
@@ -390,6 +395,8 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
             case R.id.btn_video_clear:
                 //取消视频逻辑，删除视频，从新开始
                 deleteVideo();
+                deleteButton.setVisibility(View.GONE);
+                playButton.setVisibility(View.GONE);
                 saveVideoPath = "";
                 currentVideoFilePath = "";
                 currentRecordingTime = 0;
@@ -442,7 +449,7 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
         playButton.setVisibility(View.GONE);
 
         vd_name = "VD_" + getCurrentTime() + ".mp4";
-        file = new File(VideoUtil.getSDPath(this) + vd_name);
+        file = new File(VideoUtil.getSDPath(this, VideoUtil.videoFolderName) + vd_name);
         if (file.exists()) {
             // 如果文件存在，删除它，演示代码保证设备上只有一个录音文件
             file.delete();
@@ -457,9 +464,9 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
         mediarecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
         // 录像旋转90度
         if (cameraPosition == 0)
-        mediarecorder.setOrientationHint(oritationMap[2]);
+            mediarecorder.setOrientationHint(oritationMap[2]);
         if (cameraPosition == 1)
-        mediarecorder.setOrientationHint(oritationMap[3]);
+            mediarecorder.setOrientationHint(oritationMap[3]);
         // 设置录制完成后视频的封装格式为mp4
         mediarecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         // 设置录制的视频编码h263 h264
@@ -479,7 +486,7 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
         mediarecorder.setVideoFrameRate(30);
         mediarecorder.setPreviewDisplay(surfaceView.getHolder().getSurface());
         // 设置视频文件输出的路径
-        currentVideoFilePath = VideoUtil.getSDPath(this) + vd_name;
+        currentVideoFilePath = VideoUtil.getSDPath(this, VideoUtil.videoFolderName) + vd_name;
         mediarecorder.setOutputFile(currentVideoFilePath);
         // 设置最大录制时间
 //        mediarecorder.setMaxDuration((int) (MAX_RECORDING_TIME - totalRecordingTime));
@@ -643,41 +650,26 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
     }
 
     /**
-     * 判断是否有SD卡，并创建文件存放件路径
-     */
-    public void makeDirs() {
-        File sdDir = null;
-        // 判断sd卡是否存在
-        boolean sdCardExist = Environment.getExternalStorageState().equals(
-                Environment.MEDIA_MOUNTED);
-        if (sdCardExist) {
-            sdDir = Environment.getExternalStorageDirectory();
-        } else if (!sdCardExist) {
-        }
-        File dirs_v = new File(sdDir + "/VideoTemp");
-        Log.d(TAG, "dirs_v is : " + dirs_v);
-        if (!dirs_v.exists())
-            dirs_v.mkdirs();
-    }
-
-    /**
      * 删除视频
      */
     private void deleteVideo() {
-        file = new File(saveVideoPath);
-        if (file.exists()) {
-            file.delete();
-            Toast.makeText(this, "视频已清除", Toast.LENGTH_SHORT).show();
-        }
-        file = new File(currentVideoFilePath);
-        if (file.exists()) {
-            file.delete();
-            Toast.makeText(this, "视频已清除", Toast.LENGTH_SHORT).show();
-        }
+
         file = new File(saveVideoPicPath);
         if (file.exists()) {
             file.delete();
-            Toast.makeText(this, "视频已清除", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "视频封面已清除", Toast.LENGTH_SHORT).show();
+        }
+
+        file = new File(saveVideoPath);
+        if (file.exists()) {
+            file.delete();
+            Toast.makeText(this, "视频文件已清除", Toast.LENGTH_SHORT).show();
+        }
+
+        file = new File(currentVideoFilePath);
+        if (file.exists()) {
+            file.delete();
+            Toast.makeText(this, "视频文件已清除", Toast.LENGTH_SHORT).show();
         }
 
     }
