@@ -73,81 +73,25 @@ public class RefreshAndLoadRecyclerView extends RefreshAndLoadViewBase<RecyclerV
      * 配置头和尾
      */
     @Override
-    protected void configHeaderAndFooter() {
-        mHeaderView.setBackgroundColor(Color.DKGRAY);
-        mHeaderTipsTextView.setTextColor(Color.WHITE);
-        mHeaderTipsTextView.setTextSize(16);
+    public Builder initHeaderAndFooter() {
 
-        mFooterView.setBackgroundColor(Color.GRAY);
-        mFooterTipsTextView.setTextColor(Color.WHITE);
-        mFooterTipsTextView.setTextSize(16);
+        return new Builder()
+                .headerBgColor(Color.DKGRAY)                        // header背景色
+                .headerTipTextColor(Color.WHITE)                    // 刷新提示文字颜色
+                .headerTipTextSize(16)                              // 刷新提示文字大小
+                .isShowArrow(false)                                 // 刷新箭头显示
+                .footerBgColor(Color.DKGRAY)                        // footer背景色
+                .footerTipTextColor(Color.WHITE)                    // 加载提示文字颜色
+                .footerTipTextSize(16)                              // 加载提示文字大小
+                .pullToRefreshTip("下拉刷新")                        // 下拉刷新未达到可刷新状态提示
+                .releaseToRefreshTip("松开可刷新")                   // 下拉刷新达到可刷新状态提示
+                .refreshingTip("正在刷新...")                         // 正在刷新提示
+                .refreshFailureTip("刷新失败，点击重新刷新")          // 刷新失败提示
+                .refreshNoDataTip("数据已最新")                     // 刷新没有更多提示
+                .pullToLoadTip("上拉加载")                          // 上拉加载未达到可刷新状态提示
+                .releaseToLoadTip("松开可加载")                     // 上拉加载达到可刷新状态提示
+                .loadingTip("正在加载...")                           // 正在上拉加载提示
+                .loadFailureTip("加载失败，点击重新加载")            // 上拉加载失败提示
+                .loadNoDataTip("没有更多了");                      // 上拉加载没有更多提示
     }
-
-
-//    /**
-//     * 配置header和footer
-//     */
-//    static class Builder {
-//
-//        private int headerBgColor;
-//        private String headerTipText;
-//        private int headerTipTextColor;
-//        private int headerTipTextSize;
-//        private int headerProgressHeight;
-//
-//        private int footerBgColor;
-//        private String footerTipText;
-//        private int footerTipTextColor;
-//        private int footerTipTextSize;
-//        private int footerProgressHeight;
-//
-//        public Builder headerBgColor(int headerBgColor) {
-//            this.headerBgColor = headerBgColor;
-//            return this;
-//        }
-//        public Builder headerTipText(String headerTipText) {
-//            this.headerTipText = headerTipText;
-//            return this;
-//        }
-//        public Builder headerTipTextColor(int headerTipTextColor) {
-//            this.headerTipTextColor = headerTipTextColor;
-//            return this;
-//        }
-//        public Builder headerTipTextSize(int headerTipTextSize) {
-//            this.headerTipTextSize = headerTipTextSize;
-//            return this;
-//        }
-//        public Builder headerProgressHeight(int headerProgressHeight) {
-//            this.headerProgressHeight = headerProgressHeight;
-//            return this;
-//        }
-//
-//        public Builder footerBgColor(int footerBgColor) {
-//            this.footerBgColor = footerBgColor;
-//            return this;
-//        }
-//        public Builder footerTipText(String footerTipText) {
-//            this.footerTipText = footerTipText;
-//            return this;
-//        }
-//        public Builder footerTipTextColor(int footerTipTextColor) {
-//            this.footerTipTextColor = footerTipTextColor;
-//            return this;
-//        }
-//        public Builder footerTipTextSize(int footerTipTextSize) {
-//            this.footerTipTextSize = footerTipTextSize;
-//            return this;
-//        }
-//        public Builder footerProgressHeight(int footerProgressHeight) {
-//            this.footerProgressHeight = footerProgressHeight;
-//            return this;
-//        }
-//
-//        public RefreshAndLoadRecyclerView create(Context context) {
-//
-//            return new RefreshAndLoadRecyclerView(context);
-//
-//        }
-//
-//    }
 }

@@ -192,6 +192,8 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
      */
     private boolean isLoadFailure = false;
 
+    private Builder config;
+
 
     public RefreshAndLoadViewBase(Context context) {
         this(context, null);
@@ -214,6 +216,7 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
         // 初始化整个布局
+        config = initHeaderAndFooter();
         initLayout(context);
     }
 
@@ -244,7 +247,7 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         mFooterProgressBar = (ProgressBar) mFooterView.findViewById(R.id.pull_to_loading_progress);
         mFooterTipsTextView = (TextView) mFooterView.findViewById(R.id.pull_to_loading_text);
 
-        configHeaderAndFooter();
+        configHeaderAndFooter(config);
     }
 
     /**
@@ -462,7 +465,8 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
 
                 changeScrollY(mYOffset);
                 changeTips();
-                rotateHeaderArrow();
+                if (config.isShowArrow)
+                    rotateHeaderArrow();
 
                 mLastY = currentY;
                 break;
@@ -585,16 +589,16 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
     protected void changeTips() {
         if (isScrollToTop) {
             if (mCurrentStatus == STATUS_PULL_TO_REFRESH) {
-                mHeaderTipsTextView.setText("下拉刷新");
+                mHeaderTipsTextView.setText(config.pullToRefreshTip);
             } else if (mCurrentStatus == STATUS_RELEASE_TO_REFRESH) {
-                mHeaderTipsTextView.setText("松开可刷新");
+                mHeaderTipsTextView.setText(config.releaseToRefreshTip);
             }
         }
         if (isScrollToBottom) {
             if (mCurrentStatus == STATUS_PULL_TO_LOAD) {
-                mFooterTipsTextView.setText("加载更多...");
+                mFooterTipsTextView.setText(config.pullToLoadTip);
             } else if (mCurrentStatus == STATUS_RELEASE_TO_LOAD) {
-                mFooterTipsTextView.setText("松开可刷新");
+                mFooterTipsTextView.setText(config.releaseToLoadTip);
             }
         }
     }
@@ -611,7 +615,7 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
             mScroller.startScroll(getScrollX(), curScrollY, 0, mHeaderView.getPaddingTop()
                     - curScrollY);
             mCurrentStatus = STATUS_REFRESHING;
-            mHeaderTipsTextView.setText("加载中...");
+            mHeaderTipsTextView.setText(config.refreshingTip);
             mArrowImageView.clearAnimation();
             mArrowImageView.setVisibility(View.GONE);
             mHeaderProgressBar.setVisibility(View.VISIBLE);
@@ -633,7 +637,7 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         if (curScrollY >= mHeaderHeight + mFooterHeight / 2) {
             mScroller.startScroll(getScrollX(), curScrollY, 0, mHeaderHeight + mFooterView.getPaddingBottom() - curScrollY);
             mCurrentStatus = STATUS_LOADING;
-            mFooterTipsTextView.setText("加载更多...");
+            mFooterTipsTextView.setText(config.loadingTip);
             mFooterProgressBar.setVisibility(View.VISIBLE);
         } else {
             mScroller.startScroll(getScrollX(), curScrollY, 0, mHeaderHeight - curScrollY);
@@ -679,7 +683,8 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
 
             @Override
             public void run() {
-                mArrowImageView.setVisibility(View.VISIBLE);
+                if (config.isShowArrow)
+                    mArrowImageView.setVisibility(View.VISIBLE);
                 mHeaderProgressBar.setVisibility(View.GONE);
             }
         }, 100);
@@ -706,14 +711,14 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
 
         if (mCurrentStatus == STATUS_REFRESHING) {
 
-            mHeaderTipsTextView.setText("已是最新数据");
+            mHeaderTipsTextView.setText(config.refreshNoDataTip);
             mHeaderProgressBar.setVisibility(INVISIBLE);
             isRefreshFailure = false;
             mHeaderTipsTextView.setOnClickListener(null);
 
         } else if (mCurrentStatus == STATUS_LOADING) {
 
-            mFooterTipsTextView.setText("没有更多了");
+            mFooterTipsTextView.setText(config.loadNoDataTip);
             mFooterProgressBar.setVisibility(View.INVISIBLE);
             isLoadFailure = false;
             mFooterTipsTextView.setOnClickListener(null);
@@ -738,13 +743,13 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
 
         if (mCurrentStatus == STATUS_REFRESHING) {
 
-            mHeaderTipsTextView.setText("加载失败，点击重新加载");
+            mHeaderTipsTextView.setText(config.refreshFailureTip);
             mHeaderProgressBar.setVisibility(INVISIBLE);
             isRefreshFailure = true;
 
         } else if (mCurrentStatus == STATUS_LOADING) {
 
-            mFooterTipsTextView.setText("加载失败，点击重新加载");
+            mFooterTipsTextView.setText(config.loadFailureTip);
             mFooterProgressBar.setVisibility(View.INVISIBLE);
             isLoadFailure = true;
         }
@@ -791,7 +796,7 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
 
         scrollTo(0, mInitScrollY / 2);
         mCurrentStatus = STATUS_REFRESHING;
-        mHeaderTipsTextView.setText("加载中...");
+        mHeaderTipsTextView.setText(config.refreshingTip);
         mArrowImageView.clearAnimation();
         mArrowImageView.setVisibility(View.GONE);
         mHeaderProgressBar.setVisibility(View.VISIBLE);
@@ -806,24 +811,10 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
 
         scrollTo(0, mInitScrollY + mFooterHeight / 2);
         mCurrentStatus = STATUS_LOADING;
-        mFooterTipsTextView.setText("加载更多...");
+        mFooterTipsTextView.setText(config.loadingTip);
         mFooterProgressBar.setVisibility(View.VISIBLE);
 
         doLoadMore();
-    }
-
-    /**
-     * 配置头和尾
-     */
-    protected void configHeaderAndFooter() {
-        mHeaderView.setBackgroundColor(Color.YELLOW);
-        mHeaderTipsTextView.setTextColor(Color.BLACK);
-        mHeaderTipsTextView.setTextSize(16);
-
-        mFooterView.setBackgroundColor(Color.YELLOW);
-        mFooterTipsTextView.setTextColor(Color.BLACK);
-        mFooterTipsTextView.setTextSize(16);
-
     }
 
     /**
@@ -891,6 +882,178 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
 
     public interface OnLoadListener {
         void onLoad();
+    }
+
+    /**
+     * 配置头和尾
+     */
+    protected void configHeaderAndFooter(Builder builder) {
+
+        mHeaderView.setBackgroundColor(builder.headerBgColor);
+        mHeaderTipsTextView.setTextColor(builder.headerTipTextColor);
+        mHeaderTipsTextView.setTextSize(builder.headerTipTextSize);
+        mHeaderTipsTextView.setText(builder.pullToRefreshTip);
+        mArrowImageView.setVisibility(builder.isShowArrow ? VISIBLE : GONE);
+
+        mFooterView.setBackgroundColor(builder.footerBgColor);
+        mFooterTipsTextView.setTextColor(builder.footerTipTextColor);
+        mFooterTipsTextView.setTextSize(builder.footerTipTextSize);
+        mFooterTipsTextView.setText(builder.pullToLoadTip);
+
+    }
+
+    /**
+     * 初始化头和尾，颜色，大小等
+     *
+     * @return
+     */
+    protected Builder initHeaderAndFooter() {
+
+        return new Builder()
+                .headerBgColor(Color.YELLOW)
+                .headerTipTextColor(Color.BLACK)
+                .headerTipTextSize(16)
+                .isShowArrow(true)
+                .footerBgColor(Color.YELLOW)
+                .footerTipTextColor(Color.BLACK)
+                .footerTipTextSize(16)
+                .pullToRefreshTip("下拉刷新")
+                .releaseToRefreshTip("松开可刷新")
+                .refreshingTip("刷新中...")
+                .refreshFailureTip("刷新失败，点击重新刷新")
+                .refreshNoDataTip("数据已最新")
+                .pullToLoadTip("上拉加载")
+                .releaseToLoadTip("松开可加载")
+                .loadingTip("加载中...")
+                .loadFailureTip("加载失败，点击重新加载")
+                .loadNoDataTip("没有更多了");
+
+    }
+
+
+    /**
+     * 配置header和footer
+     */
+    public static class Builder {
+
+        // header
+        private int headerBgColor; // 背景色
+        private int headerTipTextColor; // 刷新提示文字颜色
+        private int headerTipTextSize; // 刷新提示文字大小
+        private boolean isShowArrow; // 刷新箭头显示
+
+        // footer
+        private int footerBgColor; // 背景色
+        private int footerTipTextColor; // 加载提示文字颜色
+        private int footerTipTextSize;  // 加载提示文字大小
+
+        // tip
+        private String pullToRefreshTip; // 下拉刷新未达到可刷新状态提示
+        private String releaseToRefreshTip; // 下拉刷新达到可刷新状态提示
+        private String refreshingTip; // 正在刷新提示
+        private String refreshFailureTip; // 刷新失败提示
+        private String refreshNoDataTip; // 刷新没有更多提示
+
+        private String pullToLoadTip; // 上拉加载未达到可刷新状态提示
+        private String releaseToLoadTip; // 上拉加载达到可刷新状态提示
+        private String loadingTip; // 正在上拉加载提示
+        private String loadFailureTip; // 上拉加载失败提示
+        private String loadNoDataTip; // 上拉加载没有更多提示
+
+        public Builder headerBgColor(int headerBgColor) {
+            this.headerBgColor = headerBgColor;
+            return this;
+        }
+
+        public Builder headerTipTextColor(int headerTipTextColor) {
+            this.headerTipTextColor = headerTipTextColor;
+            return this;
+        }
+
+        public Builder headerTipTextSize(int headerTipTextSize) {
+            this.headerTipTextSize = headerTipTextSize;
+            return this;
+        }
+
+        public Builder isShowArrow(boolean isShowArrow) {
+            this.isShowArrow = isShowArrow;
+            return this;
+        }
+
+
+        public Builder footerBgColor(int footerBgColor) {
+            this.footerBgColor = footerBgColor;
+            return this;
+        }
+
+        public Builder footerTipTextColor(int footerTipTextColor) {
+            this.footerTipTextColor = footerTipTextColor;
+            return this;
+        }
+
+        public Builder footerTipTextSize(int footerTipTextSize) {
+            this.footerTipTextSize = footerTipTextSize;
+            return this;
+        }
+
+
+        public Builder pullToRefreshTip(String pullToRefreshTip) {
+            this.pullToRefreshTip = pullToRefreshTip;
+            return this;
+        }
+
+        public Builder releaseToRefreshTip(String releaseToRefreshTip) {
+            this.releaseToRefreshTip = releaseToRefreshTip;
+            return this;
+        }
+
+        public Builder refreshingTip(String refreshingTip) {
+            this.refreshingTip = refreshingTip;
+            return this;
+        }
+
+        public Builder refreshFailureTip(String refreshFailureTip) {
+            this.refreshFailureTip = refreshFailureTip;
+            return this;
+        }
+
+        public Builder refreshNoDataTip(String refreshNoDataTip) {
+            this.refreshNoDataTip = refreshNoDataTip;
+            return this;
+        }
+
+
+        public Builder pullToLoadTip(String pullToLoadTip) {
+            this.pullToLoadTip = pullToLoadTip;
+            return this;
+        }
+
+        public Builder releaseToLoadTip(String releaseToLoadTip) {
+            this.releaseToLoadTip = releaseToLoadTip;
+            return this;
+        }
+
+        public Builder loadingTip(String loadingTip) {
+            this.loadingTip = loadingTip;
+            return this;
+        }
+
+        public Builder loadFailureTip(String loadFailureTip) {
+            this.loadFailureTip = loadFailureTip;
+            return this;
+        }
+
+        public Builder loadNoDataTip(String loadNoDataTip) {
+            this.loadNoDataTip = loadNoDataTip;
+            return this;
+        }
+
+//        public RefreshAndLoadRecyclerView create(Context context) {
+//
+//            return new RefreshAndLoadRecyclerView(context);
+
+//        }
+
     }
 }
 
