@@ -18,6 +18,7 @@ import java.util.List;
 
 import app.zengpu.com.myexercisedemo.MainActivity.RecyclerViewAdapter.OnItemClickListener;
 import app.zengpu.com.myexercisedemo.Utils.CustomAlertDialog;
+import app.zengpu.com.myexercisedemo.demolist.advancepagerslidingtabstrip.activity.ApstActivity;
 import app.zengpu.com.myexercisedemo.demolist.galleryfinaldemo.GalleryFinalActivity;
 import app.zengpu.com.myexercisedemo.demolist.multi_drawer.MultiDrawerActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop0.PhotoLoopActivity;
@@ -94,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         demoList.add(new String[]{"下拉刷新，上拉加载", RefreshAndLoadActivity.class.getName()});
         demoList.add(new String[]{"GalleryFinal图片查看器", GalleryFinalActivity.class.getName()});
         demoList.add(new String[]{"视频断点拍摄", VideoAppendActivity.class.getName()});
+        demoList.add(new String[]{"APST", ApstActivity.class.getName()});
     }
 
     public static class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

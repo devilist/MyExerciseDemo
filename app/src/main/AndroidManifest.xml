@@ -19,6 +19,7 @@
 
     <application
         android:allowBackup="true"
+        android:name=".MyApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
@@ -81,6 +82,34 @@
             android:name=".demolist.videoRecord.VideoPreviewActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:label="视频预览"/>
+
+        <activity
+            android:name=".demolist.advancepagerslidingtabstrip.activity.ApstActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name=".demolist.advancepagerslidingtabstrip.activity.NormalTabActivity"
+            android:label="@string/app_name" >
+        </activity>
+
+        <activity
+            android:name=".demolist.advancepagerslidingtabstrip.activity.IconTabActivity"
+            android:label="@string/app_name" >
+        </activity>
+
+        <activity
+            android:name=".demolist.advancepagerslidingtabstrip.activity.CustomTabActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name=".demolist.advancepagerslidingtabstrip.activity.ViewTabActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name=".demolist.advancepagerslidingtabstrip.activity.WeiboTabActivity"
+            android:label="@string/app_name" >
+        </activity>
+
     </application>
 
 </manifest>
