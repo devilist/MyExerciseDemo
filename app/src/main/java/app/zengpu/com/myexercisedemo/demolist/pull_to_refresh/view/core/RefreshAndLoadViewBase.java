@@ -205,7 +205,7 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
     }
 
     public RefreshAndLoadViewBase(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs);
+        super(context, attrs, defStyle);
         // 初始化Scroller对象
         mScroller = new Scroller(context);
         // 获取屏幕高度
