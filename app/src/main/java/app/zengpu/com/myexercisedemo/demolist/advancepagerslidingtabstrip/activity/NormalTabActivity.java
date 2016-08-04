@@ -18,15 +18,15 @@ import app.zengpu.com.myexercisedemo.demolist.advancepagerslidingtabstrip.fragme
 /**
  * Created by linhonghong on 2015/8/10.
  */
-public class NormalTabActivity extends ActionBarActivity implements ViewPager.OnPageChangeListener{
+public class NormalTabActivity extends ActionBarActivity implements ViewPager.OnPageChangeListener {
 
     public AdvancedPagerSlidingTabStrip mAPSTS;
     public APSTSViewPager mVP;
 
-    private static final int VIEW_FIRST 		= 0;
-    private static final int VIEW_SECOND	    = 1;
-    private static final int VIEW_THIRD       = 2;
-    private static final int VIEW_FOURTH    = 3;
+    private static final int VIEW_FIRST = 0;
+    private static final int VIEW_SECOND = 1;
+    private static final int VIEW_THIRD = 2;
+    private static final int VIEW_FOURTH = 3;
 
     private static final int VIEW_SIZE = 4;
 
@@ -43,12 +43,12 @@ public class NormalTabActivity extends ActionBarActivity implements ViewPager.On
         init();
     }
 
-    private void findViews(){
-        mAPSTS = (AdvancedPagerSlidingTabStrip)findViewById(R.id.tabs);
-        mVP = (APSTSViewPager)findViewById(R.id.vp_main);
+    private void findViews() {
+        mAPSTS = (AdvancedPagerSlidingTabStrip) findViewById(R.id.tabs);
+        mVP = (APSTSViewPager) findViewById(R.id.vp_main);
     }
 
-    private void init(){
+    private void init() {
         mVP.setOffscreenPageLimit(VIEW_SIZE);
         FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager());
 
@@ -83,25 +83,25 @@ public class NormalTabActivity extends ActionBarActivity implements ViewPager.On
 
         @Override
         public Fragment getItem(int position) {
-            if(position >= 0 && position < VIEW_SIZE){
-                switch (position){
-                    case  VIEW_FIRST:
-                        if(null == mFirstFragment)
+            if (position >= 0 && position < VIEW_SIZE) {
+                switch (position) {
+                    case VIEW_FIRST:
+                        if (null == mFirstFragment)
                             mFirstFragment = FirstFragment.instance();
                         return mFirstFragment;
 
                     case VIEW_SECOND:
-                        if(null == mSecondFragment)
+                        if (null == mSecondFragment)
                             mSecondFragment = SecondFragment.instance();
                         return mSecondFragment;
 
                     case VIEW_THIRD:
-                        if(null == mThirdFragment)
+                        if (null == mThirdFragment)
                             mThirdFragment = ThirdFragment.instance();
                         return mThirdFragment;
 
                     case VIEW_FOURTH:
-                        if(null == mFourthFragment)
+                        if (null == mFourthFragment)
                             mFourthFragment = FourthFragment.instance();
                         return mFourthFragment;
                     default:
@@ -118,16 +118,16 @@ public class NormalTabActivity extends ActionBarActivity implements ViewPager.On
 
         @Override
         public CharSequence getPageTitle(int position) {
-            if(position >= 0 && position < VIEW_SIZE){
-                switch (position){
-                    case  VIEW_FIRST:
-                        return  "FIRST";
-                    case  VIEW_SECOND:
-                        return  "SECOND";
-                    case  VIEW_THIRD:
-                        return  "THIRD";
-                    case  VIEW_FOURTH:
-                        return  "FOURTH";
+            if (position >= 0 && position < VIEW_SIZE) {
+                switch (position) {
+                    case VIEW_FIRST:
+                        return "FIRST";
+                    case VIEW_SECOND:
+                        return "SECOND";
+                    case VIEW_THIRD:
+                        return "THIRD";
+                    case VIEW_FOURTH:
+                        return "FOURTH";
                     default:
                         break;
                 }
