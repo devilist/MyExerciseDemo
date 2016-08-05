@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         demoList.add(new String[]{"下拉刷新，上拉加载", RefreshAndLoadActivity.class.getName()});
         demoList.add(new String[]{"GalleryFinal图片查看器", GalleryFinalActivity.class.getName()});
         demoList.add(new String[]{"视频断点拍摄", VideoAppendActivity.class.getName()});
-        demoList.add(new String[]{"APST", ApstActivity.class.getName()});
+        demoList.add(new String[]{"APST ", ApstActivity.class.getName()});
     }
 
     public static class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
