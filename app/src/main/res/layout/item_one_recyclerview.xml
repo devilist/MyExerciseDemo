@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
@@ -16,7 +15,8 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginLeft="10dp"
-            android:src="@mipmap/ic_launcher"/>
+            android:src="@mipmap/ic_launcher"
+            android:transitionName="@string/transition_string" />
 
         <TextView
             android:id="@+id/tv_item"
@@ -26,14 +26,13 @@
             android:gravity="center_vertical"
             android:paddingLeft="10dp"
             android:textColor="@android:color/black"
-            android:textSize="18dp"
-            />
+            android:textSize="18dp" />
     </LinearLayout>
 
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="0.75dp"
-        android:background="#000000"/>
+        android:background="#000000" />
 
 </LinearLayout>

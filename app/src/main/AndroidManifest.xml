@@ -110,6 +110,7 @@
             android:name=".demolist.design_support_library.activity.DSLScrollingActivity"
             android:label="@string/title_activity_dslscrolling"
             android:theme="@style/AppTheme.NoActionBar">
+
         </activity>
     </application>
 

@@ -1,17 +1,22 @@
 package app.zengpu.com.myexercisedemo.demolist.design_support_library.fragment;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +61,7 @@ public class TwoFragment extends Fragment {
         mRecyclerView = (RecyclerView) getView().findViewById(R.id.rv_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mAdapter = new OneRecyclerViewAdapter(getContext(), list,drawablelist);
+        mAdapter = new OneRecyclerViewAdapter(getContext(), list, drawablelist);
 
         mRecyclerView.setAdapter(mAdapter);
 
@@ -66,8 +71,18 @@ public class TwoFragment extends Fragment {
 
                 switch (view.getId()) {
                     case R.id.iv_icon:
-                        Toast.makeText(getContext(), "kvkvvvvvv", Toast.LENGTH_SHORT).show();
-                        DSLScrollingActivity.actionStart(getContext());
+
+                        Context context = view.getContext();
+                        Intent intent = new Intent(context, DSLScrollingActivity.class);
+
+                        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+                            BitmapDrawable bd = (BitmapDrawable) drawablelist.get(position);
+                            Bitmap bitmap = bd.getBitmap();
+                            DSLScrollingActivity.actionStart((AppCompatActivity) getContext(), view, bitmap);
+                        } else {
+                            DSLScrollingActivity.actionStart(getContext());
+                        }
                         break;
                 }
             }
