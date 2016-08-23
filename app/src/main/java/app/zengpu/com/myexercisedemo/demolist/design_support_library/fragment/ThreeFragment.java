@@ -1,4 +1,4 @@
-package app.zengpu.com.myexercisedemo.demolist.advancepagerslidingtabstrip.fragments;
+package app.zengpu.com.myexercisedemo.demolist.design_support_library.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,19 +13,17 @@ import app.zengpu.com.myexercisedemo.R;
 /**
  * Created by linhonghong on 2015/8/11.
  */
-public class FirstFragment extends Fragment {
+public class ThreeFragment extends Fragment {
 
-    public static FirstFragment instance() {
-        FirstFragment view = new FirstFragment();
-		return view;
-	}
+    public static ThreeFragment instance() {
+        ThreeFragment view = new ThreeFragment();
+        return view;
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_first, null);
+        View view = inflater.inflate(R.layout.fragment_third, null);
         return view;
     }
-
-
 }
