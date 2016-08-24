@@ -78,8 +78,8 @@ public class TwoFragment extends Fragment {
                         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
                             BitmapDrawable bd = (BitmapDrawable) drawablelist.get(position);
-                            Bitmap bitmap = bd.getBitmap();
-                            DSLScrollingActivity.actionStart((AppCompatActivity) getContext(), view, bitmap);
+                            Bitmap icon = bd.getBitmap();
+                            DSLScrollingActivity.actionStart((AppCompatActivity) getContext(), view, icon,list.get(position));
                         } else {
                             DSLScrollingActivity.actionStart(getContext());
                         }

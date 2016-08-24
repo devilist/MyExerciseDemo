@@ -20,16 +20,31 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
+            app:expandedTitleGravity="left|bottom"
+            app:expandedTitleMarginStart="10dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
             <ImageView
-                android:id="@+id/backdrop"
+                android:id="@+id/backdrop1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
+                android:layout_gravity="center"
+                android:background="@drawable/picture6"
+                app:layout_collapseParallaxMultiplier="0.4"
+                app:layout_collapseMode="parallax"/>
+
+            <ImageView
+                android:id="@+id/backdrop"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:fitsSystemWindows="true"
+                android:scaleType="centerCrop"
                 android:transitionName="@string/transition_string"
-                app:layout_collapseMode="parallax" />
+                android:layout_gravity="center"
+                app:layout_collapseParallaxMultiplier="0.4"
+                app:layout_collapseMode="parallax"/>
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -39,6 +54,7 @@
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
 
         </android.support.design.widget.CollapsingToolbarLayout>
+
     </android.support.design.widget.AppBarLayout>
 
     <include layout="@layout/content_dslscrolling" />

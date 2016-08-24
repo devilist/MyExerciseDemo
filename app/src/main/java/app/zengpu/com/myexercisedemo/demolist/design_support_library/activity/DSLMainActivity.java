@@ -1,9 +1,7 @@
 package app.zengpu.com.myexercisedemo.demolist.design_support_library.activity;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -14,6 +12,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
+
+import com.getbase.floatingactionbutton.AddFloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.demolist.design_support_library.adapter.DSLMainPagerAdapter;
@@ -24,14 +27,18 @@ import app.zengpu.com.myexercisedemo.demolist.design_support_library.fragment.Tw
 /**
  * Created by zengpu on 16/8/22.
  */
-public class DSLMainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class DSLMainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,View.OnClickListener{
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ViewPager viewPager;
 //    private DSLMainPagerAdapter pagerAdapter;
     private TabLayout tabLayout;
-    private FloatingActionButton fab;
+
+    FloatingActionsMenu action_menu;
+    FloatingActionButton action_a;
+    FloatingActionButton action_b;
+    FloatingActionButton action_c;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,14 +72,24 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Snackbar.make(v, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+        action_menu = (FloatingActionsMenu) findViewById(R.id.action_menu);
+        action_a = (FloatingActionButton) findViewById(R.id.action_a);
+        action_b = (FloatingActionButton) findViewById(R.id.action_b);
+        action_c = (FloatingActionButton) findViewById(R.id.action_c);
+        action_a.setTitle("sdssddsds");
+
+        action_a.setOnClickListener(this);
+        action_b.setOnClickListener(this);
+        action_c.setOnClickListener(this);
+        // 加号按钮
+        for (int i = 0; i < action_menu.getChildCount(); i++) {
+            if (action_menu.getChildAt(i) instanceof AddFloatingActionButton) {
+                action_menu.getChildAt(i).setOnClickListener(this);
+
+                break;
             }
-        });
+        }
+
 
     }
 
@@ -128,5 +145,33 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
             default:
                 return true;
         }
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        // 点击了+按钮
+        if (v instanceof AddFloatingActionButton) {
+//            action_menu.isExpanded()
+            action_menu.toggle();
+            return;
+        }
+
+        switch (v.getId()) {
+            case R.id.action_a:
+                Toast.makeText(this,"action_a",Toast.LENGTH_SHORT).show();
+                action_menu.collapse();
+                break;
+            case R.id.action_b:
+                Toast.makeText(this,"action_b",Toast.LENGTH_SHORT).show();
+                action_menu.collapse();
+                break;
+            case R.id.action_c:
+                Toast.makeText(this,"action_c",Toast.LENGTH_SHORT).show();
+                action_menu.collapse();
+                break;
+
+        }
+
     }
 }

@@ -44,5 +44,10 @@ dependencies {
     compile 'homhomlin.lib:frescoimageview:1.2.0'
     compile 'com.facebook.fresco:imagepipeline-okhttp:0.9.0'
 
+    // 滑动销毁activity
+    compile 'me.imid.swipebacklayout.lib:library:1.0.0'
+    // 点击展开的floatingactionbutton
+    compile 'com.getbase:floatingactionbutton:1.10.1'
+
 
 }
