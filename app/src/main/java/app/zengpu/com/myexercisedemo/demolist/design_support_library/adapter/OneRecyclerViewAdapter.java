@@ -70,7 +70,10 @@ public class OneRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         ViewHolder mViewHolder = (ViewHolder) holder;
         mViewHolder.itemTv.setText(list.get(position));
-        if (drawablelist != null) mViewHolder.icon.setImageDrawable(drawablelist.get(position));
+        if (drawablelist != null) {
+            mViewHolder.icon.setVisibility(View.VISIBLE);
+            mViewHolder.icon.setImageDrawable(drawablelist.get(position));
+        } else mViewHolder.icon.setVisibility(View.GONE);
     }
 
     @Override

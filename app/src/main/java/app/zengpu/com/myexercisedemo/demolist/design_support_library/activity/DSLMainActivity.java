@@ -1,5 +1,7 @@
 package app.zengpu.com.myexercisedemo.demolist.design_support_library.activity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -137,6 +139,7 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
                 drawerLayout.closeDrawers();
                 return true;
             case R.id.nav_slideshow:
+                DSLSettingsActivity.actionStart(this);
                 drawerLayout.closeDrawers();
                 return true;
             case R.id.nav_manage:
@@ -173,5 +176,10 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
 
         }
 
+    }
+
+    public static void actionStart(Context context) {
+        Intent intent = new Intent(context, DSLMainActivity.class);
+        context.startActivity(intent);
     }
 }
