@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout
-    android:id="@+id/drawer_layout"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -18,8 +17,7 @@
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.AppBarOverlay"
-            >
+            android:theme="@style/AppTheme.AppBarOverlay">
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -29,13 +27,12 @@
                 android:background="?attr/colorPrimary"
                 android:minHeight="?attr/actionBarSize"
                 app:layout_scrollFlags="scroll|enterAlwaysCollapsed|snap"
-                app:popupTheme="@style/AppTheme.PopupOverlay"
-                />
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
 
             <android.support.design.widget.TabLayout
                 android:id="@+id/tabs"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
         </android.support.design.widget.AppBarLayout>
 
@@ -43,8 +40,14 @@
             android:id="@+id/viewpager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+        <ImageView
+            android:id="@+id/iv_layer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#77000000"
+            android:visibility="gone"/>
 
         <com.getbase.floatingactionbutton.FloatingActionsMenu
             android:id="@+id/action_menu"
@@ -56,38 +59,41 @@
             android:minHeight="30dip"
             app:fab_addButtonColorNormal="?attr/colorAccent"
             app:fab_addButtonColorPressed="?attr/colorAccent"
-            app:layout_anchorGravity="bottom|right"
-            >
+            app:fab_addButtonSize="mini"
+            app:fab_labelStyle="@style/menu_labels_style"
+            app:layout_anchorGravity="bottom|right">
 
             <com.getbase.floatingactionbutton.FloatingActionButton
                 android:id="@+id/action_a"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                app:fabSize="mini"
                 app:fab_colorNormal="?attr/colorPrimary"
                 app:fab_colorPressed="?attr/colorPrimaryDark"
                 app:fab_icon="@mipmap/ic_star"
-                app:fab_title="star"
-                />
+                app:fab_title="star" />
 
             <com.getbase.floatingactionbutton.FloatingActionButton
                 android:id="@+id/action_b"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                app:fabSize="mini"
                 app:fab_colorNormal="?attr/colorPrimary"
                 app:fab_colorPressed="?attr/colorPrimaryDark"
                 app:fab_icon="@mipmap/ic_retweet"
                 app:fab_title="retweet"
+
                 />
 
             <com.getbase.floatingactionbutton.FloatingActionButton
                 android:id="@+id/action_c"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                app:fabSize="mini"
                 app:fab_colorNormal="?attr/colorPrimary"
                 app:fab_colorPressed="?attr/colorPrimaryDark"
                 app:fab_icon="@mipmap/ic_reply"
-                app:fab_title="reply"
-                />
+                app:fab_title="reply" />
 
         </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
@@ -101,6 +107,6 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/dsl_nav_header_dls_main"
-        app:menu="@menu/dsl_activity_main_drawer"/>
+        app:menu="@menu/dsl_activity_main_drawer" />
 
 </android.support.v4.widget.DrawerLayout>

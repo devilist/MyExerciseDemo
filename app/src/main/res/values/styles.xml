@@ -89,4 +89,10 @@
     </style>
 
 
+    <style name="menu_labels_style">
+        <item name="android:background">@drawable/shape_fabs_label_bg</item>
+        <item name="android:textColor">#ffffff</item>
+    </style>
+
+
 </resources>
