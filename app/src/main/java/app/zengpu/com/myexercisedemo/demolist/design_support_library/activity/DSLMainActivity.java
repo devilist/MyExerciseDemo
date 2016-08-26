@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.getbase.floatingactionbutton.AddFloatingActionButton;
@@ -36,10 +37,11 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
     private ViewPager viewPager;
     private TabLayout tabLayout;
 
-    FloatingActionsMenu action_menu;
-    FloatingActionButton action_a;
-    FloatingActionButton action_b;
-    FloatingActionButton action_c;
+    private FloatingActionsMenu action_menu;
+    private FloatingActionButton action_a;
+    private FloatingActionButton action_b;
+    private FloatingActionButton action_c;
+    private ImageView layerIv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +77,10 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
         action_a = (FloatingActionButton) findViewById(R.id.action_a);
         action_b = (FloatingActionButton) findViewById(R.id.action_b);
         action_c = (FloatingActionButton) findViewById(R.id.action_c);
-        setupFabMenu();
+        action_a.setSize(FloatingActionButton.SIZE_MINI);
+        action_b.setSize(FloatingActionButton.SIZE_MINI);
+        action_c.setSize(FloatingActionButton.SIZE_MINI);
+
 
     }
 
@@ -100,6 +105,30 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
                 break;
             }
         }
+
+        layerIv = (ImageView) findViewById(R.id.iv_layer);
+        layerIv.setOnClickListener(this);
+
+
+    }
+
+    private void setupViewpager(ViewPager viewPager) {
+        DSLMainPagerAdapter pagerAdapter = new DSLMainPagerAdapter(getSupportFragmentManager());
+        pagerAdapter.addFragment(new OneFragment(),"one");
+        pagerAdapter.addFragment(new TwoFragment(),"two");
+        pagerAdapter.addFragment(new ThreeFragment(),"three");
+        pagerAdapter.addFragment(new TwoFragment(),"four");
+        viewPager.setAdapter(pagerAdapter);
+        viewPager.setCurrentItem(0);
+
+    }
+    private void setupViewpager1(ViewPager viewPager) {
+        DSLMainPagerAdapter pagerAdapter = new DSLMainPagerAdapter(getSupportFragmentManager());
+        pagerAdapter.addFragment(new TwoFragment(),"二");
+        pagerAdapter.addFragment(new OneFragment(),"一");
+        pagerAdapter.addFragment(new ThreeFragment(),"三");
+        viewPager.setAdapter(pagerAdapter);
+        viewPager.setCurrentItem(0);
     }
 
     @Override
@@ -140,7 +169,11 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
 
         // 点击了+按钮
         if (v instanceof AddFloatingActionButton) {
-//            action_menu.isExpanded()
+            if (action_menu.isExpanded())
+                layerIv.setVisibility(View.GONE);
+            else
+                layerIv.setVisibility(View.VISIBLE);
+//
             action_menu.toggle();
             return;
         }
@@ -148,14 +181,21 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
         switch (v.getId()) {
             case R.id.action_a:
                 Toast.makeText(this,"action_a",Toast.LENGTH_SHORT).show();
+                layerIv.setVisibility(View.GONE);
                 action_menu.collapse();
                 break;
             case R.id.action_b:
                 Toast.makeText(this,"action_b",Toast.LENGTH_SHORT).show();
+                layerIv.setVisibility(View.GONE);
                 action_menu.collapse();
                 break;
             case R.id.action_c:
                 Toast.makeText(this,"action_c",Toast.LENGTH_SHORT).show();
+                layerIv.setVisibility(View.GONE);
+                action_menu.collapse();
+                break;
+            case R.id.iv_layer:
+                layerIv.setVisibility(View.GONE);
                 action_menu.collapse();
                 break;
 
