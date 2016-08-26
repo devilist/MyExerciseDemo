@@ -7,7 +7,7 @@
             android:icon="@drawable/ic_menu_camera"
             android:title="viewPager" />
         <item
-            android:id="@+id/nav_viewpager1"
+            android:id="@+id/nav_full"
             android:icon="@drawable/ic_menu_gallery"
             android:title="viewPager1" />
         <item

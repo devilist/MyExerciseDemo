@@ -129,8 +129,8 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
             case R.id.nav_viewpager:
                 drawerLayout.closeDrawers();
                 return true;
-            case R.id.nav_viewpager1:
-                tabLayout.setupWithViewPager(viewPager);
+            case R.id.nav_full:
+                DSLFullscreenActivity.actionStart(this);
                 drawerLayout.closeDrawers();
                 return true;
             case R.id.nav_setting:
