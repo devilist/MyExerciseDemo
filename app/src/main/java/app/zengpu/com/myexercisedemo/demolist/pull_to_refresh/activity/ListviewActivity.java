@@ -2,7 +2,6 @@ package app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import app.zengpu.com.myexercisedemo.BaseActivity;
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view.RefreshAndLoadListView;
 import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view.core.RefreshAndLoadViewBase;
@@ -20,7 +20,7 @@ import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.view.core.RefreshA
 /**
  * Created by zengpu on 2016/7/4.
  */
-public class ListviewActivity extends AppCompatActivity implements
+public class ListviewActivity extends BaseActivity implements
         RefreshAndLoadViewBase.OnRefreshListener, RefreshAndLoadViewBase.OnLoadListener {
 
     private RefreshAndLoadListView refreshAndLoadListView;
@@ -34,6 +34,7 @@ public class ListviewActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pull_to_refresh_listview);
 
+        isSwipeBackEnabled(true);
         refreshAndLoadListView = (RefreshAndLoadListView) findViewById(R.id.rllv_list);
         refreshAndLoadListView.setOnRefreshListener(this);
         refreshAndLoadListView.setOnLoadListener(this);

@@ -8,17 +8,26 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+
+    <style name="AppTheme.ActionBar.SwapeBack" parent="AppTheme">
+        <!--swapeback动画-->
+        <item name="android:windowIsTranslucent">true</item>
+
+    </style>
     <style name="AppTheme.NoActionBar" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <!--swapeback动画-->
         <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowTranslucentStatus">true</item>
+
     </style>
 
-    <style name="AppTheme.NoActionBar.StatusBarTransparent" parent="AppTheme">
+    <style name="AppTheme.NoActionBar.StatusBarTransparent" parent="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowIsTranslucent">true</item>
+        <!--状态栏透明-->
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <style name="TextInputLayoutHint">

@@ -3,7 +3,6 @@ package app.zengpu.com.myexercisedemo.demolist.pull_to_refresh;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,6 +13,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import app.zengpu.com.myexercisedemo.BaseActivity;
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.activity.CustomViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.activity.GridViewActivity;
@@ -24,7 +24,7 @@ import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.activity.TextViewA
 /**
  * Created by zengpu on 2016/7/21.
  */
-public class RefreshAndLoadActivity extends AppCompatActivity {
+public class RefreshAndLoadActivity extends BaseActivity {
 
     private RecyclerView mRecyclerView;
     private RecyclerViewAdapter mAdapter;
@@ -34,7 +34,9 @@ public class RefreshAndLoadActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_refresh_load);
+
+        isSwipeBackEnabled(true);
 
         initData();
         initView();

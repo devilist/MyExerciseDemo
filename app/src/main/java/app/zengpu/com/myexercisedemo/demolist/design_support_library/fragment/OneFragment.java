@@ -17,7 +17,7 @@ import java.util.List;
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.Utils.CustomAlertDialog;
 import app.zengpu.com.myexercisedemo.demolist.advancepagerslidingtabstrip.activity.ApstActivity;
-import app.zengpu.com.myexercisedemo.demolist.design_support_library.adapter.TwoRecyclerViewAdapter;
+import app.zengpu.com.myexercisedemo.demolist.design_support_library.adapter.OneRecyclerViewAdapter;
 import app.zengpu.com.myexercisedemo.demolist.galleryfinaldemo.GalleryFinalActivity;
 import app.zengpu.com.myexercisedemo.demolist.multi_drawer.MultiDrawerActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop0.PhotoLoopActivity;
@@ -32,8 +32,8 @@ import app.zengpu.com.myexercisedemo.demolist.videoRecord.VideoAppendActivity;
 public class OneFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
-    private TwoRecyclerViewAdapter mAdapter;
-    private List<String> list = new ArrayList<>();
+    private OneRecyclerViewAdapter mAdapter;
+    private List<String[]> list = new ArrayList<>();
 
     public static OneFragment instance() {
         OneFragment view = new OneFragment();
@@ -60,11 +60,11 @@ public class OneFragment extends Fragment {
         mRecyclerView = (RecyclerView) getView().findViewById(R.id.rv_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mAdapter = new TwoRecyclerViewAdapter(getContext(), list);
+        mAdapter = new OneRecyclerViewAdapter(getContext(), list);
 
         mRecyclerView.setAdapter(mAdapter);
 
-        mAdapter.setOnItemClickListener(new TwoRecyclerViewAdapter.OnItemClickListener() {
+        mAdapter.setOnItemClickListener(new OneRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
 
@@ -81,7 +81,7 @@ public class OneFragment extends Fragment {
                     }, true, R.style.MyAlertDialog).show();
                 } else {
                     try {
-                        Class<?> activityClazz = Class.forName(list.get(position));
+                        Class<?> activityClazz = Class.forName(list.get(position)[1]);
                         Intent intent = new Intent(getContext(), activityClazz);
                         startActivity(intent);
 
@@ -94,27 +94,13 @@ public class OneFragment extends Fragment {
     }
 
     private void initData() {
-        list.add(CustomAlertDialog.class.getName());
-        list.add(MultiDrawerActivity.class.getName());
-        list.add(PhotoLoopActivity.class.getName());
-        list.add(ImageLoopActivity.class.getName());
-        list.add(RefreshAndLoadActivity.class.getName());
-        list.add(GalleryFinalActivity.class.getName());
-        list.add(VideoAppendActivity.class.getName());
-        list.add(ApstActivity.class.getName());
-        list.add(MultiDrawerActivity.class.getName());
-        list.add(PhotoLoopActivity.class.getName());
-        list.add(ImageLoopActivity.class.getName());
-        list.add(RefreshAndLoadActivity.class.getName());
-        list.add(GalleryFinalActivity.class.getName());
-        list.add(VideoAppendActivity.class.getName());
-        list.add(ApstActivity.class.getName());
-        list.add(MultiDrawerActivity.class.getName());
-        list.add(PhotoLoopActivity.class.getName());
-        list.add(ImageLoopActivity.class.getName());
-        list.add(RefreshAndLoadActivity.class.getName());
-        list.add(GalleryFinalActivity.class.getName());
-        list.add(VideoAppendActivity.class.getName());
-        list.add(ApstActivity.class.getName());
+        list.add(new String[]{"CustomAlertDialog", CustomAlertDialog.class.getName()});
+        list.add(new String[]{"muti drawer ", MultiDrawerActivity.class.getName()});
+        list.add(new String[]{"image loop:ViewPager+Handler", PhotoLoopActivity.class.getName()});
+        list.add(new String[]{"image loop:ViewPager+timer", ImageLoopActivity.class.getName()});
+        list.add(new String[]{"refresh and load ", RefreshAndLoadActivity.class.getName()});
+        list.add(new String[]{"GalleryFinal", GalleryFinalActivity.class.getName()});
+        list.add(new String[]{"video record", VideoAppendActivity.class.getName()});
+        list.add(new String[]{"APST", ApstActivity.class.getName()});
     }
 }

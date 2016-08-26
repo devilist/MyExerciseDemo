@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -30,6 +29,7 @@ import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
 
+import app.zengpu.com.myexercisedemo.BaseActivity;
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.Utils.LogUtil;
 import app.zengpu.com.myexercisedemo.demolist.videoRecord.model.VideoInfo;
@@ -39,7 +39,7 @@ import app.zengpu.com.myexercisedemo.demolist.videoRecord.util.VideoUtil;
  * 视频认证 拍摄视频页面
  * Created by zengpu on 2016/4/10.
  */
-public class VideoAppendActivity extends AppCompatActivity implements View.OnClickListener {
+public class VideoAppendActivity extends BaseActivity implements View.OnClickListener {
 
     private static final String TAG = "VideoAppendActivity";
 
@@ -156,6 +156,8 @@ public class VideoAppendActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        isSwipeBackEnabled(true);
         setContentView(R.layout.activity_video_record);
         oritationMap = VideoUtil.getOritationMap();
         initView();

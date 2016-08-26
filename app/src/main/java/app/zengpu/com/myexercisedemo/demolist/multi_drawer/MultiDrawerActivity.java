@@ -1,19 +1,19 @@
 package app.zengpu.com.myexercisedemo.demolist.multi_drawer;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import app.zengpu.com.myexercisedemo.BaseActivity;
 import app.zengpu.com.myexercisedemo.R;
 
 /**
  * Created by zengpu on 16/4/2.
  */
-public class MultiDrawerActivity extends AppCompatActivity {
+public class MultiDrawerActivity extends BaseActivity {
 
     private LinearLayout viewUp;
     private LinearLayout viewDown;
@@ -26,6 +26,8 @@ public class MultiDrawerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        isSwipeBackEnabled(true);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 

@@ -1,4 +1,4 @@
-package app.zengpu.com.myexercisedemo.demolist.design_support_library.activity;
+package app.zengpu.com.myexercisedemo;
 
 import android.os.Bundle;
 

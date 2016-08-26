@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import java.lang.reflect.Field;
 
 import app.zengpu.com.myexercisedemo.R;
+import app.zengpu.com.myexercisedemo.BaseActivity;
 
 public class DSLScrollingActivity extends BaseActivity implements AppBarLayout.OnOffsetChangedListener {
 

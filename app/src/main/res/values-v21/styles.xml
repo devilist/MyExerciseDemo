@@ -5,17 +5,21 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <!--activity转场动画-->
         <item name="android:windowContentTransitions">true</item>
+        <!--swapeback动画-->
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
-    <style name="AppTheme.NoActionBar.StatusBarTransparent">
+    <style name="AppTheme.NoActionBar.StatusBarTransparent" parent="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+
         <item name="android:windowContentTransitions">true</item>
         <item name="android:windowIsTranslucent">true</item>
+        <!--状态栏透明-->
         <item name="android:windowTranslucentStatus">true</item>
     </style>
 </resources>
