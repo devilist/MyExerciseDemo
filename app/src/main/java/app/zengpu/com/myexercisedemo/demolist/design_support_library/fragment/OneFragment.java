@@ -17,7 +17,7 @@ import java.util.List;
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.Utils.CustomAlertDialog;
 import app.zengpu.com.myexercisedemo.demolist.advancepagerslidingtabstrip.activity.ApstActivity;
-import app.zengpu.com.myexercisedemo.demolist.design_support_library.adapter.OneRecyclerViewAdapter;
+import app.zengpu.com.myexercisedemo.demolist.design_support_library.adapter.TwoRecyclerViewAdapter;
 import app.zengpu.com.myexercisedemo.demolist.galleryfinaldemo.GalleryFinalActivity;
 import app.zengpu.com.myexercisedemo.demolist.multi_drawer.MultiDrawerActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop0.PhotoLoopActivity;
@@ -32,7 +32,7 @@ import app.zengpu.com.myexercisedemo.demolist.videoRecord.VideoAppendActivity;
 public class OneFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
-    private OneRecyclerViewAdapter mAdapter;
+    private TwoRecyclerViewAdapter mAdapter;
     private List<String> list = new ArrayList<>();
 
     public static OneFragment instance() {
@@ -60,11 +60,11 @@ public class OneFragment extends Fragment {
         mRecyclerView = (RecyclerView) getView().findViewById(R.id.rv_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mAdapter = new OneRecyclerViewAdapter(getContext(), list);
+        mAdapter = new TwoRecyclerViewAdapter(getContext(), list);
 
         mRecyclerView.setAdapter(mAdapter);
 
-        mAdapter.setOnItemClickListener(new OneRecyclerViewAdapter.OnItemClickListener() {
+        mAdapter.setOnItemClickListener(new TwoRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
 
@@ -82,9 +82,7 @@ public class OneFragment extends Fragment {
                 } else {
                     try {
                         Class<?> activityClazz = Class.forName(list.get(position));
-
                         Intent intent = new Intent(getContext(), activityClazz);
-
                         startActivity(intent);
 
                     } catch (ClassNotFoundException e) {

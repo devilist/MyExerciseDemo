@@ -13,10 +13,14 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewAnimationUtils;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import app.zengpu.com.myexercisedemo.R;
@@ -27,36 +31,34 @@ import app.zengpu.com.myexercisedemo.R;
  */
 public class DSLLoginActivity extends AppCompatActivity {
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-//    private UserLoginTask mAuthTask = null;
-
-    // UI references.
-    private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
+    private AutoCompleteTextView mEmailView; // 邮箱
+    private EditText mPasswordView; // 密码
+    private View mProgressView; // 进度条
+    private ScrollView mLoginFormView; // 登录布局
+    private Button mEmailSignInButton; // 登录btn
+    private ImageView shiftView; // 转场动画
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.dsl_activity_login);
+        initView();
+    }
+
+    private void initView() {
 
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         mPasswordView = (EditText) findViewById(R.id.password);
-
+        mLoginFormView = (ScrollView) findViewById(R.id.login_form);
+        mProgressView = findViewById(R.id.login_progress);
+        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        shiftView = (ImageView) findViewById(R.id.iv_shift_anmi);
 
         mEmailView.setText("foo@example.com");
         mPasswordView.setText("hello");
 
+        // edittext编辑完之后的错误监听
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -68,41 +70,28 @@ public class DSLLoginActivity extends AppCompatActivity {
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
             }
         });
-
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
-
     }
 
     /**
      * 判断登录
      */
     private void attemptLogin() {
-        // Reset errors.
         mEmailView.setError(null);
         mPasswordView.setError(null);
-        // Store values at the time of the login attempt.
+
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid email address.
+        // 判断邮箱
         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
@@ -113,22 +102,18 @@ public class DSLLoginActivity extends AppCompatActivity {
             cancel = true;
         }
 
+        // 判断密码
+        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
+            // 获取焦点
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    DSLMainActivity.actionStart(DSLLoginActivity.this);
-                    finish();
-                }
-            },3000);
+            showShiftAnimation();
         }
     }
 
@@ -140,12 +125,72 @@ public class DSLLoginActivity extends AppCompatActivity {
         return password.length() > 4;
     }
 
+    private void showShiftAnimation() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            shiftView.setVisibility(View.VISIBLE);
+            shiftView.setBackgroundColor(getResources().getColor(R.color.colorPrimaryDark));
+            Animator animator = ViewAnimationUtils.createCircularReveal(
+                    shiftView, shiftView.getWidth() / 2, shiftView.getHeight() / 2,
+                    0, shiftView.getHeight());
+            animator.setInterpolator(new AccelerateDecelerateInterpolator());
+            animator.setDuration(2000);
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(View.VISIBLE);
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            DSLMainActivity.actionStart(DSLLoginActivity.this);
+                            finish();
+                        }
+                    },3000);
+                }
+            });
+            animator.start();
+        } else {
+            shiftView.setVisibility(View.GONE);
+            showProgress(true);
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    DSLMainActivity.actionStart(DSLLoginActivity.this);
+                    finish();
+                }
+            }, 3000);
+        }
+    }
+
+    private void hiddenShiftAnmimation() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mProgressView.setVisibility(View.GONE);
+            Animator animator = ViewAnimationUtils.createCircularReveal(
+                    shiftView, shiftView.getWidth() / 2, shiftView.getHeight() / 2,
+                    shiftView.getHeight(), 0);
+            animator.setInterpolator(new AccelerateDecelerateInterpolator());
+            animator.setDuration(2000);
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    shiftView.setVisibility(View.GONE);
+                }
+            });
+            animator.start();
+        }else {
+            showProgress(false);
+        }
+    }
+
     /**
      * 显示进度条
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
@@ -155,6 +200,10 @@ public class DSLLoginActivity extends AppCompatActivity {
                     mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
             });
+            if (show) {
+                shiftView.setVisibility(View.VISIBLE);
+            }
+
 
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mProgressView.animate().setDuration(shortAnimTime).alpha(

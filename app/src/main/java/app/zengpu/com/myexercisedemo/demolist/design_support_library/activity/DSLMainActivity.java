@@ -34,7 +34,6 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private ViewPager viewPager;
-//    private DSLMainPagerAdapter pagerAdapter;
     private TabLayout tabLayout;
 
     FloatingActionsMenu action_menu;
@@ -54,7 +53,6 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         ActionBar ab = getSupportActionBar();
         ab.setHomeAsUpIndicator(R.mipmap.ic_menu);
         ab.setDisplayHomeAsUpEnabled(true);
@@ -69,17 +67,29 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
         navigationView.setNavigationItemSelectedListener(this);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
-        setupViewpager(viewPager);
-
         tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(viewPager);
+        setupViewpagerAndTab(viewPager);
 
+        // fab
         action_menu = (FloatingActionsMenu) findViewById(R.id.action_menu);
         action_a = (FloatingActionButton) findViewById(R.id.action_a);
         action_b = (FloatingActionButton) findViewById(R.id.action_b);
         action_c = (FloatingActionButton) findViewById(R.id.action_c);
-        action_a.setTitle("sdssddsds");
+        setupFabMenu();
 
+    }
+
+    private void setupViewpagerAndTab(ViewPager viewPager) {
+        DSLMainPagerAdapter pagerAdapter = new DSLMainPagerAdapter(getSupportFragmentManager());
+        pagerAdapter.addFragment(new TwoFragment(),"二");
+        pagerAdapter.addFragment(new OneFragment(),"一");
+        pagerAdapter.addFragment(new ThreeFragment(),"三");
+        viewPager.setAdapter(pagerAdapter);
+        viewPager.setCurrentItem(0);
+        tabLayout.setupWithViewPager(viewPager);
+    }
+
+    private void setupFabMenu() {
         action_a.setOnClickListener(this);
         action_b.setOnClickListener(this);
         action_c.setOnClickListener(this);
@@ -87,31 +97,9 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
         for (int i = 0; i < action_menu.getChildCount(); i++) {
             if (action_menu.getChildAt(i) instanceof AddFloatingActionButton) {
                 action_menu.getChildAt(i).setOnClickListener(this);
-
                 break;
             }
         }
-
-
-    }
-
-    private void setupViewpager(ViewPager viewPager) {
-        DSLMainPagerAdapter pagerAdapter = new DSLMainPagerAdapter(getSupportFragmentManager());
-        pagerAdapter.addFragment(new OneFragment(),"one");
-        pagerAdapter.addFragment(new TwoFragment(),"two");
-        pagerAdapter.addFragment(new ThreeFragment(),"three");
-        pagerAdapter.addFragment(new TwoFragment(),"four");
-        viewPager.setAdapter(pagerAdapter);
-        viewPager.setCurrentItem(0);
-
-    }
-    private void setupViewpager1(ViewPager viewPager) {
-        DSLMainPagerAdapter pagerAdapter = new DSLMainPagerAdapter(getSupportFragmentManager());
-        pagerAdapter.addFragment(new TwoFragment(),"二");
-        pagerAdapter.addFragment(new OneFragment(),"一");
-        pagerAdapter.addFragment(new ThreeFragment(),"三");
-        viewPager.setAdapter(pagerAdapter);
-        viewPager.setCurrentItem(0);
     }
 
     @Override
@@ -128,17 +116,14 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
     public boolean onNavigationItemSelected(MenuItem item) {
         item.setChecked(true);
         switch (item.getItemId()) {
-            case R.id.nav_viewpager0:
-                setupViewpager(viewPager);
-                tabLayout.setupWithViewPager(viewPager);
+            case R.id.nav_viewpager:
                 drawerLayout.closeDrawers();
                 return true;
             case R.id.nav_viewpager1:
-                setupViewpager1(viewPager);
                 tabLayout.setupWithViewPager(viewPager);
                 drawerLayout.closeDrawers();
                 return true;
-            case R.id.nav_slideshow:
+            case R.id.nav_setting:
                 DSLSettingsActivity.actionStart(this);
                 drawerLayout.closeDrawers();
                 return true;

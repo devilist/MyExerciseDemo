@@ -16,7 +16,7 @@ import app.zengpu.com.myexercisedemo.R;
 /**
  * Created by tao on 2016/8/23.
  */
-public class OneRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class TwoRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
     private List<String> list;
@@ -47,12 +47,12 @@ public class OneRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         }
     }
 
-    public OneRecyclerViewAdapter(Context context, List<String> list) {
+    public TwoRecyclerViewAdapter(Context context, List<String> list) {
         this.context = context;
         this.list = list;
     }
 
-    public OneRecyclerViewAdapter(Context context, List<String> list, List<Drawable> drawablelist) {
+    public TwoRecyclerViewAdapter(Context context, List<String> list, List<Drawable> drawablelist) {
         this.context = context;
         this.list = list;
         this.drawablelist = drawablelist;

@@ -18,17 +18,13 @@ import android.widget.ImageView;
 import java.lang.reflect.Field;
 
 import app.zengpu.com.myexercisedemo.R;
-import me.imid.swipebacklayout.lib.SwipeBackLayout;
-import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
 
-public class DSLScrollingActivity extends SwipeBackActivity implements AppBarLayout.OnOffsetChangedListener {
+public class DSLScrollingActivity extends BaseActivity implements AppBarLayout.OnOffsetChangedListener {
 
     private AppBarLayout appBarLayout;
     private Toolbar toolbar;
     private Drawable drawable;
     private CollapsingToolbarLayout collapsingToolbarLayout;
-
-    private SwipeBackLayout mSwipeBackLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +45,7 @@ public class DSLScrollingActivity extends SwipeBackActivity implements AppBarLay
         collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
         collapsingToolbarLayout.setTitle(" " + getIntent().getStringExtra("appName"));
 
-        mSwipeBackLayout = getSwipeBackLayout();
-        mSwipeBackLayout.setEdgeSize(200);
-        mSwipeBackLayout.setEdgeTrackingEnabled(SwipeBackLayout.EDGE_ALL);
-
+        isSwipeBackEnabled(true);
 
     }
 

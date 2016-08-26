@@ -1,7 +1,5 @@
 package app.zengpu.com.myexercisedemo.demolist.design_support_library.fragment;
 
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
@@ -23,7 +21,7 @@ import java.util.List;
 
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.demolist.design_support_library.activity.DSLScrollingActivity;
-import app.zengpu.com.myexercisedemo.demolist.design_support_library.adapter.OneRecyclerViewAdapter;
+import app.zengpu.com.myexercisedemo.demolist.design_support_library.adapter.TwoRecyclerViewAdapter;
 
 
 /**
@@ -32,7 +30,7 @@ import app.zengpu.com.myexercisedemo.demolist.design_support_library.adapter.One
 public class TwoFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
-    private OneRecyclerViewAdapter mAdapter;
+    private TwoRecyclerViewAdapter mAdapter;
     private List<String> list = new ArrayList<>();
     private List<Drawable> drawablelist = new ArrayList<>();
 
@@ -61,20 +59,16 @@ public class TwoFragment extends Fragment {
         mRecyclerView = (RecyclerView) getView().findViewById(R.id.rv_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mAdapter = new OneRecyclerViewAdapter(getContext(), list, drawablelist);
+        mAdapter = new TwoRecyclerViewAdapter(getContext(), list, drawablelist);
 
         mRecyclerView.setAdapter(mAdapter);
 
-        mAdapter.setOnItemClickListener(new OneRecyclerViewAdapter.OnItemClickListener() {
+        mAdapter.setOnItemClickListener(new TwoRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
 
                 switch (view.getId()) {
                     case R.id.iv_icon:
-
-                        Context context = view.getContext();
-                        Intent intent = new Intent(context, DSLScrollingActivity.class);
-
                         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
                             BitmapDrawable bd = (BitmapDrawable) drawablelist.get(position);
@@ -103,7 +97,6 @@ public class TwoFragment extends Fragment {
                 list.add(appName);
                 drawablelist.add(appIcon);
             }
-
         }
     }
 }

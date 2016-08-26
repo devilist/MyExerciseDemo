@@ -3,15 +3,15 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_viewpager0"
+            android:id="@+id/nav_viewpager"
             android:icon="@drawable/ic_menu_camera"
-            android:title="viewPager0" />
+            android:title="viewPager" />
         <item
             android:id="@+id/nav_viewpager1"
             android:icon="@drawable/ic_menu_gallery"
             android:title="viewPager1" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_setting"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="setting" />
         <item

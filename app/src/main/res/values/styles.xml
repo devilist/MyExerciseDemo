@@ -23,6 +23,7 @@
 
     <style name="TextInputLayoutHint">
         <item name="android:textSize">14sp</item>
+        <item name="android:background">@color/colorPrimary</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>

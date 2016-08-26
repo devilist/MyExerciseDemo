@@ -9,21 +9,13 @@
     android:fitsSystemWindows="true"
     tools:context="app.zengpu.com.myexercisedemo.demolist.design_support_library.activity.DSLLoginActivity">
 
-    <!-- Login progress -->
-    <ProgressBar
-        android:id="@+id/login_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone"/>
 
     <ImageView
+        android:id="@+id/iv_catch_focus"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:focusable="true"
         android:focusableInTouchMode="true"/>
-
 
     <ScrollView
         android:id="@+id/login_form"
@@ -63,13 +55,14 @@
                 android:layout_marginBottom="20dp"
                 app:counterEnabled="true"
                 app:counterMaxLength="160"
-                app:errorEnabled="true">
+                app:errorEnabled="true"
+                app:hintAnimationEnabled="true">
 
                 <EditText
                     android:id="@+id/password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="请输入密码"
+                    android:hint="请输入密码（字母和数字）"
                     android:imeActionId="@+id/login"
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
@@ -81,15 +74,31 @@
 
             <Button
                 android:id="@+id/email_sign_in_button"
-                style="?android:textAppearanceSmall"
+                style="?android:attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@color/colorPrimary"
+                android:background="@drawable/ripple_btn_bg"
                 android:text="登录"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="18sp"/>
 
         </LinearLayout>
     </ScrollView>
+
+    <ImageView
+        android:id="@+id/iv_shift_anmi"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <!-- Login progress -->
+    <ProgressBar
+        android:id="@+id/login_progress"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        android:visibility="gone"/>
+
 </RelativeLayout>
