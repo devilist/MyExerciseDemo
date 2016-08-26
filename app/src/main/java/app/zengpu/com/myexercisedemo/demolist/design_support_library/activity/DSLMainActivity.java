@@ -77,11 +77,7 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
         action_a = (FloatingActionButton) findViewById(R.id.action_a);
         action_b = (FloatingActionButton) findViewById(R.id.action_b);
         action_c = (FloatingActionButton) findViewById(R.id.action_c);
-        action_a.setSize(FloatingActionButton.SIZE_MINI);
-        action_b.setSize(FloatingActionButton.SIZE_MINI);
-        action_c.setSize(FloatingActionButton.SIZE_MINI);
-
-
+        setupFabMenu();
     }
 
     private void setupViewpagerAndTab(ViewPager viewPager) {
@@ -95,6 +91,10 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
     }
 
     private void setupFabMenu() {
+        action_a.setSize(FloatingActionButton.SIZE_MINI);
+        action_b.setSize(FloatingActionButton.SIZE_MINI);
+        action_c.setSize(FloatingActionButton.SIZE_MINI);
+
         action_a.setOnClickListener(this);
         action_b.setOnClickListener(this);
         action_c.setOnClickListener(this);
@@ -109,27 +109,8 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
         layerIv = (ImageView) findViewById(R.id.iv_layer);
         layerIv.setOnClickListener(this);
 
-
     }
 
-    private void setupViewpager(ViewPager viewPager) {
-        DSLMainPagerAdapter pagerAdapter = new DSLMainPagerAdapter(getSupportFragmentManager());
-        pagerAdapter.addFragment(new OneFragment(),"one");
-        pagerAdapter.addFragment(new TwoFragment(),"two");
-        pagerAdapter.addFragment(new ThreeFragment(),"three");
-        pagerAdapter.addFragment(new TwoFragment(),"four");
-        viewPager.setAdapter(pagerAdapter);
-        viewPager.setCurrentItem(0);
-
-    }
-    private void setupViewpager1(ViewPager viewPager) {
-        DSLMainPagerAdapter pagerAdapter = new DSLMainPagerAdapter(getSupportFragmentManager());
-        pagerAdapter.addFragment(new TwoFragment(),"二");
-        pagerAdapter.addFragment(new OneFragment(),"一");
-        pagerAdapter.addFragment(new ThreeFragment(),"三");
-        viewPager.setAdapter(pagerAdapter);
-        viewPager.setCurrentItem(0);
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
