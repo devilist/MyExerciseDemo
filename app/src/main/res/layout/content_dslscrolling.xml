@@ -9,10 +9,151 @@
     tools:context="app.zengpu.com.myexercisedemo.demolist.design_support_library.activity.DSLScrollingActivity"
     tools:showIn="@layout/dsl_activity_scrolling">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:text="@string/large_text"/>
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/tv_title_transition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="10dp"
+                android:text="LayoutTransition"/>
+
+            <Button
+                android:id="@+id/btn_anim_diy"
+                android:layout_width="60dp"
+                android:layout_height="50dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/tv_title_transition"
+                android:layout_marginRight="20dp"
+                android:background="#55000000"
+                android:text="custom"
+                android:textAllCaps="false"/>
+
+            <Button
+                android:id="@+id/btn_anim_default"
+                android:layout_width="60dp"
+                android:layout_height="50dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/btn_anim_diy"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="20dp"
+                android:background="#55000000"
+                android:text="default"
+                android:textAllCaps="false"/>
+
+            <LinearLayout
+                android:id="@+id/ll_transition_group_custom"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@id/tv_title_transition"
+                android:layout_marginLeft="20dp"
+                android:animateLayoutChanges="true"
+                >
+
+                <Button
+                    android:id="@+id/btn_target"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginRight="20dp"
+                    android:background="#ededed"
+                    android:text="出现"/>
+
+                <Button
+                    android:id="@+id/btn_0"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginRight="20dp"
+                    android:background="#ededed"
+                    android:text="酱油"/>
+
+                <Button
+                    android:id="@+id/btn_1"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginRight="20dp"
+                    android:background="#ededed"
+                    android:text="酱油"/>
+
+                <Button
+                    android:id="@+id/btn_2"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="#ededed"
+                    android:text="酱油"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_transition_group_default"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@id/ll_transition_group_custom"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:animateLayoutChanges="true"
+                >
+
+                <Button
+                    android:id="@+id/btn_target_default"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginRight="20dp"
+                    android:background="#ededed"
+                    android:text="出现"/>
+
+                <Button
+                    android:id="@+id/btn_3"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginRight="20dp"
+                    android:background="#ededed"
+                    android:text="酱油"/>
+
+                <Button
+                    android:id="@+id/btn_4"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginRight="20dp"
+                    android:background="#ededed"
+                    android:text="酱油"/>
+
+                <Button
+                    android:id="@+id/btn_5"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="#ededed"
+                    android:text="酱油"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0.75dp"
+            android:background="#55000000"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/text_margin"
+            android:text="@string/large_text"/>
+
+    </LinearLayout>
+
 
 </android.support.v4.widget.NestedScrollView>
