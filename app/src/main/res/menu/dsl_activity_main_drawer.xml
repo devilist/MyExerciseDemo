@@ -9,7 +9,7 @@
         <item
             android:id="@+id/nav_full"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="viewPager1" />
+            android:title="fullscreen" />
         <item
             android:id="@+id/nav_setting"
             android:icon="@drawable/ic_menu_slideshow"
