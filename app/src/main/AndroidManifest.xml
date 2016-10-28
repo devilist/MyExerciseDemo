@@ -129,6 +129,12 @@
             android:label="@string/title_activity_dslfullscreen"
             android:theme="@style/FullscreenTheme">
         </activity>
+
+        <activity
+            android:name=".demolist.recyclerViewPager.RecyclerViewPagerActivity"
+            android:label="RecyclerViewPager"
+            android:theme="@style/AppTheme.NoActionBar.StatusBarTransparent">
+        </activity>
     </application>
 
 </manifest>
