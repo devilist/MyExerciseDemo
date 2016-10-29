@@ -20,8 +20,9 @@
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
-            app:expandedTitleGravity="left|bottom"
+            app:expandedTitleGravity="center|bottom"
             app:expandedTitleMarginStart="10dp"
+            android:minHeight="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
             <ImageView

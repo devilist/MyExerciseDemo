@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:background="#999999"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#448aff"
+    android:orientation="vertical">
 
-    <app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerViewPager
-        android:id="@+id/rvp_list"
+    <app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RefreshRecyclerViewPager
+        android:id="@+id/rrvp_pager"
         android:layout_width="match_parent"
+        android:layout_marginTop="20dp"
         android:layout_height="wrap_content">
 
-    </app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerViewPager>
+        <app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerViewPager
+            android:id="@+id/rvp_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerViewPager>
+
+    </app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RefreshRecyclerViewPager>
+
 
 </LinearLayout>

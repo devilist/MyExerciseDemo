@@ -25,7 +25,7 @@ import app.zengpu.com.myexercisedemo.Utils.LogUtil;
 /**
  * 下拉刷新，上拉加载更多抽象基类。
  * 子类继承时需要实现三个抽象方法：
- * setContentViewScrollListener();   为ListView / GridView / RecyclerView等 添加滚动监听
+ * setRecyclerViewScrollListener();   为ListView / GridView / RecyclerView等 添加滚动监听
  * isTop();   是否滚动到了头部
  * isBottom();   是否滚动到了底部
  * <p/>

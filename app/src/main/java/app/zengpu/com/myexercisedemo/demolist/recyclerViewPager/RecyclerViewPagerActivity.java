@@ -19,12 +19,15 @@ import app.zengpu.com.myexercisedemo.R;
  * Created by tao on 2016/10/28.
  */
 
-public class RecyclerViewPagerActivity extends AppCompatActivity {
+public class RecyclerViewPagerActivity extends AppCompatActivity implements
+        RecyclerViewPager.OnPageSelectListener,
+        RefreshRecyclerViewPager.OnRefreshListener,
+        RefreshRecyclerViewPager.OnLoadMoreListener {
 
+    private RefreshRecyclerViewPager refreshRecyclerViewPager;
     private RecyclerViewPager recyclerViewPager;
     private RVPAdapter adapter;
-    private List<String> appNameList = new ArrayList<>();
-    private List<Drawable> appIconlist = new ArrayList<>();
+    private List<AppInfo> appInfolist = new ArrayList<>();
 
 
     @Override
@@ -45,27 +48,130 @@ public class RecyclerViewPagerActivity extends AppCompatActivity {
             PackageInfo packageInfo = packages.get(i);
             String appName = packageInfo.applicationInfo.loadLabel(getPackageManager()).toString();
             Drawable appIcon = packageInfo.applicationInfo.loadIcon(getPackageManager());
+            int versionCode = packageInfo.versionCode;
+            String versionName = packageInfo.versionName;
+            String packageName = packageInfo.packageName;
+
+            AppInfo appInfo = new AppInfo();
+            appInfo.setAppName(appName);
+            appInfo.setAppIcon(appIcon);
+            appInfo.setVersionCode(versionCode);
+            appInfo.setVersionName(versionName);
+            appInfo.setPackageName(packageName);
 
             if ((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
-                appNameList.add(appName);
-                appIconlist.add(appIcon);
+                appInfolist.add(appInfo);
             }
         }
     }
 
     private void initView() {
+
+        refreshRecyclerViewPager = (RefreshRecyclerViewPager) findViewById(R.id.rrvp_pager);
+
         recyclerViewPager = (RecyclerViewPager) findViewById(R.id.rvp_list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         recyclerViewPager.setLayoutManager(linearLayoutManager);
-        adapter = new RVPAdapter(this, appNameList, appIconlist);
+        adapter = new RVPAdapter(this, appInfolist);
         recyclerViewPager.setAdapter(adapter);
         adapter.setOnItemClickListener(new RVPAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Toast.makeText(RecyclerViewPagerActivity.this, appNameList.get(position), Toast.LENGTH_SHORT).show();
+                Toast.makeText(RecyclerViewPagerActivity.this, appInfolist.get(position).getAppName(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        recyclerViewPager.setOnPageSelectListener(this);
+
+        refreshRecyclerViewPager.setOnRefreshListener(this);
+        refreshRecyclerViewPager.setOnLoadMoreListener(this);
+
+
     }
 
+
+    int textFlag = 0;
+
+    @Override
+    public void onRefresh() {
+        refreshRecyclerViewPager.postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+
+                // 加载失败
+                if (textFlag == 0) {
+                    refreshRecyclerViewPager.refreshAndLoadFailure();
+                    textFlag = 1;
+                    return;
+                }
+                // 加载成功
+                if (textFlag == 1) {
+                    // 更新数据
+                    appInfolist.add(0,appInfolist.get(appInfolist.size()-1));
+                    adapter.notifyDataSetChanged();
+                    // 更新完后调用该方法结束刷新
+                    refreshRecyclerViewPager.refreshComplete();
+                    textFlag = 2;
+                    return;
+                }
+                // 没有更多数据
+                if (textFlag == 2) {
+                    refreshRecyclerViewPager.refreshAndLoadNoMore();
+                    textFlag = 0;
+                    return;
+                }
+            }
+        }, 1500);
+
+    }
+
+    @Override
+    public void onLoadMore() {
+
+        refreshRecyclerViewPager.postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+
+                if (textFlag == 0) {
+                    refreshRecyclerViewPager.refreshAndLoadFailure();
+                    textFlag = 1;
+                    return;
+                }
+                if (textFlag == 1) {
+                    // 更新数据
+                    appInfolist.add(appInfolist.get(0));
+                    adapter.notifyDataSetChanged();
+                    // 更新完后调用该方法结束刷新
+                    refreshRecyclerViewPager.loadMoreCompelte();
+                    textFlag = 2;
+                    return;
+                }
+                if (textFlag == 2) {
+                    refreshRecyclerViewPager.refreshAndLoadNoMore();
+                    textFlag = 0;
+                    return;
+                }
+            }
+        }, 1500);
+
+    }
+
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
 }

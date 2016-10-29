@@ -3,8 +3,10 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MyExerciseDemo.iml" filepath="$PROJECT_DIR$/MyExerciseDemo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/extras/advancedpagerslidingtabstrip/advancedpagerslidingtabstrip.iml" filepath="$PROJECT_DIR$/extras/advancedpagerslidingtabstrip/advancedpagerslidingtabstrip.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/galleryfinal/galleryfinal.iml" filepath="$PROJECT_DIR$/galleryfinal/galleryfinal.iml" />
+      <module fileurl="file://$PROJECT_DIR$/extras/extras.iml" filepath="$PROJECT_DIR$/extras/extras.iml" />
+      <module fileurl="file://$PROJECT_DIR$/extras/galleryfinal/galleryfinal.iml" filepath="$PROJECT_DIR$/extras/galleryfinal/galleryfinal.iml" />
     </modules>
   </component>
 </project>

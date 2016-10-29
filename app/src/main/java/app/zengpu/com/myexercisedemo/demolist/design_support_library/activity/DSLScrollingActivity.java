@@ -34,7 +34,7 @@ public class DSLScrollingActivity extends BaseActivity implements AppBarLayout.O
     private Drawable drawable;
     private CollapsingToolbarLayout collapsingToolbarLayout;
 
-    private Button animCustomBtn, animDefaultBtn,targetCustomBtn,targetDefaultBtn;
+    private Button animCustomBtn, animDefaultBtn, targetCustomBtn, targetDefaultBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,7 +119,7 @@ public class DSLScrollingActivity extends BaseActivity implements AppBarLayout.O
         PropertyValuesHolder pvhTop = PropertyValuesHolder.ofInt("top", 1, 1);
         PropertyValuesHolder pvhRight = PropertyValuesHolder.ofInt("right", 0, 1);
         PropertyValuesHolder pvhBottom = PropertyValuesHolder.ofInt("bottom", 0, 1);
-        PropertyValuesHolder pvhScaleX = PropertyValuesHolder.ofFloat("ScaleX",1f,2f,1f);
+        PropertyValuesHolder pvhScaleX = PropertyValuesHolder.ofFloat("ScaleX", 1f, 2f, 1f);
         Animator changeAppearAnimator = ObjectAnimator.ofPropertyValuesHolder(group, pvhLeft, pvhBottom, pvhTop, pvhRight);
         transition.setAnimator(LayoutTransition.CHANGE_APPEARING, changeAppearAnimator);
 
@@ -136,9 +136,9 @@ public class DSLScrollingActivity extends BaseActivity implements AppBarLayout.O
         Keyframe frame9 = Keyframe.ofFloat(0.9f, -20f);
         Keyframe frame10 = Keyframe.ofFloat(1, 0);
         PropertyValuesHolder mPropertyValuesHolder = PropertyValuesHolder.ofKeyframe("rotation",
-                frame0,frame1,frame2,frame3,frame4,frame5,frame6,frame7,frame8,frame9,frame10);
+                frame0, frame1, frame2, frame3, frame4, frame5, frame6, frame7, frame8, frame9, frame10);
 
-        ObjectAnimator mObjectAnimatorChangeDisAppearing = ObjectAnimator.ofPropertyValuesHolder(group, pvhLeft, pvhBottom, pvhTop, pvhRight,mPropertyValuesHolder);
+        ObjectAnimator mObjectAnimatorChangeDisAppearing = ObjectAnimator.ofPropertyValuesHolder(group, pvhLeft, pvhBottom, pvhTop, pvhRight, mPropertyValuesHolder);
         transition.setAnimator(LayoutTransition.CHANGE_DISAPPEARING, mObjectAnimatorChangeDisAppearing);
 
         transition.setStagger(LayoutTransition.CHANGE_APPEARING, 300);
