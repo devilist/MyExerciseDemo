@@ -112,6 +112,10 @@ public class RecyclerViewPager extends RecyclerView implements
         mFlingSlop = mScreenWidth * mFlingFactor;
         mVelocitySlop = 2000;
 
+        linearLayoutManager = new LinearLayoutManager(context);
+        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        setLayoutManager(linearLayoutManager);
+
         gestureDetector = new GestureDetector(context, this);
 
         this.setOnTouchListener(this);

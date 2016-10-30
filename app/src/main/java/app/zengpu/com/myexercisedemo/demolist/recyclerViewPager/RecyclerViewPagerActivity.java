@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.widget.Toast;
 
@@ -14,9 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import app.zengpu.com.myexercisedemo.R;
+import app.zengpu.com.myexercisedemo.Utils.LogUtil;
 
 /**
- * Created by tao on 2016/10/28.
+ * Created by zengpu on 2016/10/28.
  */
 
 public class RecyclerViewPagerActivity extends AppCompatActivity implements
@@ -28,6 +28,9 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
     private RecyclerViewPager recyclerViewPager;
     private RVPAdapter adapter;
     private List<AppInfo> appInfolist = new ArrayList<>();
+
+    private RecyclerIndicator indicator;
+    private List<Drawable> indicatorIconlist = new ArrayList<>();
 
 
     @Override
@@ -61,6 +64,7 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
 
             if ((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
                 appInfolist.add(appInfo);
+                indicatorIconlist.add(appIcon);
             }
         }
     }
@@ -70,9 +74,6 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
         refreshRecyclerViewPager = (RefreshRecyclerViewPager) findViewById(R.id.rrvp_pager);
 
         recyclerViewPager = (RecyclerViewPager) findViewById(R.id.rvp_list);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        recyclerViewPager.setLayoutManager(linearLayoutManager);
         adapter = new RVPAdapter(this, appInfolist);
         recyclerViewPager.setAdapter(adapter);
         adapter.setOnItemClickListener(new RVPAdapter.OnItemClickListener() {
@@ -87,9 +88,11 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
         refreshRecyclerViewPager.setOnRefreshListener(this);
         refreshRecyclerViewPager.setOnLoadMoreListener(this);
 
+        indicator = (RecyclerIndicator) findViewById(R.id.ri_indicator);
+        indicator.setMaxVisableCount(7);
+        indicator.setIcon(indicatorIconlist);
 
     }
-
 
     int textFlag = 0;
 
@@ -109,8 +112,8 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
                 // 加载成功
                 if (textFlag == 1) {
                     // 更新数据
-                    appInfolist.add(0,appInfolist.get(appInfolist.size()-1));
-                    adapter.notifyDataSetChanged();
+//                    appInfolist.add(0, appInfolist.get(appInfolist.size() - 1));
+//                    adapter.notifyDataSetChanged();
                     // 更新完后调用该方法结束刷新
                     refreshRecyclerViewPager.refreshComplete();
                     textFlag = 2;
@@ -167,6 +170,8 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
 
     @Override
     public void onPageSelected(int position) {
+        LogUtil.e("RecyclerViewPagerActivity", "position : " + position);
+        indicator.doSelectAnimation(position);
 
     }
 

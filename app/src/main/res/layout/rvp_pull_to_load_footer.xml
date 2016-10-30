@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="5dp"
+        android:layout_marginLeft="10dp"
         android:indeterminate="true" />
 
     <TextView
@@ -33,7 +33,7 @@
         android:layout_height="30dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="5dp"
+        android:layout_marginLeft="10dp"
         android:gravity="center"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@android:color/darker_gray"
