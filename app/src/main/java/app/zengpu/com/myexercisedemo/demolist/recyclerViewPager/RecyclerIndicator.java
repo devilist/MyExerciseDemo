@@ -204,7 +204,7 @@ public class RecyclerIndicator extends RecyclerView {
                     removeInvalideAnim();
                     smoothScrollBy(finalOffsetX, 0);
                 }
-            }, adapter.selectAnimDuration + 100);
+            }, adapter.selectAnimDuration * 2);
         } else {
             removeInvalideAnim();
             LogUtil.e("RecyclerIndicator2", "-------select animation finish--------" + "  finish time " + System.currentTimeMillis());
@@ -440,6 +440,18 @@ public class RecyclerIndicator extends RecyclerView {
                 animatorSet.start();
             }
 
+            if (viewHolderList.size() > maxVisableCount) {
+                for (int i = 0; i < viewHolderList.size() - 1; i++) {
+
+                    if (i == firstVisiablePosition) {
+                        i = firstVisiablePosition + maxVisableCount;
+                    }
+
+                    if (offsetList.get(i) != 0f)
+                        offsetList.put(i, 0f);
+                }
+            }
+
 //            LogUtil.e("RecyclerIndicator2", "###### touch animation finish ######");
 
             return animatorSet;
@@ -489,6 +501,19 @@ public class RecyclerIndicator extends RecyclerView {
                 animatorSet.setDuration(selectAnimDuration);
                 animatorSet.start();
             }
+
+            if (viewHolderList.size() > maxVisableCount) {
+                for (int i = 0; i < viewHolderList.size() - 1; i++) {
+
+                    if (i == firstVisiablePosition) {
+                        i = firstVisiablePosition + maxVisableCount;
+                    }
+
+                    if (offsetList.get(i) != 0f)
+                        offsetList.put(i, 0f);
+                }
+            }
+
 //            LogUtil.e("RecyclerIndicator2", "-------select animation finish--------");
             return animatorSet;
         }
