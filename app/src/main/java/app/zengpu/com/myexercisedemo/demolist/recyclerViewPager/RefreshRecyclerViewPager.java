@@ -48,6 +48,11 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
     protected int mXOffset;
 
     /**
+     * 手指滑动时的摩擦系数
+     */
+    private  float mTouchScrollFrictionFactor = 0.35f;
+
+    /**
      * 触发刷新加载操作的最小距离
      */
     protected int mTouchSlop;
@@ -173,7 +178,6 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
      * 左滑加载是否失败，用于处理失败后footer的隐藏问题
      */
     private boolean isLoadFailure = false;
-
 
     public RefreshRecyclerViewPager(Context context) {
         this(context, null);
@@ -475,7 +479,7 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
                 if (mCurrentStatus == STATUS_LOADING && mXOffset <= 0)
                     break;
 
-                changeScrollX(mXOffset);
+                changeScrollX((int) (mXOffset * mTouchScrollFrictionFactor));
 
                 mLastX = currentX;
                 break;
