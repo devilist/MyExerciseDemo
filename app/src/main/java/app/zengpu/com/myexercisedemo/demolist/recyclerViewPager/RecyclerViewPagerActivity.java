@@ -29,7 +29,8 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
     private RVPAdapter adapter;
     private List<AppInfo> appInfolist = new ArrayList<>();
 
-    private RecyclerIndicator indicator;
+//    private RecyclerIndicator indicator;
+    private AnimPagerIndicator animPagerIndicator;
     private List<Drawable> indicatorIconlist = new ArrayList<>();
 
 
@@ -88,9 +89,11 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
         refreshRecyclerViewPager.setOnRefreshListener(this);
         refreshRecyclerViewPager.setOnLoadMoreListener(this);
 
-        indicator = (RecyclerIndicator) findViewById(R.id.ri_indicator);
-        indicator.setMaxVisableCount(7);
-        indicator.setIcon(indicatorIconlist);
+//        indicator = (RecyclerIndicator) findViewById(R.id.ri_indicator);
+//        indicator.setIcon(indicatorIconlist);
+//        indicator.setMaxVisableCount(7);
+        animPagerIndicator = (AnimPagerIndicator) findViewById(R.id.view_indictor);
+        animPagerIndicator.setData(indicatorIconlist);
 
     }
 
@@ -171,7 +174,7 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
     @Override
     public void onPageSelected(int position) {
         LogUtil.e("RecyclerViewPagerActivity", "position : " + position);
-        indicator.doSelectAnimation(position);
+//        indicator.doSelectAnimation(position);
 
     }
 

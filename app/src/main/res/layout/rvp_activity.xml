@@ -20,13 +20,22 @@
 
     </app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RefreshRecyclerViewPager>
 
-    <app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerIndicator
-        android:id="@+id/ri_indicator"
+    <!--<app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerIndicator-->
+        <!--android:id="@+id/ri_indicator"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="bottom">-->
+
+    <!--</app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerIndicator>-->
+
+    <app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.AnimPagerIndicator
+        android:id="@+id/view_indictor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="-50dp"
         android:layout_gravity="bottom">
 
-    </app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerIndicator>
+    </app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.AnimPagerIndicator>
 
 
 </FrameLayout>

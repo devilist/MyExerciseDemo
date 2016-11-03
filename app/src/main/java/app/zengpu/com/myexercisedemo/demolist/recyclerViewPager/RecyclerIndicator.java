@@ -574,7 +574,7 @@ public class RecyclerIndicator extends RecyclerView {
                 public void onAnimationUpdate(ValueAnimator animation) {
                     // 实时更新的偏移量
                     current[0] = (float) animation.getAnimatedValue("translationY");
-                    offsetList.put(position, current[0]);
+//                    offsetList.put(position, current[0]);
                 }
             });
 
