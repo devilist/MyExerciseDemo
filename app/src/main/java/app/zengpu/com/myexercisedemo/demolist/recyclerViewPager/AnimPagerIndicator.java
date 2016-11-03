@@ -7,6 +7,7 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -28,7 +29,7 @@ import app.zengpu.com.myexercisedemo.Utils.LogUtil;
  */
 
 public class AnimPagerIndicator extends LinearLayout
-//        implements View.OnTouchListener
+//        implements
 {
 
     private Context context;
@@ -39,12 +40,13 @@ public class AnimPagerIndicator extends LinearLayout
 
     private long mTouchAnimDuration = 100; // 手指触摸过程中动画持续时间
     private long mSelectAnimDuration = 200; // 手指抬起后Y向动画持续时间
-    private long mScrollXAnimDuration = 100; // 手指抬起后X向动画持续时间
 
     private List<View> mItemViewList = new ArrayList<>();
     private List<AnimatorSet> mAnimatorSetList = new ArrayList<>();
     private Map<Integer, Float> mItemOffsetList = new HashMap<>(); // 记录每一个item的实时偏移量
     private float indicatorOffsetX = 0f;
+
+    private RecyclerView viewPager;
 
 
     public AnimPagerIndicator(Context context) {
@@ -106,6 +108,21 @@ public class AnimPagerIndicator extends LinearLayout
 
     }
 
+    public void setReyclerViewPager(final RecyclerView viewPager) {
+        this.viewPager = viewPager;
+
+//        this.viewPager.setOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+//                    LinearLayoutManager layoutManager = (LinearLayoutManager) viewPager.getLayoutManager();
+//                    doSelectAnimation(layoutManager.findFirstVisibleItemPosition());
+//                }
+//            }
+//        });
+    }
+
     /**
      * 创建indicator item
      *
@@ -116,6 +133,7 @@ public class AnimPagerIndicator extends LinearLayout
         // 根布局
         LinearLayout ll_item = new LinearLayout(context);
         ll_item.setOrientation(LinearLayout.VERTICAL);
+//        ll_item.setClickable(true);
         // 子布局，Y偏移量
         LinearLayout ll_sub_offset = new LinearLayout(context);
         ll_sub_offset.setOrientation(LinearLayout.VERTICAL);
@@ -133,7 +151,7 @@ public class AnimPagerIndicator extends LinearLayout
 
         int rootPadding = 6;
         int iconPadding = 8;
-        mItemOffsetY = mItemWidth - rootPadding * 2;
+        mItemOffsetY = mItemWidth - rootPadding * 2 - iconPadding;
         int mItemHeight = mItemWidth * 11 / 10 + mItemOffsetY;
 
         // 根布局
@@ -175,45 +193,39 @@ public class AnimPagerIndicator extends LinearLayout
         }
     }
 
-//    @Override
-//    public boolean onInterceptTouchEvent(MotionEvent ev) {
-//        long action_time = 0;
-//
-//        switch (ev.getAction()) {
-//            case MotionEvent.ACTION_DOWN:
-//                action_time = System.currentTimeMillis();
-//                break;
-//            case MotionEvent.ACTION_UP:
-//                if (System.currentTimeMillis() - action_time > 5)
-//                    return true;
-//
-//        }
-//        return super.onInterceptTouchEvent(ev);
-//    }
+    private long last_action_event_time = 0;
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
 
         float x_offset = e.getX();
         int targetPosition = cumputeTargetPositionFromOffsetX(x_offset);
-        long time_down = 0;
-        long time_move = 0;
+        long action_time = 0;
         boolean isDoAnimation = false;
 
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                long second_action_event_time = System.currentTimeMillis();
+                if (last_action_event_time > 0) {
+                    if (second_action_event_time - last_action_event_time < 500) {
+                        last_action_event_time = second_action_event_time;
+                        return false;
+                    } else {
+                        doTouchAnimation(targetPosition);
+                    }
+                } else {
+                    doTouchAnimation(targetPosition);
+                }
+
                 LogUtil.e("AnimPagerIndicator2", "ACTION_DOWN   " + System.currentTimeMillis());
-                time_down = System.currentTimeMillis();
-                doTouchAnimation(targetPosition);
-//                LogUtil.e("RecyclerIndicator1", "time_down : " + time_down);
                 break;
             case MotionEvent.ACTION_MOVE:
-                time_move = System.currentTimeMillis() - time_down;
-//                LogUtil.e("RecyclerIndicator11", "time_zero : " + (time_move - time_down) % 200);
-                if (time_move <= 0)
+                action_time = e.getEventTime() - e.getDownTime();
+                LogUtil.e("AnimPagerIndicator2", "time_move : " + action_time);
+                if (action_time < mTouchAnimDuration)
                     isDoAnimation = false;
                 else
-                    isDoAnimation = time_move % (2 * mTouchAnimDuration) <= 20;
+                    isDoAnimation = action_time % (2 * mTouchAnimDuration) <= 20;
                 LogUtil.e("AnimPagerIndicator2", "ACTION_MOVE " + "isDoAnimation : " + isDoAnimation);
 
                 if (isDoAnimation && isAllAnimatorFinish()) {
@@ -221,50 +233,15 @@ public class AnimPagerIndicator extends LinearLayout
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                if (isAllAnimatorFinish())
-                    doSelectAnimationWithDelay(targetPosition);
-                LogUtil.e("AnimPagerIndicator2", "ACTION_UP  " + "time_move is : " + time_move);
+                last_action_event_time = System.currentTimeMillis();
+
+                doSelectAnimationWithDelay(targetPosition);
+                LogUtil.e("AnimPagerIndicator2", "ACTION_UP  " + "time_up is : " + action_time);
                 break;
         }
 
         return true;
     }
-
-//    @Override
-//    public boolean onTouch(View v, MotionEvent event) {
-//        float x_offset = event.getX();
-//        int targetPosition = cumputeTargetPositionFromOffsetX(x_offset);
-//        long time_down = 0;
-//        long time_move = 0;
-//        boolean isDoAnimation = false;
-//
-//        switch (event.getAction()) {
-//            case MotionEvent.ACTION_DOWN:
-//                LogUtil.e("AnimPagerIndicator2", "ACTION_DOWN   " + System.currentTimeMillis());
-//                time_down = System.currentTimeMillis();
-//                doTouchAnimation(targetPosition);
-////                LogUtil.e("RecyclerIndicator1", "time_down : " + time_down);
-//                break;
-//            case MotionEvent.ACTION_MOVE:
-//                time_move = System.currentTimeMillis() - time_down;
-////                LogUtil.e("RecyclerIndicator11", "time_zero : " + (time_move - time_down) % 200);
-//                if (time_move <= 0)
-//                    isDoAnimation = false;
-//                else
-//                    isDoAnimation = time_move % (2 * mTouchAnimDuration) <= 20;
-//                LogUtil.e("AnimPagerIndicator2", "ACTION_MOVE " + "isDoAnimation : " + isDoAnimation);
-//
-//                if (isDoAnimation && isAllAnimatorFinish()) {
-//                    doTouchAnimation(targetPosition);
-//                }
-//                break;
-//            case MotionEvent.ACTION_UP:
-//                doSelectAnimationWithDelay(targetPosition);
-//                LogUtil.e("AnimPagerIndicator2", "ACTION_UP  " + "time_move is : " + time_move);
-//                break;
-//        }
-//        return false;
-//    }
 
     /**
      * 通过手指在屏幕的位置寻找目标item
@@ -315,9 +292,9 @@ public class AnimPagerIndicator extends LinearLayout
             @Override
             public void run() {
                 LogUtil.e("AnimPagerIndicator2", "###### touch animation finish ######");
-                AnimatorSet animatorSet = selectAnimation(targetPosition, firstVisablePosition);
-                if (null != animatorSet)
-                    mAnimatorSetList.add(animatorSet);
+                AnimatorSet selectAnimatorSet = selectAnimation(targetPosition, firstVisablePosition);
+                if (null != selectAnimatorSet)
+                    mAnimatorSetList.add(selectAnimatorSet);
                 doScrollXAnimation(targetPosition);
             }
         }, mTouchAnimDuration);
@@ -328,14 +305,15 @@ public class AnimPagerIndicator extends LinearLayout
         int targetPosition = (selectedPosition + 1) % mVisableCount;
         if (targetPosition == 0) targetPosition = mVisableCount;
         int firstVisablePosition = findFirstVisableItemPosition();
-        AnimatorSet animatorSet = selectAnimation(targetPosition, firstVisablePosition);
-        if (null != animatorSet)
-            mAnimatorSetList.add(animatorSet);
+        AnimatorSet selectAnimatorSet = selectAnimation(targetPosition, firstVisablePosition);
+        if (null != selectAnimatorSet)
+            mAnimatorSetList.add(selectAnimatorSet);
         this.doScrollXAnimation(targetPosition);
 
     }
 
-    private void doScrollXAnimation(int targetPosition) {
+    private void doScrollXAnimation(final int targetPosition) {
+
 
         final int itemCount = this.getChildCount();
         int midPosition = mVisableCount / 2 + 1;
@@ -366,12 +344,14 @@ public class AnimPagerIndicator extends LinearLayout
                     removeInvalideAnim();
                     scrollBy(finalOffsetX, 0);
                     invalidate();
+                    viewPager.smoothScrollToPosition(firstVisablePosition + targetPosition - 1);
                     LogUtil.e("AnimPagerIndicator2", "firstVisiablePosition is:  " + firstVisablePosition);
                     LogUtil.e("AnimPagerIndicator2", "-------select animation finish--------" + "  finish time " + System.currentTimeMillis());
                 }
             }, mSelectAnimDuration + 100);
         } else {
             removeInvalideAnim();
+            viewPager.smoothScrollToPosition(firstVisablePosition + targetPosition - 1);
             LogUtil.e("AnimPagerIndicator2", "-------select animation finish--------" + "  finish time " + System.currentTimeMillis());
         }
     }
@@ -386,6 +366,7 @@ public class AnimPagerIndicator extends LinearLayout
         LogUtil.e("AnimPagerIndicator2", " isAllAnimatorFinish " + (mAnimatorSetList.size() == 0));
         return mAnimatorSetList.size() == 0;
     }
+
 
     /**
      * 清除播放完的动画
@@ -490,6 +471,8 @@ public class AnimPagerIndicator extends LinearLayout
             animatorSet.playTogether(animatorList);
             animatorSet.setDuration(mSelectAnimDuration);
             animatorSet.start();
+
+
         }
         return animatorSet;
     }
@@ -575,4 +558,6 @@ public class AnimPagerIndicator extends LinearLayout
 
         return animator;
     }
+
+
 }

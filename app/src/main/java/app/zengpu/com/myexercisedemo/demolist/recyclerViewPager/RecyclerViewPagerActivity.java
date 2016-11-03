@@ -94,6 +94,7 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
 //        indicator.setMaxVisableCount(7);
         animPagerIndicator = (AnimPagerIndicator) findViewById(R.id.view_indictor);
         animPagerIndicator.setData(indicatorIconlist);
+        animPagerIndicator.setReyclerViewPager(recyclerViewPager);
 
     }
 
@@ -174,7 +175,7 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
     @Override
     public void onPageSelected(int position) {
         LogUtil.e("RecyclerViewPagerActivity", "position : " + position);
-//        indicator.doSelectAnimation(position);
+//        animPagerIndicator.doSelectAnimation(position);
 
     }
 
