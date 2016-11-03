@@ -115,7 +115,7 @@ public class AnimPagerIndicator extends LinearLayout
 //            @Override
 //            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
 //                super.onScrollStateChanged(recyclerView, newState);
-//                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+//                if (newState == RecyclerView.SCROLL_STATE_IDLE && isIndicatorScroll) {
 //                    LinearLayoutManager layoutManager = (LinearLayoutManager) viewPager.getLayoutManager();
 //                    doSelectAnimation(layoutManager.findFirstVisibleItemPosition());
 //                }
@@ -205,6 +205,7 @@ public class AnimPagerIndicator extends LinearLayout
 
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                isIndicatorScroll = false;
                 long second_action_event_time = System.currentTimeMillis();
                 if (last_action_event_time > 0) {
                     if (second_action_event_time - last_action_event_time < 500) {
@@ -312,6 +313,8 @@ public class AnimPagerIndicator extends LinearLayout
 
     }
 
+    private boolean isIndicatorScroll = false;
+
     private void doScrollXAnimation(final int targetPosition) {
 
 
@@ -344,6 +347,7 @@ public class AnimPagerIndicator extends LinearLayout
                     removeInvalideAnim();
                     scrollBy(finalOffsetX, 0);
                     invalidate();
+                    isIndicatorScroll = true;
                     viewPager.smoothScrollToPosition(firstVisablePosition + targetPosition - 1);
                     LogUtil.e("AnimPagerIndicator2", "firstVisiablePosition is:  " + firstVisablePosition);
                     LogUtil.e("AnimPagerIndicator2", "-------select animation finish--------" + "  finish time " + System.currentTimeMillis());
@@ -351,6 +355,7 @@ public class AnimPagerIndicator extends LinearLayout
             }, mSelectAnimDuration + 100);
         } else {
             removeInvalideAnim();
+            isIndicatorScroll = true;
             viewPager.smoothScrollToPosition(firstVisablePosition + targetPosition - 1);
             LogUtil.e("AnimPagerIndicator2", "-------select animation finish--------" + "  finish time " + System.currentTimeMillis());
         }
