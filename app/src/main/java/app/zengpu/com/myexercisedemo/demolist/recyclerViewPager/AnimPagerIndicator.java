@@ -7,6 +7,7 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -111,16 +112,20 @@ public class AnimPagerIndicator extends LinearLayout
     public void setReyclerViewPager(final RecyclerView viewPager) {
         this.viewPager = viewPager;
 
-//        this.viewPager.setOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-//                super.onScrollStateChanged(recyclerView, newState);
-//                if (newState == RecyclerView.SCROLL_STATE_IDLE && isIndicatorScroll) {
-//                    LinearLayoutManager layoutManager = (LinearLayoutManager) viewPager.getLayoutManager();
-//                    doSelectAnimation(layoutManager.findFirstVisibleItemPosition());
-//                }
-//            }
-//        });
+        this.viewPager.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                LogUtil.e("AnimPagerIndicator4", "isIndicatorScroll   " + isIndicatorScroll);
+                super.onScrollStateChanged(recyclerView, newState);
+                if (isIndicatorScroll) {
+                    return;
+                }
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    LinearLayoutManager layoutManager = (LinearLayoutManager) viewPager.getLayoutManager();
+                    doSelectAnimation(layoutManager.findFirstVisibleItemPosition());
+                }
+            }
+        });
     }
 
     /**
@@ -205,7 +210,6 @@ public class AnimPagerIndicator extends LinearLayout
 
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                isIndicatorScroll = false;
                 long second_action_event_time = System.currentTimeMillis();
                 if (last_action_event_time > 0) {
                     if (second_action_event_time - last_action_event_time < 500) {
@@ -296,7 +300,7 @@ public class AnimPagerIndicator extends LinearLayout
                 AnimatorSet selectAnimatorSet = selectAnimation(targetPosition, firstVisablePosition);
                 if (null != selectAnimatorSet)
                     mAnimatorSetList.add(selectAnimatorSet);
-                doScrollXAnimation(targetPosition);
+                doScrollXAnimation(targetPosition, true);
             }
         }, mTouchAnimDuration);
 
@@ -309,15 +313,18 @@ public class AnimPagerIndicator extends LinearLayout
         AnimatorSet selectAnimatorSet = selectAnimation(targetPosition, firstVisablePosition);
         if (null != selectAnimatorSet)
             mAnimatorSetList.add(selectAnimatorSet);
-        this.doScrollXAnimation(targetPosition);
+        this.doScrollXAnimation(targetPosition, false);
 
     }
 
     private boolean isIndicatorScroll = false;
 
-    private void doScrollXAnimation(final int targetPosition) {
-
-
+    /**
+     * @param targetPosition
+     * @param needPagerScroll 滚动结束后，是否需要viewpager联动
+     */
+    private void doScrollXAnimation(final int targetPosition, final boolean needPagerScroll) {
+        isIndicatorScroll = needPagerScroll;
         final int itemCount = this.getChildCount();
         int midPosition = mVisableCount / 2 + 1;
         int offsetX = 0;
@@ -347,17 +354,28 @@ public class AnimPagerIndicator extends LinearLayout
                     removeInvalideAnim();
                     scrollBy(finalOffsetX, 0);
                     invalidate();
-                    isIndicatorScroll = true;
-                    viewPager.smoothScrollToPosition(firstVisablePosition + targetPosition - 1);
+                    if (needPagerScroll)
+                        scrollPagerToPosition(firstVisablePosition + targetPosition - 1);
                     LogUtil.e("AnimPagerIndicator2", "firstVisiablePosition is:  " + firstVisablePosition);
                     LogUtil.e("AnimPagerIndicator2", "-------select animation finish--------" + "  finish time " + System.currentTimeMillis());
                 }
             }, mSelectAnimDuration + 100);
         } else {
             removeInvalideAnim();
-            isIndicatorScroll = true;
-            viewPager.smoothScrollToPosition(firstVisablePosition + targetPosition - 1);
+            if (needPagerScroll)
+                scrollPagerToPosition(firstVisablePosition + targetPosition - 1);
             LogUtil.e("AnimPagerIndicator2", "-------select animation finish--------" + "  finish time " + System.currentTimeMillis());
+        }
+    }
+
+    /**
+     * pager的滚动
+     *
+     * @param targetPosition
+     */
+    private void scrollPagerToPosition(int targetPosition) {
+        if (null != viewPager) {
+            viewPager.smoothScrollToPosition(targetPosition);
         }
     }
 
