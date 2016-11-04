@@ -152,7 +152,7 @@ public class RecyclerViewPager extends RecyclerView implements
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-
+                LogUtil.e("RecyclerViewPager4", "dx : " + dx);
                 if (null != mOnPageSelectListener) {
                     mOnPageSelectListener.onPageScrolled(mSelectedPosition, getScollOffsetX(mSelectedPosition));
                 }

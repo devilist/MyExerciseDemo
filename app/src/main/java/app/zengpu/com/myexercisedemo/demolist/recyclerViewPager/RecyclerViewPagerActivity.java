@@ -94,7 +94,7 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
 //        indicator.setMaxVisableCount(7);
         animPagerIndicator = (AnimPagerIndicator) findViewById(R.id.view_indictor);
         animPagerIndicator.setData(indicatorIconlist);
-        animPagerIndicator.setReyclerViewPager(recyclerViewPager);
+        animPagerIndicator.setRecyclerViewPager(recyclerViewPager);
 
     }
 

@@ -26,83 +26,39 @@ import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.Utils.LogUtil;
 
 /**
- * Created by zengpu on 2016/11/4.
+ * Created by zengpu on 2016/11/3.
  */
-public class AnimPagerIndicator extends LinearLayout {
+
+public class AnimPagerIndicator1 extends LinearLayout
+//        implements
+{
 
     private Context context;
-
     private int mScreenWidth = 0;
-    /**
-     * 屏幕可见item个数，奇数
-     */
-    private int mVisibleCount = 7;
-    /**
-     * 每个item宽度
-     */
-    private int mItemWidth = mScreenWidth / mVisibleCount;
-
-    /**
-     * item Y向偏移
-     */
+    private int mVisableCount = 7;
+    private int mItemWidth = mScreenWidth / mVisableCount; // item宽度
     private int mItemOffsetY = 0;
 
-    /**
-     * 手指触摸过程中动画持续时间
-     */
-    private long mTouchAnimDuration = 100;
+    private long mTouchAnimDuration = 100; // 手指触摸过程中动画持续时间
+    private long mSelectAnimDuration = 200; // 手指抬起后Y向动画持续时间
 
-    /**
-     * 手指抬起后Y向动画持续时间
-     */
-    private long mSelectAnimDuration = 100;
-
-    /**
-     * 存储每个itemView
-     */
     private List<View> mItemViewList = new ArrayList<>();
-
-    /**
-     * 存储所有动画,集中管理
-     */
     private List<AnimatorSet> mAnimatorSetList = new ArrayList<>();
-
-    /**
-     * 记录每一个item的实时偏移量
-     */
-    private Map<Integer, Float> mItemOffsetList = new HashMap<>();
-
-    /**
-     * 上一次滚动第一个可见的item位置
-     */
-    private int mLastFirstVisablePosition = 0;
-
-    /**
-     * 上一次滚动手指滑动的目标位置
-     */
-    private int mLastTargetPosition = 1;
-
-    /**
-     * 是否是indicator的touch事件触发的联动
-     */
-    private boolean isTouchEventMode = false;
-
-    /**
-     * 上一次touch事件结束时间
-     */
-    private long mLastActionEventTime = 0;
+    private Map<Integer, Float> mItemOffsetList = new HashMap<>(); // 记录每一个item的实时偏移量
+    private float indicatorOffsetX = 0f;
 
     private RecyclerView viewPager;
 
-    public AnimPagerIndicator(Context context) {
+
+    public AnimPagerIndicator1(Context context) {
         this(context, null);
     }
 
-    public AnimPagerIndicator(Context context, AttributeSet attrs) {
+    public AnimPagerIndicator1(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public AnimPagerIndicator(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AnimPagerIndicator1(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
@@ -110,16 +66,12 @@ public class AnimPagerIndicator extends LinearLayout {
     private void init(Context context) {
         this.context = context;
         mScreenWidth = context.getResources().getDisplayMetrics().widthPixels;
-        mVisibleCount = 7;
-        mItemWidth = mScreenWidth / mVisibleCount;
+        mVisableCount = 7;
+        mItemWidth = mScreenWidth / mVisableCount;
         setOrientation(LinearLayout.HORIZONTAL);
+//        setOnTouchListener(this);
     }
 
-    /**
-     * 初始化数据
-     *
-     * @param indicatorIconList
-     */
     public void setData(List<Drawable> indicatorIconList) {
         if (this.getChildCount() != 0) {
             this.removeAllViews();
@@ -140,6 +92,7 @@ public class AnimPagerIndicator extends LinearLayout {
 
         this.invalidate();
 
+//        setItemClickEvent();
         Animator animator = tranYAnimation(0, -mItemOffsetY, mSelectAnimDuration);
         animator.start();
     }
@@ -156,6 +109,25 @@ public class AnimPagerIndicator extends LinearLayout {
 
     }
 
+    public void setReyclerViewPager(final RecyclerView viewPager) {
+        this.viewPager = viewPager;
+
+        this.viewPager.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                LogUtil.e("AnimPagerIndicator4", "isIndicatorScroll   " + isIndicatorScroll);
+                super.onScrollStateChanged(recyclerView, newState);
+                if (isIndicatorScroll) {
+                    return;
+                }
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    LinearLayoutManager layoutManager = (LinearLayoutManager) viewPager.getLayoutManager();
+                    doSelectAnimation(layoutManager.findFirstVisibleItemPosition());
+                }
+            }
+        });
+    }
+
     /**
      * 创建indicator item
      *
@@ -166,6 +138,7 @@ public class AnimPagerIndicator extends LinearLayout {
         // 根布局
         LinearLayout ll_item = new LinearLayout(context);
         ll_item.setOrientation(LinearLayout.VERTICAL);
+//        ll_item.setClickable(true);
         // 子布局，Y偏移量
         LinearLayout ll_sub_offset = new LinearLayout(context);
         ll_sub_offset.setOrientation(LinearLayout.VERTICAL);
@@ -211,68 +184,36 @@ public class AnimPagerIndicator extends LinearLayout {
         return ll_item;
     }
 
-    /**
-     * 添加viewpager
-     *
-     * @param viewPager
-     */
-    public void setRecyclerViewPager(final RecyclerView viewPager) {
-        this.viewPager = viewPager;
-        if (null == viewPager) {
-            // // TODO: 异常处理
-        }
-
-        this.viewPager.setOnScrollListener(new RecyclerView.OnScrollListener() {
-
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    LinearLayoutManager layoutManager = (LinearLayoutManager) viewPager.getLayoutManager();
-
-                    //获取viewPager当前第一个可见的item位置,用以下公式反推出indicator第一个可见的item位置
-                    // selectionPosition = firstVisablePosition + targetPosition - 1;
-
-                    int mFirstVisablePosition = layoutManager.findFirstVisibleItemPosition() + 1 - mLastTargetPosition;
-
-                    LogUtil.e("AnimPagerIndicator2", "viewpager : mFirstVisablePosition " + layoutManager.findFirstVisibleItemPosition());
-                    LogUtil.e("AnimPagerIndicator2", "new mFirstVisablePosition " + mFirstVisablePosition);
-                    LogUtil.e("AnimPagerIndicator2", "isTouchEventMode " + isTouchEventMode);
-
-                    if (!isTouchEventMode) {
-                        // 如果不是indicator的touch事件触发的联动,需要对mLastTargetPosition修正
-                        // 往右滑动，position减小;往左滑动，position增加
-                        mLastTargetPosition += mFirstVisablePosition - mLastFirstVisablePosition;
-                        // 边界控制
-                        if (mLastTargetPosition < 1)
-                            mLastTargetPosition = 1;
-                        if (mLastTargetPosition > mVisibleCount)
-                            mLastTargetPosition = mVisibleCount;
-                    }
-                    LogUtil.e("AnimPagerIndicator2", "************ viewPager Scroll finish ************");
-                    doSelectAnimation(mLastTargetPosition, mLastFirstVisablePosition);
+    private void setItemClickEvent() {
+        int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            final int targetPosition = i;
+            getChildAt(i).setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    doSelectAnimation(targetPosition);
                 }
-            }
-        });
+            });
+
+        }
     }
+
+    private long last_action_event_time = 0;
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
 
-        isTouchEventMode = true;
         float x_offset = e.getX();
-        int targetPosition = computeTargetPositionFromOffsetX(x_offset);
+        int targetPosition = cumputeTargetPositionFromOffsetX(x_offset);
         long action_time = 0;
         boolean isDoAnimation = false;
 
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                LogUtil.e("AnimPagerIndicator2", " ACTION_DOWN   " + System.currentTimeMillis());
-                // 屏蔽双击事件
                 long second_action_event_time = System.currentTimeMillis();
-                if (mLastActionEventTime > 0) {
-                    if (second_action_event_time - mLastActionEventTime < 500) {
-                        mLastActionEventTime = second_action_event_time;
+                if (last_action_event_time > 0) {
+                    if (second_action_event_time - last_action_event_time < 500) {
+                        last_action_event_time = second_action_event_time;
                         return false;
                     } else {
                         doTouchAnimation(targetPosition);
@@ -281,6 +222,7 @@ public class AnimPagerIndicator extends LinearLayout {
                     doTouchAnimation(targetPosition);
                 }
 
+                LogUtil.e("AnimPagerIndicator2", "ACTION_DOWN   " + System.currentTimeMillis());
                 break;
             case MotionEvent.ACTION_MOVE:
                 action_time = e.getEventTime() - e.getDownTime();
@@ -296,13 +238,10 @@ public class AnimPagerIndicator extends LinearLayout {
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                mLastActionEventTime = System.currentTimeMillis();
-                mLastFirstVisablePosition = findFirstVisibleItemPosition();
-                mLastTargetPosition = targetPosition;
+                last_action_event_time = System.currentTimeMillis();
+
+                doSelectAnimationWithDelay(targetPosition);
                 LogUtil.e("AnimPagerIndicator2", "ACTION_UP  " + "time_up is : " + action_time);
-                LogUtil.e("AnimPagerIndicator2", "mLastFirstVisablePosition : " + mLastFirstVisablePosition);
-                LogUtil.e("AnimPagerIndicator2", "mLastTargetPosition : " + mLastTargetPosition);
-                scrollPagerToPosition(targetPosition);
                 break;
         }
 
@@ -312,79 +251,92 @@ public class AnimPagerIndicator extends LinearLayout {
     /**
      * 通过手指在屏幕的位置寻找目标item
      *
-     * @param x_offset 手指相对布局左边缘的偏移量
-     * @return 目标位置；范围在 1 ~maxVisableCount 之间
+     * @param x_offset
+     * @return [1 , maxVisableCount]
      */
-    private int computeTargetPositionFromOffsetX(float x_offset) {
+    private int cumputeTargetPositionFromOffsetX(float x_offset) {
+
+        // 目标位置
         int targetPosition = 1;
         targetPosition = (int) x_offset / mItemWidth + 1;
-        if (targetPosition > mVisibleCount)
-            targetPosition = mVisibleCount;
+        if (targetPosition > mVisableCount)
+            targetPosition = mVisableCount;
+
+        LogUtil.e("AnimPagerIndicator1", "targetPosition : " + targetPosition);
+
         return targetPosition;
     }
 
     /**
-     * 获得第一个可见的item位置,通过布局的偏移量与子布局宽度的比值确定
+     * 获得第一个可见的item位置
      *
      * @return
      */
-    private int findFirstVisibleItemPosition() {
-        return Math.abs(getScrollX() / mItemWidth);
+    private int findFirstVisableItemPosition() {
+        LogUtil.e("AnimPagerIndicator0", " getScrollX  " + getScrollX());
+        return Math.abs((int) getScrollX() / mItemWidth);
     }
 
     /**
-     * 触发ACTION_DOWN 和ACTION_MOVE事件时,可见item的属性动画动画
-     *
-     * @param targetPosition 手指在屏幕上移动时的目标位置
+     * 手指移动时的动画
      */
     private void doTouchAnimation(final int targetPosition) {
-        int firstVisiblePosition = findFirstVisibleItemPosition();
-        AnimatorSet animatorSet = touchAnimation(targetPosition, firstVisiblePosition);
+        int firstVisablePosition = findFirstVisableItemPosition();
+        AnimatorSet animatorSet = touchAnimation(targetPosition, firstVisablePosition);
         if (null != animatorSet)
             mAnimatorSetList.add(animatorSet);
     }
 
     /**
-     * 触发ACTION_UP事件时,可见item的属性动画动画
-     *
-     * @param targetPosition       手指离开屏幕时的目标位置
-     * @param firstVisiblePosition 第一个可见的item的位置
+     * 选中目标后的动画
      */
-    private void doSelectAnimation(final int targetPosition, final int firstVisiblePosition) {
-        // 为防止TouchAnimation还没完成就开始SelectAnimation导致item动画混乱，做延迟处理，
-        // 延迟时间为TouchAnimation的持续时间
+    private void doSelectAnimationWithDelay(final int targetPosition) {
+
+        final int firstVisablePosition = findFirstVisableItemPosition();
         this.postDelayed(new Runnable() {
             @Override
             public void run() {
-                LogUtil.e("AnimPagerIndicator2", "************ touch animation finish ************");
-                AnimatorSet selectAnimatorSet = selectAnimation(targetPosition, firstVisiblePosition);
+                LogUtil.e("AnimPagerIndicator2", "###### touch animation finish ######");
+                AnimatorSet selectAnimatorSet = selectAnimation(targetPosition, firstVisablePosition);
                 if (null != selectAnimatorSet)
                     mAnimatorSetList.add(selectAnimatorSet);
-                doScrollXAnimation(targetPosition, firstVisiblePosition);
+                doScrollXAnimation(targetPosition, true);
             }
         }, mTouchAnimDuration);
 
     }
 
-    /**
-     * X方向的滚动，SelectAnimation完成后执行
-     *
-     * @param targetPosition       手指离开屏幕时的目标位置
-     * @param firstVisiblePosition 第一个可见的item的位置
-     */
-    private void doScrollXAnimation(final int targetPosition, final int firstVisiblePosition) {
-        final int itemCount = this.getChildCount();
-        final int midPosition = mVisibleCount / 2 + 1; // 中间位置
-        int offsetX = 0; // 需要滚动的偏移量
-        int scrollCount = 0; // 需要滚动的item个数
+    public void doSelectAnimation(int selectedPosition) {
+        int targetPosition = (selectedPosition + 1) % mVisableCount;
+        if (targetPosition == 0) targetPosition = mVisableCount;
+        int firstVisablePosition = findFirstVisableItemPosition();
+        AnimatorSet selectAnimatorSet = selectAnimation(targetPosition, firstVisablePosition);
+        if (null != selectAnimatorSet)
+            mAnimatorSetList.add(selectAnimatorSet);
+        this.doScrollXAnimation(targetPosition, false);
 
-        int lastVisablePosition = firstVisiblePosition + mVisibleCount - 1;
+    }
+
+    private boolean isIndicatorScroll = false;
+
+    /**
+     * @param targetPosition
+     * @param needPagerScroll 滚动结束后，是否需要viewpager联动
+     */
+    private void doScrollXAnimation(final int targetPosition, final boolean needPagerScroll) {
+        isIndicatorScroll = needPagerScroll;
+        final int itemCount = this.getChildCount();
+        int midPosition = mVisableCount / 2 + 1;
+        int offsetX = 0;
+        int scrollCount = 0;
+        final int firstVisablePosition = findFirstVisableItemPosition();
+        int lastVisablePosition = firstVisablePosition + mVisableCount - 1;
 
         if (itemCount <= targetPosition)
             return;
-        if (targetPosition < midPosition && firstVisiblePosition != 0) {
+        if (targetPosition < midPosition && firstVisablePosition != 0) {
             // 往右滚动
-            scrollCount = Math.min(midPosition - targetPosition, firstVisiblePosition);
+            scrollCount = Math.min(midPosition - targetPosition, firstVisablePosition);
             offsetX = -scrollCount * mItemWidth;
         }
         if (targetPosition > midPosition && lastVisablePosition != itemCount - 1) {
@@ -394,65 +346,55 @@ public class AnimPagerIndicator extends LinearLayout {
         }
 
         if (offsetX != 0) {
+
             final int finalOffsetX = offsetX;
             this.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    removeInvalidAnim();
+                    removeInvalideAnim();
                     scrollBy(finalOffsetX, 0);
                     invalidate();
-
-                    // 滚动完成后，相关参数复位
-                    isTouchEventMode = false;
-                    mLastFirstVisablePosition = findFirstVisibleItemPosition();
-                    mLastTargetPosition = midPosition;
-
-                    LogUtil.e("AnimPagerIndicator2", "reset mLastTargetPosition " + mLastTargetPosition);
-                    LogUtil.e("AnimPagerIndicator2", "reset mLastFirstVisablePosition " + mLastFirstVisablePosition);
-                    LogUtil.e("AnimPagerIndicator2", "************ select animation finish ************");
+                    if (needPagerScroll)
+                        scrollPagerToPosition(firstVisablePosition + targetPosition - 1);
+                    LogUtil.e("AnimPagerIndicator2", "firstVisiablePosition is:  " + firstVisablePosition);
+                    LogUtil.e("AnimPagerIndicator2", "-------select animation finish--------" + "  finish time " + System.currentTimeMillis());
                 }
             }, mSelectAnimDuration + 100);
         } else {
-            removeInvalidAnim();
-            isTouchEventMode = false;
-            mLastFirstVisablePosition = findFirstVisibleItemPosition();
-            mLastTargetPosition = midPosition;
-            LogUtil.e("AnimPagerIndicator2", "************ select animation finish ************");
+            removeInvalideAnim();
+            if (needPagerScroll)
+                scrollPagerToPosition(firstVisablePosition + targetPosition - 1);
+            LogUtil.e("AnimPagerIndicator2", "-------select animation finish--------" + "  finish time " + System.currentTimeMillis());
         }
     }
 
     /**
-     * viewpager的滚动
+     * pager的滚动
      *
-     * @param targetPosition 手指滑动的目标位置，不是pager将要滚动的位置
+     * @param targetPosition
      */
     private void scrollPagerToPosition(int targetPosition) {
         if (null != viewPager) {
-            // 计算滚动的位置
-            int firstVisablePosition = findFirstVisibleItemPosition();
-            int selectionPosition = firstVisablePosition + targetPosition - 1;
-            LogUtil.e("AnimPagerIndicator2", "************ viewPager Scroll start ************");
-            viewPager.smoothScrollToPosition(selectionPosition);
-        } else {
-            // todo 抛出异常处理
-            doSelectAnimation(mLastTargetPosition, mLastFirstVisablePosition);
+            viewPager.smoothScrollToPosition(targetPosition);
         }
     }
 
     /**
-     * 所有动画是否播放完毕
+     * 动画是否播放完毕
      *
      * @return
      */
     private boolean isAllAnimatorFinish() {
-        removeInvalidAnim();
+        removeInvalideAnim();
+        LogUtil.e("AnimPagerIndicator2", " isAllAnimatorFinish " + (mAnimatorSetList.size() == 0));
         return mAnimatorSetList.size() == 0;
     }
+
 
     /**
      * 清除播放完的动画
      */
-    private void removeInvalidAnim() {
+    private void removeInvalideAnim() {
 
         if (mAnimatorSetList.size() == 0)
             return;
@@ -467,6 +409,7 @@ public class AnimPagerIndicator extends LinearLayout {
         mAnimatorSetList.clear();
         mAnimatorSetList.addAll(temporaryList);
     }
+
 
     /**
      * 手指触摸时item的动画
@@ -484,11 +427,11 @@ public class AnimPagerIndicator extends LinearLayout {
         AnimatorSet animatorSet = new AnimatorSet();
         List<Animator> animatorList = new ArrayList<>();
 
-        LogUtil.e("AnimPagerIndicator2", "************ touch animation start ************");
+        LogUtil.e("AnimPagerIndicator2", "###### touch animation start ######");
         LogUtil.e("AnimPagerIndicator2", "targetPosition is:  " + targetPosition
                 + " firstVisiablePosition is:  " + firstVisiablePosition);
 
-        for (int i = 1; i <= mVisibleCount; i++) {
+        for (int i = 1; i <= mVisableCount; i++) {
             //边界控制
             if (firstVisiablePosition + i - 1 > mItemViewList.size() - 1)
                 break;
@@ -497,9 +440,9 @@ public class AnimPagerIndicator extends LinearLayout {
                     + " offsetY " + i + " is: " + mItemOffsetList.get(firstVisiablePosition + i - 1));
 
             if (i <= targetPosition) {
-                offsetY = (i + mVisibleCount - targetPosition) * maxOffset / mVisibleCount;
+                offsetY = (i + mVisableCount - targetPosition) * maxOffset / mVisableCount;
             } else {
-                offsetY = (-i + mVisibleCount + targetPosition) * maxOffset / mVisibleCount;
+                offsetY = (-i + mVisableCount + targetPosition) * maxOffset / mVisableCount;
             }
             if (mItemOffsetList.get(firstVisiablePosition + i - 1) != offsetY) {
                 Animator animator = tranYAnimation(firstVisiablePosition + i - 1, offsetY, mTouchAnimDuration);
@@ -526,14 +469,13 @@ public class AnimPagerIndicator extends LinearLayout {
 
         AnimatorSet animatorSet = new AnimatorSet();
         List<Animator> animatorList = new ArrayList<>();
-        LogUtil.e("AnimPagerIndicator2", "************ select animation start ************");
+        LogUtil.e("AnimPagerIndicator2", "-------select animation start--------" + "  start time " + System.currentTimeMillis());
         LogUtil.e("AnimPagerIndicator2", "targetPosition is:  " + targetPosition
                 + " firstVisiablePosition is:  " + firstVisiablePosition);
-        for (int i = 1; i <= mVisibleCount; i++) {
+        for (int i = 1; i <= mVisableCount; i++) {
 
             if (firstVisiablePosition + i - 1 > mItemViewList.size() - 1)
                 break;
-
             LogUtil.e("AnimPagerIndicator2", "currentPosition is:  " + (firstVisiablePosition + i - 1)
                     + " offsetY " + i + " is: " + mItemOffsetList.get(firstVisiablePosition + i - 1));
 
@@ -547,13 +489,17 @@ public class AnimPagerIndicator extends LinearLayout {
                 animatorList.add(animator);
             }
         }
+
         if (animatorList.size() != 0) {
             animatorSet.playTogether(animatorList);
             animatorSet.setDuration(mSelectAnimDuration);
             animatorSet.start();
+
+
         }
         return animatorSet;
     }
+
 
     /**
      * Y向偏移属性动画
@@ -580,7 +526,10 @@ public class AnimPagerIndicator extends LinearLayout {
                 // 动画啊结束，记录本次的偏移量
                 mItemOffsetList.put(position, current[0]);
                 LogUtil.e("AnimPagerIndicator2", "finish offsetY " + position + " is: " + (int) current[0]
-                        + "  end is : " + (int) end);
+                        + "  end is : " + (int) end
+                        + "  view transY is: " + view.getTranslationY()
+                        + "  view Y is: " + view.getY()
+                        + "  end time " + System.currentTimeMillis());
             }
         });
 
@@ -594,4 +543,44 @@ public class AnimPagerIndicator extends LinearLayout {
 
         return animator;
     }
+
+    /**
+     * Y向偏移属性动画
+     *
+     * @param end 结束位置
+     */
+    private Animator tranXAnimation(final View view, final float end, long duration) {
+
+        // 找到目标item
+        // 该item上一次动画结束后的偏移量
+        // 本次动画过程中的实时偏移量
+        final float[] current = {indicatorOffsetX};
+
+        final ObjectAnimator animator = ObjectAnimator.ofFloat(view, "translationX", indicatorOffsetX, end);
+        animator.setDuration(duration);
+
+        animator.addListener(new AnimatorListenerAdapter() {
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                // 动画啊结束，记录本次的偏移量
+                indicatorOffsetX = current[0];
+                LogUtil.e("AnimPagerIndicator3", "end time " + System.currentTimeMillis());
+                LogUtil.e("AnimPagerIndicator3", "indicatorOffsetX " + indicatorOffsetX);
+            }
+        });
+
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                // 实时更新的偏移量
+                current[0] = (float) animation.getAnimatedValue("translationX");
+            }
+        });
+        animator.start();
+
+        return animator;
+    }
+
+
 }
