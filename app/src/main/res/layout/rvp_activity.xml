@@ -1,41 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#448aff">
+    android:background="#7c4dff">
 
-    <app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RefreshRecyclerViewPager
-        android:id="@+id/rrvp_pager"
+    <TextView
+        android:id="@+id/tl_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="550dp"
-        android:layout_gravity="top"
-        android:layout_marginTop="20dp">
+        android:layout_height="60dp"
+        android:gravity="bottom"
+        android:paddingLeft="10dp"
+        android:text="更美应用"
+        android:textColor="#ffffff"
+        android:textSize="24sp" />
+    <!--RefreshRecyclerViewPager + Indicator-->
 
-        <app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerViewPager
-            android:id="@+id/rvp_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-        </app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerViewPager>
-
-    </app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RefreshRecyclerViewPager>
-
-    <!--<app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerIndicator-->
-        <!--android:id="@+id/ri_indicator"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_gravity="bottom">-->
-
-    <!--</app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerIndicator>-->
 
     <app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.AnimPagerIndicator
         android:id="@+id/view_indictor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="-50dp"
+        android:layout_alignParentBottom="true"
         android:layout_gravity="bottom">
 
     </app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.AnimPagerIndicator>
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="10dp"
+        android:layout_above="@id/view_indictor"
+        android:layout_below="@id/tl_toolbar">
 
-</FrameLayout>
+        <app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RefreshRecyclerViewPager
+            android:id="@+id/rrvp_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerViewPager
+                android:id="@+id/rvp_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            </app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerViewPager>
+
+        </app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RefreshRecyclerViewPager>
+
+    </FrameLayout>
+
+
+</RelativeLayout>

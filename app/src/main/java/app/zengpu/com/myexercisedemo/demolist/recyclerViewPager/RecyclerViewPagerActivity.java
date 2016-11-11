@@ -2,11 +2,13 @@ package app.zengpu.com.myexercisedemo.demolist.recyclerViewPager;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -29,9 +31,12 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
     private RVPAdapter adapter;
     private List<AppInfo> appInfolist = new ArrayList<>();
 
-//    private RecyclerIndicator indicator;
     private AnimPagerIndicator animPagerIndicator;
     private List<Drawable> indicatorIconlist = new ArrayList<>();
+
+    private List<String> bgColorList = new ArrayList<>();
+
+    private RelativeLayout rootRl;
 
 
     @Override
@@ -68,9 +73,23 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
                 indicatorIconlist.add(appIcon);
             }
         }
+
+        bgColorList.add("#448aff");
+        bgColorList.add("#00bcd4");
+        bgColorList.add("#009688");
+        bgColorList.add("#4caf50");
+        bgColorList.add("#8bc34a");
+        bgColorList.add("#cddc39");
+        bgColorList.add("#ffeb3b");
+        bgColorList.add("#ff9800");
+        bgColorList.add("#ff5722");
+        bgColorList.add("#9e9e9e");
+
     }
 
     private void initView() {
+
+        rootRl = (RelativeLayout) findViewById(R.id.rl_root);
 
         refreshRecyclerViewPager = (RefreshRecyclerViewPager) findViewById(R.id.rrvp_pager);
 
@@ -89,9 +108,6 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
         refreshRecyclerViewPager.setOnRefreshListener(this);
         refreshRecyclerViewPager.setOnLoadMoreListener(this);
 
-//        indicator = (RecyclerIndicator) findViewById(R.id.ri_indicator);
-//        indicator.setIcon(indicatorIconlist);
-//        indicator.setMaxVisableCount(7);
         animPagerIndicator = (AnimPagerIndicator) findViewById(R.id.view_indictor);
         animPagerIndicator.setData(indicatorIconlist);
         animPagerIndicator.setRecyclerViewPager(recyclerViewPager);
@@ -102,10 +118,15 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
 
     @Override
     public void onRefresh() {
+
+        animPagerIndicator.setTouchEnable(false);
+
         refreshRecyclerViewPager.postDelayed(new Runnable() {
 
             @Override
             public void run() {
+
+                animPagerIndicator.setTouchEnable(true);
 
                 // 加载失败
                 if (textFlag == 0) {
@@ -116,10 +137,11 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
                 // 加载成功
                 if (textFlag == 1) {
                     // 更新数据
-//                    appInfolist.add(0, appInfolist.get(appInfolist.size() - 1));
-//                    adapter.notifyDataSetChanged();
-                    // 更新完后调用该方法结束刷新
+                    adapter = new RVPAdapter(RecyclerViewPagerActivity.this, appInfolist);
+                    recyclerViewPager.setAdapter(adapter);
                     refreshRecyclerViewPager.refreshComplete();
+                    animPagerIndicator.setData(indicatorIconlist);
+
                     textFlag = 2;
                     return;
                 }
@@ -137,11 +159,13 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
     @Override
     public void onLoadMore() {
 
+        animPagerIndicator.setTouchEnable(false);
+
         refreshRecyclerViewPager.postDelayed(new Runnable() {
 
             @Override
             public void run() {
-
+                animPagerIndicator.setTouchEnable(true);
                 if (textFlag == 0) {
                     refreshRecyclerViewPager.refreshAndLoadFailure();
                     textFlag = 1;
@@ -150,9 +174,20 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
                 if (textFlag == 1) {
                     // 更新数据
                     appInfolist.add(appInfolist.get(0));
+                    appInfolist.add(appInfolist.get(1));
+                    appInfolist.add(appInfolist.get(2));
+                    appInfolist.add(appInfolist.get(3));
+                    appInfolist.add(appInfolist.get(4));
                     adapter.notifyDataSetChanged();
                     // 更新完后调用该方法结束刷新
                     refreshRecyclerViewPager.loadMoreCompelte();
+                    List<Drawable> list = new ArrayList<Drawable>();
+                    list.add(indicatorIconlist.get(0));
+                    list.add(indicatorIconlist.get(1));
+                    list.add(indicatorIconlist.get(2));
+                    list.add(indicatorIconlist.get(3));
+                    list.add(indicatorIconlist.get(4));
+                    animPagerIndicator.addData(list);
                     textFlag = 2;
                     return;
                 }
@@ -175,12 +210,17 @@ public class RecyclerViewPagerActivity extends AppCompatActivity implements
     @Override
     public void onPageSelected(int position) {
         LogUtil.e("RecyclerViewPagerActivity", "position : " + position);
-//        animPagerIndicator.doSelectAnimation(position);
+        rootRl.setBackgroundColor(Color.parseColor(bgColorList.get(position % 10)));
 
     }
 
     @Override
     public void onPageScrollStateChanged(int state) {
+
+        if (state == RecyclerViewPager.SCROLL_STATE_IDLE)
+            animPagerIndicator.setTouchEnable(true);
+        else
+            animPagerIndicator.setTouchEnable(false);
 
     }
 }

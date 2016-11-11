@@ -92,6 +92,8 @@ public class AnimPagerIndicator extends LinearLayout {
      */
     private long mLastActionEventTime = 0;
 
+    private boolean isTouchEnable = true;
+
     private RecyclerView viewPager;
 
     public AnimPagerIndicator(Context context) {
@@ -144,16 +146,29 @@ public class AnimPagerIndicator extends LinearLayout {
         animator.start();
     }
 
+    /**
+     * 添加数据
+     *
+     * @param indicatorIconList
+     */
     public void addData(List<Drawable> indicatorIconList) {
+
+        int ori_size = mItemOffsetList.size();
 
         for (int i = 0; i < indicatorIconList.size(); i++) {
             LinearLayout itemView = createIndicatorItem(indicatorIconList.get(i));
             this.addView(itemView);
             mItemViewList.add(itemView.getChildAt(1));
-            mItemOffsetList.put(i, 0f);
+            mItemOffsetList.put(ori_size + i, 0f);
         }
-        this.invalidate();
 
+        int scrollCount = Math.min(mVisibleCount / 2, indicatorIconList.size());
+        // 往左滚动
+        scrollBy(scrollCount * mItemWidth, 0);
+        this.invalidate();
+        // 滚动完成后，相关参数复位
+        isTouchEventMode = false;
+        mLastFirstVisablePosition = findFirstVisibleItemPosition();
     }
 
     /**
@@ -264,6 +279,9 @@ public class AnimPagerIndicator extends LinearLayout {
         int targetPosition = computeTargetPositionFromOffsetX(x_offset);
         long action_time = 0;
         boolean isDoAnimation = false;
+
+        if (!isTouchEnable)
+            return false;
 
         switch (e.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -388,7 +406,7 @@ public class AnimPagerIndicator extends LinearLayout {
             offsetX = -scrollCount * mItemWidth;
         }
         if (targetPosition > midPosition && lastVisablePosition != itemCount - 1) {
-            // 往左滑动
+            // 往左滚动
             scrollCount = Math.min(targetPosition - midPosition, itemCount - lastVisablePosition - 1);
             offsetX = scrollCount * mItemWidth;
         }
@@ -438,6 +456,13 @@ public class AnimPagerIndicator extends LinearLayout {
             doSelectAnimation(mLastTargetPosition, mLastFirstVisablePosition);
         }
     }
+
+
+    public void setTouchEnable(boolean isTouchEnable) {
+        this.isTouchEnable = isTouchEnable;
+    }
+
+
 
     /**
      * 所有动画是否播放完毕
