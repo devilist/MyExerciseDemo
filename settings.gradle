@@ -1,1 +1,4 @@
-include ':app', ':extras:galleryfinal', ':extras:advancedpagerslidingtabstrip'
+include ':app',
+        ':extras:galleryfinal',
+        ':extras:advancedpagerslidingtabstrip',
+        ':extras:activityoptions'
