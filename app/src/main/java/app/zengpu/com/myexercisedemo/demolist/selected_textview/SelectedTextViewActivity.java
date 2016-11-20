@@ -2,7 +2,7 @@ package app.zengpu.com.myexercisedemo.demolist.selected_textview;
 
 import android.os.Bundle;
 import android.text.Html;
-import android.widget.TextView;
+import android.view.View;
 
 import app.zengpu.com.myexercisedemo.BaseActivity;
 import app.zengpu.com.myexercisedemo.R;
@@ -14,7 +14,7 @@ import app.zengpu.com.myexercisedemo.R;
 public class SelectedTextViewActivity extends BaseActivity {
 
     private SelectedTextView selectedTextView;
-    private TextView textView;
+    private SelectableTextView selectableTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +27,7 @@ public class SelectedTextViewActivity extends BaseActivity {
 
     private void initView() {
         selectedTextView = (SelectedTextView) findViewById(R.id.stv_content);
-        textView = (TextView) findViewById(R.id.tv_content);
+        selectableTextView = (SelectableTextView) findViewById(R.id.ctv_content);
 
         String s = "<p>　　金溪民方仲永，世隶耕。仲永生五年，未尝识书具，\n" +
                 "            忽啼求之。父异焉，借旁近与之，即书诗四句，并自为其名。\n" +
@@ -40,12 +40,20 @@ public class SelectedTextViewActivity extends BaseActivity {
                 "        则其受于人者不至也。彼其受之天也，如此其贤也，不受之人，且为众人；今夫不受之天，\n" +
                 "            固众人，又不受之人，得为众人而已耶？</p>";
 
-        String c = Html.fromHtml(getResources().getString(R.string.large_text0)).toString();
+        String c = Html.fromHtml(s).toString();
 
-        textView.setText(c);
+        selectableTextView.setText(c + c);
+        selectableTextView.clearFocus();
+
+        selectableTextView.setOnContextMenuClickListener(new SelectableTextView.OnContextMenuClickListener() {
+            @Override
+            public void onMenuItemClick(View v, int type, String selectedText) {
+
+            }
+        });
 
 //        selectedTextView.showWebFont(getResources().getString(R.string.large_text0), 16, "#ff5185", "#ffffff");
 //        selectedTextView.showWebFont(c, 16, "#ff5185", "#ffffff");
-        selectedTextView.showWebFont(s, 16, "#ff5185", "#ffffff");
+//        selectedTextView.showWebFont(s, 16, "#ff5185", "#ffffff");
     }
 }

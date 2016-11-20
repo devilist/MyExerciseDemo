@@ -2,10 +2,14 @@ package app.zengpu.com.myexercisedemo.demolist.selected_textview;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import app.zengpu.com.myexercisedemo.R;
@@ -14,7 +18,7 @@ import app.zengpu.com.myexercisedemo.R;
  * Created by zengpu on 2016/11/18.
  */
 
-public class SelectedTextView extends WebView {
+public class SelectedTextView extends WebView implements View.OnLongClickListener {
     public SelectedTextView(Context context) {
         this(context, null);
     }
@@ -29,12 +33,14 @@ public class SelectedTextView extends WebView {
     }
 
     private void init() {
-//        WebSettings setting = getSettings();
-//        setting.setJavaScriptEnabled(true);
-//
-//        //设置自适应
-//        setting.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL.SINGLE_COLUMN);
-//        setting.setDefaultTextEncodingName("UTF-8");
+        setOnLongClickListener(this);
+        WebSettings setting = getSettings();
+        setting.setJavaScriptEnabled(true);
+        addJavascriptInterface(this, "android");//对应js中的test.xxx
+
+        //设置自适应
+        setting.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL.SINGLE_COLUMN);
+        setting.setDefaultTextEncodingName("UTF-8");
 
     }
 
@@ -49,7 +55,12 @@ public class SelectedTextView extends WebView {
     public void showWebFont(String content, int fontSize, String fontColor, String backgroundColor) {
 
         String format_content = "<![CDATA[" +
-                "<html><head></head>" +
+                "<html>" +
+                "<head>" +
+                "<script>" +
+                selectText() +
+                "</script>" +
+                "</head>" +
                 "<body " +
                 "style=\"background-color:" + backgroundColor +
                 ";text-align:justify" +
@@ -66,16 +77,53 @@ public class SelectedTextView extends WebView {
 
     }
 
+    private String selectText() {
+        String copy_js_str = "function selectText() {\n" +
+                "  if (document.selection) {\n" +
+                "    var range = document.body.createTextRange();\n" +
+                "    range.moveToElementText(document.getElementById('copy'));\n" +
+                "    range.select();\n" +
+                "  } else if (window.getSelection) {\n" +
+                "    var range = document.createRange();\n" +
+                "    range.selectNode(document.getElementById('copy'));\n" +
+                "    window.getSelection().addRange(range);\n" +
+                "  }\n" +
+                "}\n";
+        return copy_js_str;
+    }
+
+    @JavascriptInterface
+    public void hello(String msg) {//对应js中xxx.hello("")
+        Log.e("webview", "hello");
+    }
+
 
     @Override
     public ActionMode startActionMode(ActionMode.Callback callback) {
 
-        CustomizedSelectActionModeCallback actionModeCallback = new CustomizedSelectActionModeCallback();
+        return super.startActionMode(callback);
 
-        return super.startActionMode(actionModeCallback);
+//        CustomizedSelectActionModeCallback actionModeCallback = new CustomizedSelectActionModeCallback();
+
+
+//        return super.startActionModeForChild(this,actionModeCallback);
+
+//        return super.startActionMode(actionModeCallback);
     }
 
+    @Override
+    public boolean onLongClick(View v) {
 
+        this.post(new Runnable() {
+            @Override
+            public void run() {
+                loadUrl("javascript:selectText()");
+            }
+        });
+
+
+        return false;
+    }
 
 
     static class CustomizedSelectActionModeCallback implements ActionMode.Callback {
@@ -90,7 +138,7 @@ public class SelectedTextView extends WebView {
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             menu.add("查询");
             MenuInflater menuInflater = mode.getMenuInflater();
-            menuInflater.inflate(R.menu.menu_activity_main,menu);
+            menuInflater.inflate(R.menu.menu_activity_main, menu);
             return true;
 //            return callback.onCreateActionMode(mode,menu);
         }
