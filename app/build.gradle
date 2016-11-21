@@ -56,7 +56,7 @@ dependencies {
     // json
     compile 'com.fasterxml.jackson.core:jackson-databind:2.4.4'
 
-
+    compile 'org.litepal.android:core:1.4.0'
 
 
 }

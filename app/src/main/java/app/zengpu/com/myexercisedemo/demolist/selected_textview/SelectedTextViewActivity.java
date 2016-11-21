@@ -22,6 +22,7 @@ public class SelectedTextViewActivity extends BaseActivity {
         setContentView(R.layout.activity_selectedtextview);
 
         initView();
+//        LogUtil.e("SelectedTextViewActivity","path: " + getFilesDir().getPath() + "/databases");
 
     }
 
