@@ -4,14 +4,17 @@ import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
 
+import java.util.Map;
+
 import app.zengpu.com.myexercisedemo.BaseActivity;
 import app.zengpu.com.myexercisedemo.R;
+import app.zengpu.com.myexercisedemo.Utils.LogUtil;
 
 /**
  * Created by zengpu on 2016/11/18.
  */
 
-public class SelectedTextViewActivity extends BaseActivity {
+public class SelectedTextViewActivity extends BaseActivity implements SelectableTextView.OnContextMenuClickListener {
 
     private SelectedTextView selectedTextView;
     private SelectableTextView selectableTextView;
@@ -20,6 +23,8 @@ public class SelectedTextViewActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selectedtextview);
+
+        openDictDataBase();
 
         initView();
 //        LogUtil.e("SelectedTextViewActivity","path: " + getFilesDir().getPath() + "/databases");
@@ -45,16 +50,27 @@ public class SelectedTextViewActivity extends BaseActivity {
 
         selectableTextView.setText(c + c);
         selectableTextView.clearFocus();
+        selectableTextView.setOnContextMenuClickListener(this);
 
-        selectableTextView.setOnContextMenuClickListener(new SelectableTextView.OnContextMenuClickListener() {
-            @Override
-            public void onMenuItemClick(View v, int type, String selectedText) {
-
-            }
-        });
-
-//        selectedTextView.showWebFont(getResources().getString(R.string.large_text0), 16, "#ff5185", "#ffffff");
 //        selectedTextView.showWebFont(c, 16, "#ff5185", "#ffffff");
-//        selectedTextView.showWebFont(s, 16, "#ff5185", "#ffffff");
+
+    }
+
+    @Override
+    public void onMenuItemClick(View v, int type, String selectedText) {
+        if (type == SelectableTextView.CONTEXT_MENU_TYPE_TRANS) {
+            // 翻译
+            Map<String, String> result = assetsDataBaseHelper.queryHanzi(String.valueOf(selectedText.charAt(0)));
+
+            if (null != result)
+                LogUtil.d("SelectedTextViewActivity", String.valueOf(selectedText.charAt(0)) + ": " + result.get(String.valueOf(selectedText.charAt(0))));
+        }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        closeDictDataBase();
+        super.onDestroy();
     }
 }

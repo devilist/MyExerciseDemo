@@ -1,15 +1,19 @@
 package app.zengpu.com.myexercisedemo.Utils;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 本地数据库操作帮助类
@@ -17,9 +21,9 @@ import java.io.OutputStream;
  */
 public class AssetsDataBaseHelper extends SQLiteOpenHelper {
 
-    public static final String  DB_NAME_GHY_DICT = "ghydict"; // 古汉语字典
+    public static final String DB_NAME_GHY_DICT = "ghydict.db"; // 古汉语字典
 
-    private  String mDbName; // 数据库名字
+    private String mDbName; // 数据库名字
     private SQLiteDatabase mDataBase;
     private final Context mContext;
 
@@ -44,7 +48,7 @@ public class AssetsDataBaseHelper extends SQLiteOpenHelper {
             try {
                 copyDataBase();
             } catch (IOException e) {
-                throw new Error("Error copying database");
+                throw new Error("Error copying database：" + e.toString());
             }
         }
     }
@@ -70,6 +74,9 @@ public class AssetsDataBaseHelper extends SQLiteOpenHelper {
             checkDB.close();
         }
 
+//        File dbFile = mContext.getDatabasePath(mDbName);
+//        return dbFile.exists();
+
         return checkDB != null ? true : false;
     }
 
@@ -81,6 +88,8 @@ public class AssetsDataBaseHelper extends SQLiteOpenHelper {
         InputStream myInput = mContext.getAssets().open(mDbName);
         // 新建一个和本地数据库同名的数据库，存放路径（app包路径下）
         String outFileName = getDbPath() + mDbName;
+
+
         // 打开新建的数据库
         OutputStream myOutput = new FileOutputStream(outFileName);
         //转换为字节流，复制
@@ -112,7 +121,11 @@ public class AssetsDataBaseHelper extends SQLiteOpenHelper {
      * @return
      */
     private String getDbPath() {
-        return mContext.getFilesDir().getPath() + "/databases/";
+        String dir = mContext.getFilesDir().getAbsolutePath() + "/databases/";
+        File dir_file = new File(dir);
+        if (!dir_file.exists())
+            dir_file.mkdir();
+        return dir;
     }
 
     @Override
@@ -121,6 +134,33 @@ public class AssetsDataBaseHelper extends SQLiteOpenHelper {
             mDataBase.close();
         super.close();
     }
+
+
+    /**
+     * 查字典 根据汉字查释义
+     *
+     * @return
+     */
+    public Map<String, String> queryHanzi(String hanzi) {
+        if (!mDbName.equals(DB_NAME_GHY_DICT))
+            return null;
+
+//        String[] columns = new String[]{"ID","hanzi","yinjie","bushou","bushoubihuashu","zongbihuashu","bishun","shiyi"};
+
+        String[] columns = new String[]{"hanzi", "shiyi"};
+
+        Cursor cursor = mDataBase.query("GuHanZi", columns, "hanzi = ?", new String[]{hanzi}, null, null, null);
+
+        if (null != cursor) {
+            Map<String, String> result = new HashMap<>();
+            while (cursor.moveToNext()) {
+                result.put(cursor.getString(cursor.getColumnIndex("hanzi")), cursor.getString(cursor.getColumnIndex("shiyi")));
+            }
+            return result;
+        } else
+            return null;
+    }
+
 
     @Override
     public void onCreate(SQLiteDatabase db) {

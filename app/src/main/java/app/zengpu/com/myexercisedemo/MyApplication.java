@@ -10,13 +10,17 @@ import com.squareup.okhttp.OkHttpClient;
 /**
  * Created by Linhh on 16/2/16.
  */
-public class MyApplication extends Application{
+public class MyApplication extends Application {
+
+
+
     @Override
     public void onCreate() {
         super.onCreate();
         ImagePipelineConfig frescoConfig = OkHttpImagePipelineConfigFactory
                 .newBuilder(this, new OkHttpClient())
                 .build();
-        Fresco.initialize(this,frescoConfig);
+        Fresco.initialize(this, frescoConfig);
+
     }
 }

@@ -232,20 +232,12 @@ public class SelectableTextView extends EditText {
             if (id == R.id.tv_select_all) {
                 //全选
                 Selection.selectAll(getEditableText());
-
-                if (null != mOnContextMenuClickListener) {
-                    mOnContextMenuClickListener.onMenuItemClick(v, CONTEXT_MENU_TYPE_SELECT_ALL, getText().toString());
-                }
             }
 
             if (id == R.id.tv_copy) {
 
                 copy(context, selected_str);
                 Toast.makeText(context, "复制成功！", Toast.LENGTH_SHORT).show();
-
-                if (null != mOnContextMenuClickListener) {
-                    mOnContextMenuClickListener.onMenuItemClick(v, CONTEXT_MENU_TYPE_COPY, selected_str);
-                }
 
                 hideContextMenu();
             }
