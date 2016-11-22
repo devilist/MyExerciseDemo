@@ -81,11 +81,11 @@ public class SelectedTextView extends WebView implements View.OnLongClickListene
         String copy_js_str = "function selectText() {\n" +
                 "  if (document.selection) {\n" +
                 "    var range = document.body.createTextRange();\n" +
-                "    range.moveToElementText(document.getElementById('copy'));\n" +
+                "    range.moveToElementText(document.getElementById('copyText'));\n" +
                 "    range.select();\n" +
                 "  } else if (window.getSelection) {\n" +
                 "    var range = document.createRange();\n" +
-                "    range.selectNode(document.getElementById('copy'));\n" +
+                "    range.selectNode(document.getElementById('copyText'));\n" +
                 "    window.getSelection().addRange(range);\n" +
                 "  }\n" +
                 "}\n";
@@ -149,7 +149,7 @@ public class SelectedTextView extends WebView implements View.OnLongClickListene
             menu.removeItem(android.R.id.selectAll);
             // Remove the "cut" option
             menu.removeItem(android.R.id.copy);
-            // Remove the "copy all" option
+            // Remove the "copyText all" option
             menu.removeItem(android.R.id.redo);
             menu.removeItem(android.R.id.undo);
             menu.removeItem(android.R.id.cut);

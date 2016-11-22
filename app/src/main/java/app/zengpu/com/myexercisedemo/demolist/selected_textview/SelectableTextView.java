@@ -1,13 +1,17 @@
 package app.zengpu.com.myexercisedemo.demolist.selected_textview;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Vibrator;
 import android.text.Layout;
 import android.text.Selection;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -61,7 +65,19 @@ public class SelectableTextView extends EditText {
 
     private PopupWindow mContextMenuPopupWindow; // 长按弹出菜单
 
+    private ActionMenu mActionMenu = null;
+
     private CustomActionMenuCallBack mCustomActionMenuCallBack;
+
+    /**
+     * TextView的总宽度
+     */
+    private int mViewWidth;
+    /**
+     * 行高
+     */
+    private int mLineY;
+
 
     public SelectableTextView(Context context) {
         this(context, null);
@@ -81,7 +97,7 @@ public class SelectableTextView extends EditText {
         WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         mScreenHeight = wm.getDefaultDisplay().getHeight();
         mStatusBarHeight = getStatusBarHeight(mContext);
-        mPopWindowHeight = dip2px(mContext, 45);
+        mPopWindowHeight = dp2px(mContext, 40);
 
         mVibrator = (Vibrator) mContext.getSystemService(VIBRATOR_SERVICE);
 
@@ -105,6 +121,15 @@ public class SelectableTextView extends EditText {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 LogUtil.d("SelectableTextView", "ACTION_DOWN");
+
+                // 创建菜单，创建不成功，屏蔽长按事件
+                if (null == mActionMenu) {
+                    mActionMenu = createActionMenu();
+                }
+                if (mActionMenu.getChildCount() == 0) {
+                    return false;
+                }
+
                 mTouchDownX = event.getX();
                 mTouchDownY = event.getY();
                 mTouchDownRawY = event.getRawY();
@@ -114,6 +139,9 @@ public class SelectableTextView extends EditText {
                 currentLine = layout.getLineForVertical(getScrollY() + (int) event.getY());
                 mWordStartOffset = layout.getOffsetForHorizontal(currentLine, (int) event.getX());
                 Selection.setSelection(getEditableText(), mWordStartOffset);
+
+                LogUtil.d("SelectableTextView", "ACTION_DOWN：currentLine " + currentLine);
+                LogUtil.d("SelectableTextView", "ACTION_DOWN：mWordStartOffset " + mWordStartOffset);
                 break;
             case MotionEvent.ACTION_MOVE:
                 LogUtil.d("SelectableTextView", "ACTION_MOVE");
@@ -129,6 +157,7 @@ public class SelectableTextView extends EditText {
                         isVibrator = true;
                     }
                 }
+
                 if (isLongPress) {
                     // 手指移动过程中的字符偏移
                     currentLine = layout.getLineForVertical(getScrollY() + (int) event.getY());
@@ -137,6 +166,9 @@ public class SelectableTextView extends EditText {
                     getParent().requestDisallowInterceptTouchEvent(true);
                     // 选择字符
                     Selection.setSelection(getEditableText(), mWordStartOffset, mWordOffset_move);
+
+                    LogUtil.d("SelectableTextView", "ACTION_MOVE：currentLine " + currentLine);
+                    LogUtil.d("SelectableTextView", "ACTION_MOVE：mWordOffset_move " + mWordOffset_move);
                 }
 
                 break;
@@ -150,10 +182,15 @@ public class SelectableTextView extends EditText {
                         mWordOffsetEnd += 1;
                     Selection.setSelection(getEditableText(), mWordStartOffset, mWordOffsetEnd);
 
+
+                    LogUtil.d("SelectableTextView", "ACTION_UP：currentLine " + currentLine);
+                    LogUtil.d("SelectableTextView", "ACTION_UP：mWordOffset_move " + mWordOffsetEnd);
+
                     // 计算菜单显示位置
                     int mPopWindowOffsetY = calculatorPopWindowYPosition((int) mTouchDownRawY, (int) event.getRawY());
                     // 弹出菜单
-                    showContextActionMenu(mPopWindowOffsetY);
+                    showActionMenu(mPopWindowOffsetY, mActionMenu);
+
                 }
                 // 通知父布局继续拦截触摸事件
                 getParent().requestDisallowInterceptTouchEvent(false);
@@ -162,12 +199,127 @@ public class SelectableTextView extends EditText {
         return true;
     }
 
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+//        super.onDraw(canvas);
+
+        Paint mHighlightPaint = new Paint();
+        mHighlightPaint.setStyle(Paint.Style.FILL);
+        mHighlightPaint.setColor(getHighlightColor());
+        mHighlightPaint.setAntiAlias(true);
+
+        TextPaint paint = getPaint();
+        paint.setColor(getCurrentTextColor());
+        paint.drawableState = getDrawableState();
+        mViewWidth = getMeasuredWidth();//拿到textview的实际宽度
+        String text = getText().toString();
+        mLineY = 0;
+        mLineY += getTextSize();
+        Layout layout = getLayout();
+
+
+
+        for (int i = 0; i < layout.getLineCount(); i++) {//每行循环
+            int lineStart = layout.getLineStart(i);
+            int lineEnd = layout.getLineEnd(i);
+            String line = text.substring(lineStart, lineEnd);//获取到TextView每行中的内容
+            float width = StaticLayout.getDesiredWidth(text, lineStart, lineEnd, getPaint());
+
+            if (needScale(line)) {
+                if (i == layout.getLineCount() - 1) {//最后一行不需要重绘
+                    canvas.drawText(line, 0, mLineY, paint);
+                } else {
+                    drawScaleText(canvas, lineStart, line, width);
+                }
+            } else {
+                canvas.drawText(line, 0, mLineY, paint);
+                setHintTextColor(Color.parseColor("#26CEAD53"));
+            }
+            mLineY += getLineHeight();//写完一行以后，高度增加一行的高度
+            System.out.println("lineHeight---" + getLineHeight());
+        }
+
+        canvas.drawRect(50,200,300,250,mHighlightPaint);
+
+    }
+
     /**
-     * 长按弹出菜单
+     * 重绘此行
      *
-     * @param offsetY
+     * @param canvas    画布
+     * @param lineStart 行头
+     * @param line      该行所有的文字
+     * @param lineWidth 该行每个文字的宽度的总和
      */
-    private void showContextActionMenu(int offsetY) {
+    private void drawScaleText(Canvas canvas, int lineStart, String line,
+                               float lineWidth) {
+        float x = 0;
+        if (isFirstLineOfParagraph(lineStart, line)) {
+            String blanks = "  ";
+            canvas.drawText(blanks, x, mLineY, getPaint());// 以 (x, mLineY) 为起点，画出blanks
+            float bw = StaticLayout.getDesiredWidth(blanks, getPaint());// 画出一个空格需要的宽度
+            x += bw;
+            line = line.substring(3);
+        }
+        // 比如说一共有5个字，中间隔了4个空儿，
+        //	那就用整个TextView的宽度 - 这5个字的宽度，
+        //然后除以4，填补到这4个空儿中
+        float d = (mViewWidth - lineWidth) / (line.length() - 1);
+
+        for (int i = 0; i < line.length(); i++) {
+            String c = String.valueOf(line.charAt(i));
+            float cw = StaticLayout.getDesiredWidth(c, getPaint());
+            canvas.drawText(c, x, mLineY, getPaint());
+            x += cw + d;
+        }
+    }
+
+    /**
+     * 判断是不是段落的第一行。
+     * 一个汉字相当于一个字符，此处判断是否为第一行的依据是：
+     * 字符长度大于3且前两个字符为空格
+     *
+     * @param lineStart
+     * @param line
+     * @return
+     */
+    private boolean isFirstLineOfParagraph(int lineStart, String line) {
+        return line.length() > 3 && line.charAt(0) == ' '
+                && line.charAt(1) == ' ';
+    }
+
+
+    /**
+     * 判断需不需要缩放
+     * 该行最后一个字符不是换行符的时候返回true，
+     * 该行最后一个字符是换行符的时候返回false
+     *
+     * @param line
+     * @return
+     */
+    private boolean needScale(String line) {
+        if (line.length() == 0) {
+            return false;
+        } else {
+            return line.charAt(line.length() - 1) != '\n';//该行最后一个字符不是换行符的时候返回true，是换行符的时候返回false
+        }
+    }
+
+    public int getFontHeight(float fontSize) {
+        Paint paint = new Paint();
+        paint.setTextSize(fontSize);
+        Paint.FontMetrics fm = paint.getFontMetrics();
+        return (int) Math.ceil(fm.descent - fm.ascent);
+    }
+
+
+    /**
+     * 创建ActionMenu菜单
+     *
+     * @return
+     */
+    private ActionMenu createActionMenu() {
         // 创建菜单
         ActionMenu actionMenu = new ActionMenu(mContext);
         // 是否需要移除默认item
@@ -181,8 +333,25 @@ public class SelectableTextView extends EditText {
         actionMenu.addCustomItem();  // 添加自定义item
         actionMenu.setFocusable(true); // 获取焦点
         actionMenu.setFocusableInTouchMode(true);
-        // item监听
-        actionMenu.setOnMenuItemClickListener(mOnMenuItemClickListener);
+
+        if (actionMenu.getChildCount() != 0) {
+            // item监听
+            for (int i = 0; i < actionMenu.getChildCount(); i++) {
+                actionMenu.getChildAt(i).setOnClickListener(mMenuClickListener);
+            }
+        }
+        return actionMenu;
+    }
+
+
+    /**
+     * 长按弹出菜单
+     *
+     * @param offsetY
+     * @param actionMenu
+     * @return 菜单创建成功，返回true
+     */
+    private void showActionMenu(int offsetY, ActionMenu actionMenu) {
 
         mContextMenuPopupWindow = new PopupWindow(actionMenu, WindowManager.LayoutParams.WRAP_CONTENT,
                 mPopWindowHeight, true);
@@ -202,7 +371,7 @@ public class SelectableTextView extends EditText {
     /**
      * 隐藏菜单
      */
-    private void hideContextActionMenu() {
+    private void hideActionMenu() {
         if (null != mContextMenuPopupWindow) {
             mContextMenuPopupWindow.dismiss();
             mContextMenuPopupWindow = null;
@@ -212,9 +381,12 @@ public class SelectableTextView extends EditText {
     /**
      * 菜单点击事件监听
      */
-    private ActionMenu.OnMenuItemClickListener mOnMenuItemClickListener = new ActionMenu.OnMenuItemClickListener() {
+    private OnClickListener mMenuClickListener = new OnClickListener() {
         @Override
-        public void onMenuItemClick(String menuItemTitle) {
+        public void onClick(View v) {
+
+            String menuItemTitle = (String) v.getTag();
+
             // 选中的字符的开始和结束位置
             int start = getSelectionStart();
             int end = getSelectionEnd();
@@ -231,17 +403,18 @@ public class SelectableTextView extends EditText {
 
             } else if (menuItemTitle.equals(ActionMenu.DEFAULT_MENU_ITEM_TITLE_COPY)) {
                 // 复制事件
-                copy(mContext, selected_str);
+                copyText(mContext, selected_str);
                 Toast.makeText(mContext, "复制成功！", Toast.LENGTH_SHORT).show();
-                hideContextActionMenu();
+                hideActionMenu();
 
             } else {
                 // 自定义事件
                 if (null != mCustomActionMenuCallBack) {
                     mCustomActionMenuCallBack.onCustomActionItemClicked(menuItemTitle, selected_str);
                 }
-                hideContextActionMenu();
+                hideActionMenu();
             }
+
         }
     };
 
@@ -280,7 +453,7 @@ public class SelectableTextView extends EditText {
      *
      * @param text
      */
-    public static void copy(Context context, String text) {
+    public static void copyText(Context context, String text) {
         // 得到剪贴板管理器
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             android.text.ClipboardManager cmb = (android.text.ClipboardManager) context
@@ -296,7 +469,7 @@ public class SelectableTextView extends EditText {
     /**
      * dp2px
      */
-    public int dip2px(Context context, float dpValue) {
+    public int dp2px(Context context, float dpValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dpValue * scale + 0.5f);
     }
@@ -371,7 +544,6 @@ public class SelectableTextView extends EditText {
         private int mActionMenuBgColor = 0xff666666; // ActionMenu背景色
         private int mMenuItemTextColor = 0xffffffff; // MenuItem字体颜色
         private List<String> mItemTitleList; // MenuItem 标题
-        private OnMenuItemClickListener mOnMenuItemClickListener;
 
         public ActionMenu(Context context) {
             this(context, null);
@@ -390,7 +562,7 @@ public class SelectableTextView extends EditText {
         private void init() {
             LinearLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 40);
             setLayoutParams(params);
-            setPadding(15, 0, 15, 0);
+            setPadding(20, 0, 20, 0);
             setOrientation(HORIZONTAL);
             setGravity(Gravity.CENTER);
             setActionMenuBackGround(mActionMenuBgColor);
@@ -481,13 +653,13 @@ public class SelectableTextView extends EditText {
             menuItem.setText(itemTitle);
             menuItem.setTag(itemTitle);
 
-            menuItem.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (null != mOnMenuItemClickListener)
-                        mOnMenuItemClickListener.onMenuItemClick(itemTitle);
-                }
-            });
+//            menuItem.setOnClickListener(new OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if (null != mOnMenuItemClickListener)
+//                        mOnMenuItemClickListener.onMenuItemClick(itemTitle);
+//                }
+//            });
             return menuItem;
         }
 
@@ -508,28 +680,6 @@ public class SelectableTextView extends EditText {
         public void setActionMenuBgColor(int mMenuBgColor) {
             this.mActionMenuBgColor = mMenuBgColor;
             setActionMenuBackGround(this.mActionMenuBgColor);
-        }
-
-        /**
-         * 设置MenuItem点击事件
-         *
-         * @param listener
-         * @hiden
-         */
-        private void setOnMenuItemClickListener(OnMenuItemClickListener listener) {
-            this.mOnMenuItemClickListener = listener;
-        }
-
-        /**
-         * MenuItem点击事件监听
-         */
-        public interface OnMenuItemClickListener {
-
-            /**
-             * @param menuItemTitle MenuItem的标题
-             */
-            void onMenuItemClick(String menuItemTitle);
-
         }
     }
 
