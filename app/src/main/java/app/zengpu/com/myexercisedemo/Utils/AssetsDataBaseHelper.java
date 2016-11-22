@@ -144,13 +144,9 @@ public class AssetsDataBaseHelper extends SQLiteOpenHelper {
     public Map<String, String> queryHanzi(String hanzi) {
         if (!mDbName.equals(DB_NAME_GHY_DICT))
             return null;
-
 //        String[] columns = new String[]{"ID","hanzi","yinjie","bushou","bushoubihuashu","zongbihuashu","bishun","shiyi"};
-
         String[] columns = new String[]{"hanzi", "shiyi"};
-
         Cursor cursor = mDataBase.query("GuHanZi", columns, "hanzi = ?", new String[]{hanzi}, null, null, null);
-
         if (null != cursor) {
             Map<String, String> result = new HashMap<>();
             while (cursor.moveToNext()) {

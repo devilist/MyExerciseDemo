@@ -2,8 +2,9 @@ package app.zengpu.com.myexercisedemo.demolist.selected_textview;
 
 import android.os.Bundle;
 import android.text.Html;
-import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import app.zengpu.com.myexercisedemo.BaseActivity;
@@ -14,7 +15,8 @@ import app.zengpu.com.myexercisedemo.Utils.LogUtil;
  * Created by zengpu on 2016/11/18.
  */
 
-public class SelectedTextViewActivity extends BaseActivity implements SelectableTextView.OnContextMenuClickListener {
+public class SelectedTextViewActivity extends BaseActivity implements
+        SelectableTextView.CustomActionMenuCallBack {
 
     private SelectedTextView selectedTextView;
     private SelectableTextView selectableTextView;
@@ -27,7 +29,6 @@ public class SelectedTextViewActivity extends BaseActivity implements Selectable
         openDictDataBase();
 
         initView();
-//        LogUtil.e("SelectedTextViewActivity","path: " + getFilesDir().getPath() + "/databases");
 
     }
 
@@ -50,21 +51,9 @@ public class SelectedTextViewActivity extends BaseActivity implements Selectable
 
         selectableTextView.setText(c + c);
         selectableTextView.clearFocus();
-        selectableTextView.setOnContextMenuClickListener(this);
+        selectableTextView.setCustomActionMenuCallBack(this);
 
 //        selectedTextView.showWebFont(c, 16, "#ff5185", "#ffffff");
-
-    }
-
-    @Override
-    public void onMenuItemClick(View v, int type, String selectedText) {
-        if (type == SelectableTextView.CONTEXT_MENU_TYPE_TRANS) {
-            // 翻译
-            Map<String, String> result = assetsDataBaseHelper.queryHanzi(String.valueOf(selectedText.charAt(0)));
-
-            if (null != result)
-                LogUtil.d("SelectedTextViewActivity", String.valueOf(selectedText.charAt(0)) + ": " + result.get(String.valueOf(selectedText.charAt(0))));
-        }
 
     }
 
@@ -72,5 +61,27 @@ public class SelectedTextViewActivity extends BaseActivity implements Selectable
     protected void onDestroy() {
         closeDictDataBase();
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onCreateCustomActionMenu(SelectableTextView.ActionMenu menu) {
+        menu.setActionMenuBgColor(0xff666666);
+        menu.setMenuItemTextColor(0xffffffff);
+        List<String> titleList = new ArrayList<>();
+        titleList.add("翻译");
+        titleList.add("分享");
+        menu.addCustomMenuItem(titleList);
+        return false;
+    }
+
+    @Override
+    public void onCustomActionItemClicked(String itemTitle, String selectedContent) {
+        if (itemTitle.equals("翻译")) {
+            // 翻译
+            Map<String, String> result = assetsDataBaseHelper.queryHanzi(String.valueOf(selectedContent.charAt(0)));
+            if (null != result)
+                LogUtil.d("SelectedTextViewActivity", String.valueOf(selectedContent.charAt(0)) + ": \n "
+                        + result.get(String.valueOf(selectedContent.charAt(0))));
+        }
     }
 }
