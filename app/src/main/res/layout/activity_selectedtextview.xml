@@ -8,43 +8,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <app.zengpu.com.myexercisedemo.demolist.selected_textview.SelectableTextView
+            android:id="@+id/ctv_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <app.zengpu.com.myexercisedemo.demolist.selected_textview.CustomTextView
-                android:id="@+id/ctv_content1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:layout_marginTop="10dp"
-                android:ellipsize="end"
-                android:gravity="center_horizontal"
-                android:lineSpacingMultiplier="1.5"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:singleLine="false"
-                android:textSize="16sp"
-                android:visibility="visible"/>
-
-            <app.zengpu.com.myexercisedemo.demolist.selected_textview.SelectableTextView
-                android:id="@+id/ctv_content"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:layout_marginTop="10dp"
-                android:ellipsize="end"
-                android:gravity="center_horizontal"
-                android:lineSpacingMultiplier="1.5"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:singleLine="false"
-                android:textSize="16sp"
-                android:visibility="visible"/>
-
-        </LinearLayout>
-
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:gravity="center_horizontal"
+            android:lineSpacingMultiplier="1.5"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="false"
+            android:textSize="18sp"
+            android:visibility="visible"/>
 
     </ScrollView>
 

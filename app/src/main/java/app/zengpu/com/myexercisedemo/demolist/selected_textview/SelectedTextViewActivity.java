@@ -20,8 +20,6 @@ public class SelectedTextViewActivity extends BaseActivity implements
 
     private SelectableTextView selectableTextView;
 
-    private CustomTextView customTextView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,9 +49,8 @@ public class SelectedTextViewActivity extends BaseActivity implements
         selectableTextView.setText(c + c);
         selectableTextView.clearFocus();
         selectableTextView.setCustomActionMenuCallBack(this);
+        selectableTextView.setTextJustify(true);
 
-        customTextView = (CustomTextView) findViewById(R.id.ctv_content1);
-        customTextView.setText(c + c);
 
     }
 
