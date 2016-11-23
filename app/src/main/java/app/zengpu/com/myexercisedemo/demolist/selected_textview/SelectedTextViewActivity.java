@@ -18,8 +18,9 @@ import app.zengpu.com.myexercisedemo.Utils.LogUtil;
 public class SelectedTextViewActivity extends BaseActivity implements
         SelectableTextView.CustomActionMenuCallBack {
 
-    private SelectedTextView selectedTextView;
     private SelectableTextView selectableTextView;
+
+    private CustomTextView customTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +34,6 @@ public class SelectedTextViewActivity extends BaseActivity implements
     }
 
     private void initView() {
-        selectedTextView = (SelectedTextView) findViewById(R.id.stv_content);
-        selectableTextView = (SelectableTextView) findViewById(R.id.ctv_content);
-
         String s = "<p>　　金溪民方仲永，世隶耕。仲永生五年，未尝识书具，\n" +
                 "            忽啼求之。父异焉，借旁近与之，即书诗四句，并自为其名。\n" +
                 "            其诗以养父母、收族为意，传一乡秀才观之。自是指物作诗立就，\n" +
@@ -49,11 +47,13 @@ public class SelectedTextViewActivity extends BaseActivity implements
 
         String c = Html.fromHtml(s).toString();
 
+        selectableTextView = (SelectableTextView) findViewById(R.id.ctv_content);
         selectableTextView.setText(c + c);
         selectableTextView.clearFocus();
         selectableTextView.setCustomActionMenuCallBack(this);
 
-//        selectedTextView.showWebFont(c, 16, "#ff5185", "#ffffff");
+        customTextView = (CustomTextView) findViewById(R.id.ctv_content1);
+        customTextView.setText(c + c);
 
     }
 
