@@ -1,7 +1,11 @@
 package app.zengpu.com.myexercisedemo.demolist.selected_textview;
 
 import android.os.Bundle;
+import android.support.v7.widget.SwitchCompat;
 import android.text.Html;
+import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +22,10 @@ import app.zengpu.com.myexercisedemo.Utils.LogUtil;
 public class SelectedTextViewActivity extends BaseActivity implements
         SelectableTextView.CustomActionMenuCallBack {
 
+    private SwitchCompat switchCompat;
+
     private SelectableTextView selectableTextView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +54,31 @@ public class SelectedTextViewActivity extends BaseActivity implements
 
         selectableTextView = (SelectableTextView) findViewById(R.id.ctv_content);
         selectableTextView.setText(c + c);
+//        selectableTextView.setText(getResources().getString(R.string.large_text));
         selectableTextView.clearFocus();
         selectableTextView.setCustomActionMenuCallBack(this);
-        selectableTextView.setTextJustify(true);
 
+        selectableTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(SelectedTextViewActivity.this, "SelectableTextView 的onClick事件", Toast.LENGTH_SHORT).show();
+            }
+        });
 
+        switchCompat = (SwitchCompat) findViewById(R.id.switch_compat);
+        switchCompat.setChecked(true);
+        switchCompat.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    selectableTextView.setTextJustify(true);
+                    selectableTextView.postInvalidate();
+                } else {
+                    selectableTextView.setTextJustify(false);
+                    selectableTextView.postInvalidate();
+                }
+            }
+        });
     }
 
     @Override
@@ -66,6 +93,7 @@ public class SelectedTextViewActivity extends BaseActivity implements
         menu.setMenuItemTextColor(0xffffffff);
         List<String> titleList = new ArrayList<>();
         titleList.add("翻译");
+        titleList.add("分享");
         titleList.add("分享");
         menu.addCustomMenuItem(titleList);
         return false;

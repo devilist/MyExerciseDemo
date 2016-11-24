@@ -1,8 +1,8 @@
 package app.zengpu.com.myexercisedemo.demolist.selected_textview;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -31,7 +31,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.Utils.LogUtil;
 
 import static android.content.Context.VIBRATOR_SERVICE;
@@ -47,31 +50,36 @@ import static android.content.Context.VIBRATOR_SERVICE;
  */
 public class SelectableTextView extends EditText {
 
-    private final int TRIGGER_LONGPRESS_TIME_THRESHOLD = 300; // 触发长按事件的时间阈值
+    private final int TRIGGER_LONGPRESS_TIME_THRESHOLD = 300;    // 触发长按事件的时间阈值
     private final int TRIGGER_LONGPRESS_DISTANCE_THRESHOLD = 10; // 触发长按事件的位移阈值
 
     private Context mContext;
-    private int mScreenHeight;  // 屏幕高度
-    private int mStatusBarHeight; // 状态栏高度
-    private int mPopWindowHeight; // 弹出菜单高度
+    private int mScreenHeight;      // 屏幕高度
+    private int mStatusBarHeight;   // 状态栏高度
+    private int mActionMenuHeight;  // 弹出菜单高度
 
     private float mTouchDownX = 0;
     private float mTouchDownY = 0;
     private float mTouchDownRawY = 0;
 
-    private boolean isLongPress = false; // 是否触发了长按事件
-    private boolean isVibrator = false;  // 是否触发过长按震动
-    private boolean isTextJustify = true;    // 是否需要两端对齐 ，默认true
+    private boolean isLongPress = false;               // 是否发触了长按事件
+    private boolean isLongPressTouchActionUp = false;  // 长按事件结束后，标记该次事件
+    private boolean isVibrator = false;                // 是否触发过长按震动
 
-    private int mStartLine; //action_down触摸事件 起始行
-    private int mStartTextOffset; //action_down触摸事件 字符串开始位置的偏移值
-    private int mCurrentLine; // action_move触摸事件 当前行
-    private int mCurrentTextOffset; //action_move触摸事件 字符串当前位置的偏移值
+    private boolean isTextJustify = true;              // 是否需要两端对齐 ，默认true
+    private boolean isForbiddenActionMenu = false;     // 是否需要两端对齐 ，默认false
 
-    private int mViewTextWidth; // SelectableTextView内容的宽度(不包含padding)
+    private boolean isActionSelectAll = false;         // 是否触发全选事件
+
+    private int mStartLine;             //action_down触摸事件 起始行
+    private int mStartTextOffset;       //action_down触摸事件 字符串开始位置的偏移值
+    private int mCurrentLine;           // action_move触摸事件 当前行
+    private int mCurrentTextOffset;     //action_move触摸事件 字符串当前位置的偏移值
+
+    private int mViewTextWidth;         // SelectableTextView内容的宽度(不包含padding)
 
     private Vibrator mVibrator;
-    private PopupWindow mContextMenuPopupWindow; // 长按弹出菜单
+    private PopupWindow mActionMenuPopupWindow; // 长按弹出菜单
     private ActionMenu mActionMenu = null;
 
     private CustomActionMenuCallBack mCustomActionMenuCallBack;
@@ -87,6 +95,13 @@ public class SelectableTextView extends EditText {
     public SelectableTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         this.mContext = context;
+
+        TypedArray mTypedArray = context.obtainStyledAttributes(attrs,
+                R.styleable.SelectableTextView);
+        isTextJustify = mTypedArray.getBoolean(R.styleable.SelectableTextView_textJustify, true);
+        isForbiddenActionMenu = mTypedArray.getBoolean(R.styleable.SelectableTextView_forbiddenActionMenu, false);
+        mTypedArray.recycle();
+
         init();
     }
 
@@ -94,14 +109,16 @@ public class SelectableTextView extends EditText {
         WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         mScreenHeight = wm.getDefaultDisplay().getHeight();
         mStatusBarHeight = getStatusBarHeight(mContext);
-        mPopWindowHeight = dp2px(mContext, 40);
+        mActionMenuHeight = dp2px(mContext, 45);
 
         mVibrator = (Vibrator) mContext.getSystemService(VIBRATOR_SERVICE);
 
-        setGravity(Gravity.TOP);
-        setBackgroundColor(Color.WHITE);
+        if (isTextJustify)
+            setGravity(Gravity.TOP);
+
         setTextIsSelectable(true);
         setCursorVisible(false);
+//        setClickable(true);
     }
 
     @Override
@@ -114,6 +131,10 @@ public class SelectableTextView extends EditText {
         isTextJustify = textJustify;
     }
 
+    public void setForbiddenActionMenu(boolean forbiddenActionMenu) {
+        isForbiddenActionMenu = forbiddenActionMenu;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getAction();
@@ -124,60 +145,57 @@ public class SelectableTextView extends EditText {
             case MotionEvent.ACTION_DOWN:
                 LogUtil.d("SelectableTextView", "ACTION_DOWN");
 
-                // 创建菜单，创建不成功，屏蔽长按事件
+                // 每次按下时，创建ActionMenu菜单，创建不成功，屏蔽长按事件
                 if (null == mActionMenu) {
                     mActionMenu = createActionMenu();
                 }
-                if (mActionMenu.getChildCount() == 0) {
-                    return false;
-                }
-
                 mTouchDownX = event.getX();
                 mTouchDownY = event.getY();
                 mTouchDownRawY = event.getRawY();
                 isLongPress = false;
                 isVibrator = false;
+                isLongPressTouchActionUp = false;
                 break;
             case MotionEvent.ACTION_MOVE:
                 LogUtil.d("SelectableTextView", "ACTION_MOVE");
+                // 先判断是否禁用了ActionMenu功能，以及ActionMenu是否创建失败，
+                // 二者只要满足了一个条件，退出长按事件
+                if (!isForbiddenActionMenu || mActionMenu.getChildCount() == 0) {
 
-                // 手指移动过程中的字符偏移
-                currentLine = layout.getLineForVertical(getScrollY() + (int) event.getY());
-                int mWordOffset_move = layout.getOffsetForHorizontal(currentLine, (int) event.getX());
+                    // 手指移动过程中的字符偏移
+                    currentLine = layout.getLineForVertical(getScrollY() + (int) event.getY());
+                    int mWordOffset_move = layout.getOffsetForHorizontal(currentLine, (int) event.getX());
+                    // 判断是否触发长按事件
+                    if (event.getEventTime() - event.getDownTime() >= TRIGGER_LONGPRESS_TIME_THRESHOLD
+                            && Math.abs(event.getX() - mTouchDownX) < TRIGGER_LONGPRESS_DISTANCE_THRESHOLD
+                            && Math.abs(event.getY() - mTouchDownY) < TRIGGER_LONGPRESS_DISTANCE_THRESHOLD) {
 
+                        LogUtil.d("SelectableTextView", "ACTION_MOVE 长按");
+                        isLongPress = true;
+                        isLongPressTouchActionUp = false;
+                        mStartLine = currentLine;
+                        mStartTextOffset = mWordOffset_move;
 
-                // 判断是否触发长按事件
-                if (event.getEventTime() - event.getDownTime() >= TRIGGER_LONGPRESS_TIME_THRESHOLD
-                        && Math.abs(event.getX() - mTouchDownX) < TRIGGER_LONGPRESS_DISTANCE_THRESHOLD
-                        && Math.abs(event.getY() - mTouchDownY) < TRIGGER_LONGPRESS_DISTANCE_THRESHOLD) {
-
-                    LogUtil.d("SelectableTextView", "ACTION_MOVE 长按");
-                    isLongPress = true;
-                    mStartLine = currentLine;
-                    mStartTextOffset = mWordOffset_move;
-
-                    // 每次触发长按时，震动提示一次
-                    if (!isVibrator) {
-                        mVibrator.vibrate(30);
-                        isVibrator = true;
+                        // 每次触发长按时，震动提示一次
+                        if (!isVibrator) {
+                            mVibrator.vibrate(30);
+                            isVibrator = true;
+                        }
+                    }
+                    if (isLongPress) {
+                        mCurrentLine = currentLine;
+                        mCurrentTextOffset = mWordOffset_move;
+                        // 通知父布局不要拦截触摸事件
+                        getParent().requestDisallowInterceptTouchEvent(true);
+                        // 选择字符
+                        Selection.setSelection(getEditableText(), Math.min(mStartTextOffset, mWordOffset_move),
+                                Math.max(mStartTextOffset, mWordOffset_move));
                     }
                 }
-
-                if (isLongPress) {
-                    mCurrentLine = currentLine;
-                    mCurrentTextOffset = mWordOffset_move;
-                    // 通知父布局不要拦截触摸事件
-                    getParent().requestDisallowInterceptTouchEvent(true);
-                    // 选择字符
-                    Selection.setSelection(getEditableText(), mStartTextOffset, mWordOffset_move);
-
-                    LogUtil.d("SelectableTextView", "ACTION_MOVE：currentLine " + currentLine);
-                    LogUtil.d("SelectableTextView", "ACTION_MOVE：mWordOffset_move " + mWordOffset_move);
-                }
-
                 break;
             case MotionEvent.ACTION_UP:
                 LogUtil.d("SelectableTextView", "ACTION_UP");
+                // 处理长按事件
                 if (isLongPress) {
                     currentLine = layout.getLineForVertical(getScrollY() + (int) event.getY());
                     int mWordOffsetEnd = layout.getOffsetForHorizontal(currentLine, (int) event.getX());
@@ -188,19 +206,20 @@ public class SelectableTextView extends EditText {
                         return false;
                     }
 
-                    Selection.setSelection(getEditableText(), mStartTextOffset, mWordOffsetEnd);
-
-                    LogUtil.d("SelectableTextView", "ACTION_UP：currentLine " + currentLine);
-                    LogUtil.d("SelectableTextView", "ACTION_UP：mWordOffset_move " + mWordOffsetEnd);
-
+                    Selection.setSelection(getEditableText(), Math.min(mStartTextOffset, mWordOffsetEnd),
+                            Math.max(mStartTextOffset, mWordOffsetEnd));
                     // 计算菜单显示位置
-                    int mPopWindowOffsetY = calculatorPopWindowYPosition((int) mTouchDownRawY, (int) event.getRawY());
+                    int mPopWindowOffsetY = calculatorActionMenuYPosition((int) mTouchDownRawY, (int) event.getRawY());
                     // 弹出菜单
                     showActionMenu(mPopWindowOffsetY, mActionMenu);
-
+                    isLongPressTouchActionUp = true;
                     isLongPress = false;
-                }
 
+                } else if (event.getEventTime() - event.getDownTime() < TRIGGER_LONGPRESS_TIME_THRESHOLD) {
+                    // 由于onTouchEvent最终返回了true,onClick事件会被屏蔽掉，因此在这里处理onClick事件
+                    if (hasOnClickListeners())
+                        callOnClick();
+                }
                 // 通知父布局继续拦截触摸事件
                 getParent().requestDisallowInterceptTouchEvent(false);
                 break;
@@ -240,7 +259,6 @@ public class SelectableTextView extends EditText {
         return actionMenu;
     }
 
-
     /**
      * 长按弹出菜单
      *
@@ -250,17 +268,20 @@ public class SelectableTextView extends EditText {
      */
     private void showActionMenu(int offsetY, ActionMenu actionMenu) {
 
-        mContextMenuPopupWindow = new PopupWindow(actionMenu, WindowManager.LayoutParams.WRAP_CONTENT,
-                mPopWindowHeight, true);
-        mContextMenuPopupWindow.setFocusable(true);
-        mContextMenuPopupWindow.setOutsideTouchable(false);
-        mContextMenuPopupWindow.setBackgroundDrawable(new ColorDrawable(0x00000000));
-        mContextMenuPopupWindow.showAtLocation(this, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, offsetY);
+        mActionMenuPopupWindow = new PopupWindow(actionMenu, WindowManager.LayoutParams.WRAP_CONTENT,
+                mActionMenuHeight, true);
+        mActionMenuPopupWindow.setFocusable(true);
+        mActionMenuPopupWindow.setOutsideTouchable(false);
+        mActionMenuPopupWindow.setBackgroundDrawable(new ColorDrawable(0x00000000));
+        mActionMenuPopupWindow.showAtLocation(this, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, offsetY);
 
-        mContextMenuPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+        mActionMenuPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
                 Selection.removeSelection(getEditableText());
+                // 如果设置了分散对齐，ActionMenu销毁后，强制刷新一次，防止出现文字背景未消失的情况
+                if (isTextJustify)
+                    SelectableTextView.this.postInvalidate();
             }
         });
     }
@@ -269,9 +290,9 @@ public class SelectableTextView extends EditText {
      * 隐藏菜单
      */
     private void hideActionMenu() {
-        if (null != mContextMenuPopupWindow) {
-            mContextMenuPopupWindow.dismiss();
-            mContextMenuPopupWindow = null;
+        if (null != mActionMenuPopupWindow) {
+            mActionMenuPopupWindow.dismiss();
+            mActionMenuPopupWindow = null;
         }
     }
 
@@ -301,7 +322,8 @@ public class SelectableTextView extends EditText {
                     mCurrentLine = getLayout().getLineCount() - 1;
                     mStartTextOffset = 0;
                     mCurrentTextOffset = getLayout().getLineEnd(mCurrentLine);
-                    SelectableTextView.this.postInvalidate();
+                    isActionSelectAll = true;
+                    SelectableTextView.this.invalidate();
                 }
                 Selection.selectAll(getEditableText());
 
@@ -318,7 +340,6 @@ public class SelectableTextView extends EditText {
                 }
                 hideActionMenu();
             }
-
         }
     };
 
@@ -329,7 +350,7 @@ public class SelectableTextView extends EditText {
      * @param yOffsetEnd   所选字符的结束位置相对屏幕的Y向偏移
      * @return
      */
-    private int calculatorPopWindowYPosition(int yOffsetStart, int yOffsetEnd) {
+    private int calculatorActionMenuYPosition(int yOffsetStart, int yOffsetEnd) {
         if (yOffsetStart > yOffsetEnd) {
             int temp = yOffsetStart;
             yOffsetStart = yOffsetEnd;
@@ -337,28 +358,30 @@ public class SelectableTextView extends EditText {
         }
         int actionMenuOffsetY;
 
-        if (yOffsetStart < mPopWindowHeight * 3 / 2 + mStatusBarHeight) {
-            if (yOffsetEnd > mScreenHeight - mPopWindowHeight * 3 / 2) {
+        if (yOffsetStart < mActionMenuHeight * 3 / 2 + mStatusBarHeight) {
+            if (yOffsetEnd > mScreenHeight - mActionMenuHeight * 3 / 2) {
                 // 菜单显示在屏幕中间
-                actionMenuOffsetY = mScreenHeight / 2 - mPopWindowHeight / 2;
+                actionMenuOffsetY = mScreenHeight / 2 - mActionMenuHeight / 2;
             } else {
                 // 菜单显示所选文字下方
-                actionMenuOffsetY = yOffsetEnd + mPopWindowHeight / 2;
+                actionMenuOffsetY = yOffsetEnd + mActionMenuHeight / 2;
             }
         } else {
             // 菜单显示所选文字上方
-            actionMenuOffsetY = yOffsetStart - mPopWindowHeight * 3 / 2;
+            actionMenuOffsetY = yOffsetStart - mActionMenuHeight * 3 / 2;
         }
         return actionMenuOffsetY;
     }
-
 
     /* ***************************************************************************************** */
     // 两端对齐部分
 
     @Override
     protected void onDraw(Canvas canvas) {
-
+        LogUtil.d("SelectableTextView", "onDraw");
+        LogUtil.d("SelectableTextView", "onDraw isLongPress " + isLongPress);
+        LogUtil.d("SelectableTextView", "onDraw isActionSelectAll " + isActionSelectAll);
+        LogUtil.d("SelectableTextView", "onDraw isLongPressTouchActionUp " + isLongPressTouchActionUp);
         if (!isTextJustify) {
             // 不需要两端对齐
             super.onDraw(canvas);
@@ -368,20 +391,23 @@ public class SelectableTextView extends EditText {
             mViewTextWidth = getMeasuredWidth() - getPaddingLeft() - getPaddingRight();
             // 重绘文字，两端对齐
             drawTextWithJustify(canvas);
-            // 绘制选中文字的背景
-            if (isLongPress) {
+            // 绘制选中文字的背景，触发以下事件时需要绘制背景：
+            // 1.长按事件 2.全选事件 3.手指滑动过快时，进入ACTION_UP事件后，
+            // 可能会出现背景未绘制的情况
+            if (isLongPress | isActionSelectAll | isLongPressTouchActionUp) {
                 drawSelectedTextBackground(canvas);
-                LogUtil.d("SelectableTextView", "onDraw");
+                isActionSelectAll = false;
+                isLongPressTouchActionUp = false;
             }
         }
     }
 
     /**
      * 重绘文字，两端对齐
+     *
      * @param canvas
      */
-    private void drawTextWithJustify(Canvas canvas){
-
+    private void drawTextWithJustify(Canvas canvas) {
         // 文字画笔
         TextPaint textPaint = getPaint();
         textPaint.setColor(getCurrentTextColor());
@@ -389,7 +415,7 @@ public class SelectableTextView extends EditText {
 
         String text_str = getText().toString();
         // 当前所在行的Y向偏移
-        int currentLineOffsetY = 0;
+        int currentLineOffsetY = getPaddingTop();
         currentLineOffsetY += getTextSize();
 
         Layout layout = getLayout();
@@ -400,18 +426,18 @@ public class SelectableTextView extends EditText {
             int lineEnd = layout.getLineEnd(i);
             //获取到TextView每行中的内容
             String line_str = text_str.substring(lineStart, lineEnd);
-            // 获取每行字符串的宽度(不包括字符间距？)
+            // 获取每行字符串的宽度(不包括字符间距)
             float desiredWidth = StaticLayout.getDesiredWidth(text_str, lineStart, lineEnd, getPaint());
 
-            if (needJustify(line_str)) {
+            if (isLineNeedJustify(line_str)) {
                 //最后一行不需要重绘
                 if (i == layout.getLineCount() - 1) {
-                    canvas.drawText(line_str, 0, currentLineOffsetY, textPaint);
+                    canvas.drawText(line_str, getPaddingLeft(), currentLineOffsetY, textPaint);
                 } else {
                     drawJustifyTextForLine(canvas, line_str, desiredWidth, currentLineOffsetY);
                 }
             } else {
-                canvas.drawText(line_str, 0, currentLineOffsetY, textPaint);
+                canvas.drawText(line_str, getPaddingLeft(), currentLineOffsetY, textPaint);
             }
             //更新行Y向偏移
             currentLineOffsetY += getLineHeight();
@@ -424,46 +450,53 @@ public class SelectableTextView extends EditText {
      * @param canvas
      */
     private void drawSelectedTextBackground(Canvas canvas) {
-
-        // 文字背景高亮画笔
-        Paint highlightPaint = new Paint();
-        highlightPaint.setStyle(Paint.Style.FILL);
-        highlightPaint.setColor(getHighlightColor());
-        highlightPaint.setAntiAlias(true);
-
         if (mStartTextOffset == mCurrentTextOffset)
             return;
 
-        // 计算开始位置和结束位置的字符在x方向的偏移
+        // 文字背景高亮画笔
+        Paint highlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        highlightPaint.setStyle(Paint.Style.FILL);
+        highlightPaint.setColor(getHighlightColor());
+        highlightPaint.setAlpha(60);
+
+        // 计算开始位置和结束位置的字符相对view最左侧的x偏移
         float startToLeftPosition = calculatorCharPositionToLeft(mStartLine, mStartTextOffset);
         float currentToLeftPosition = calculatorCharPositionToLeft(mCurrentLine, mCurrentTextOffset);
 
         // 行高
         int h = getLineHeight();
+        int paddingTop = getPaddingTop();
+        int paddingLeft = getPaddingLeft();
 
         // 创建三个矩形，分别对应：
-        // 所有选中的行对应的矩形，起始行左侧未选中文字的对应的矩形，结束行右侧未选中的位置对应的矩形
+        // 所有选中的行对应的矩形，起始行左侧未选中文字的对应的矩形，结束行右侧未选中的文字对应的矩形
         RectF rect_all, rect_lt, rect_rb;
 
         if (mStartTextOffset < mCurrentTextOffset) {
-            rect_all = new RectF(0, mStartLine * h, mViewTextWidth, (mCurrentLine + 1) * h);
-            rect_lt = new RectF(0, mStartLine * h, startToLeftPosition, (mStartLine + 1) * h);
-            rect_rb = new RectF(currentToLeftPosition, mCurrentLine * h, mViewTextWidth, (mCurrentLine + 1) * h);
+            rect_all = new RectF(paddingLeft, mStartLine * h + paddingTop,
+                    mViewTextWidth + paddingLeft, (mCurrentLine + 1) * h + paddingTop);
+            rect_lt = new RectF(paddingLeft, mStartLine * h + paddingTop,
+                    startToLeftPosition, (mStartLine + 1) * h + paddingTop);
+            rect_rb = new RectF(currentToLeftPosition, mCurrentLine * h + paddingTop,
+                    mViewTextWidth + paddingLeft, (mCurrentLine + 1) * h + paddingTop);
         } else {
-            rect_all = new RectF(0, mCurrentLine * h, mViewTextWidth, (mStartLine + 1) * h);
-            rect_lt = new RectF(0, mCurrentLine * h, currentToLeftPosition, (mCurrentLine + 1) * h);
-            rect_rb = new RectF(startToLeftPosition, mStartLine * h, mViewTextWidth, (mStartLine + 1) * h);
+            rect_all = new RectF(paddingLeft, mCurrentLine * h + paddingTop,
+                    mViewTextWidth + paddingLeft, (mStartLine + 1) * h + paddingTop);
+            rect_lt = new RectF(paddingLeft, mCurrentLine * h + paddingTop,
+                    currentToLeftPosition, (mCurrentLine + 1) * h + paddingTop);
+            rect_rb = new RectF(startToLeftPosition, mStartLine * h + paddingTop,
+                    mViewTextWidth + paddingLeft, (mStartLine + 1) * h + paddingTop);
         }
 
         // 创建三个路径，分别对应上面三个矩形
         Path path_all = new Path();
-        path_all.addRect(rect_all, Path.Direction.CCW);
         Path path_lt = new Path();
-        path_lt.addRect(rect_lt, Path.Direction.CCW);
         Path path_rb = new Path();
+        path_all.addRect(rect_all, Path.Direction.CCW);
+        path_lt.addRect(rect_lt, Path.Direction.CCW);
         path_rb.addRect(rect_rb, Path.Direction.CCW);
 
-        // 将左上角和右下角的矩形从 所有选中的行对应的矩形 中减去
+        // 将左上角和右下角的矩形从path_all中减去
         path_all.op(path_lt, Path.Op.DIFFERENCE);
         path_all.op(path_rb, Path.Op.DIFFERENCE);
 
@@ -482,27 +515,38 @@ public class SelectableTextView extends EditText {
     private void drawJustifyTextForLine(Canvas canvas, String line_str, float desiredWidth, int currentLineOffsetY) {
 
         // 画笔X方向的偏移
-        float lineOffsetX = 0;
+        float lineTextOffsetX = getPaddingLeft();
+        // 判断是否是首行
         if (isFirstLineOfParagraph(line_str)) {
             String blanks = "  ";
-            // 画出blanks
-            canvas.drawText(blanks, lineOffsetX, currentLineOffsetY, getPaint());
+            // 画出缩进空格
+            canvas.drawText(blanks, lineTextOffsetX, currentLineOffsetY, getPaint());
             // 空格需要的宽度
-            float blank_witdh = StaticLayout.getDesiredWidth(blanks, getPaint());
+            float blank_width = StaticLayout.getDesiredWidth(blanks, getPaint());
             // 更新画笔X方向的偏移
-            lineOffsetX += blank_witdh;
+            lineTextOffsetX += blank_width;
             line_str = line_str.substring(3);
         }
-        // 计算相邻字符之间需要填充的宽度
-        // (TextView内容的实际宽度 - 该行字符串的宽度)/（字符个数-1）
-        float insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 1);
-        for (int i = 0; i < line_str.length(); i++) {
-            String char_i = String.valueOf(line_str.charAt(i));
-            float char_i_width = StaticLayout.getDesiredWidth(char_i, getPaint());
-            canvas.drawText(char_i, lineOffsetX, currentLineOffsetY, getPaint());
-            // 更新画笔X方向的偏移
-            lineOffsetX += char_i_width + insert_blank;
+        // 判断是否包含英文
+        if (isContentABC(line_str)) {
+            // 以空格分割单词
+            String[] line_words = line_str.split(" ");
+
+
+        } else {
+            // 按照中文处理
+            // 计算相邻字符之间需要填充的宽度
+            // (TextView内容的实际宽度 - 该行字符串的宽度)/（字符个数-1）
+            float insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 1);
+            for (int i = 0; i < line_str.length(); i++) {
+                String char_i = String.valueOf(line_str.charAt(i));
+                float char_i_width = StaticLayout.getDesiredWidth(char_i, getPaint());
+                canvas.drawText(char_i, lineTextOffsetX, currentLineOffsetY, getPaint());
+                // 更新画笔X方向的偏移
+                lineTextOffsetX += char_i_width + insert_blank;
+            }
         }
+
     }
 
     /**
@@ -522,23 +566,21 @@ public class SelectableTextView extends EditText {
         String line_str = text_str.substring(lineStart, lineEnd);
 
         float desiredWidth = StaticLayout.getDesiredWidth(text_str, lineStart, lineEnd, getPaint());
-
         // 计算相邻字符之间需要填充的宽度
         // (TextView内容的实际宽度 - 该行字符串的宽度)/（字符个数-1）
         float insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 1);
 
-        // 做左侧
+        // 最左侧
         if (lineStart == charOffset)
-            return 0;
+            return getPaddingLeft();
         // 最右侧
         if (charOffset == lineEnd - 1)
-            return mViewTextWidth;
+            return mViewTextWidth + getPaddingLeft();
         // 中间位置
-        float position = 0;
         // 当前字符左侧所有字符的宽度
         float allLeftCharWidth = StaticLayout.getDesiredWidth(text_str.substring(lineStart, charOffset), getPaint());
         // 相邻字符之间需要填充的宽度 + 当前字符左侧所有字符的宽度
-        position = insert_blank * (charOffset - lineStart) + allLeftCharWidth;
+        float position = insert_blank * (charOffset - lineStart) + allLeftCharWidth + getPaddingLeft();
 
         return position;
     }
@@ -554,7 +596,6 @@ public class SelectableTextView extends EditText {
         return line.length() > 3 && line.charAt(0) == ' ' && line.charAt(1) == ' ';
     }
 
-
     /**
      * 判断该行需不需要缩放；该行最后一个字符不是换行符的时候返回true，
      * 该行最后一个字符是换行符的时候返回false
@@ -562,7 +603,7 @@ public class SelectableTextView extends EditText {
      * @param line_str 该行的文字
      * @return
      */
-    private boolean needJustify(String line_str) {
+    private boolean isLineNeedJustify(String line_str) {
         if (line_str.length() == 0) {
             return false;
         } else {
@@ -570,11 +611,30 @@ public class SelectableTextView extends EditText {
         }
     }
 
+    /**
+     * 判断是否包含英文
+     *
+     * @param line_str
+     * @return
+     */
+    private boolean isContentABC(String line_str) {
+//        String E1 = "[\u4e00-\u9fa5]";// 中文
+        String regex = ".*[a-zA-Z]+.*";
+        Matcher m = Pattern.compile(regex).matcher(line_str);
+        return m.matches();
+    }
+
+
+    /**
+     * 获取行高
+     *
+     * @param fontSize
+     * @return
+     */
     private int getFontHeight(float fontSize) {
         Paint paint = new Paint();
         paint.setTextSize(fontSize);
         Paint.FontMetrics fm = paint.getFontMetrics();
-
         float lineSpacingMultiplier = getLineSpacingMultiplier();
         return (int) Math.ceil((fm.descent - fm.ascent) * lineSpacingMultiplier);
     }
@@ -640,7 +700,6 @@ public class SelectableTextView extends EditText {
 
     /* ***************************************************************************************** */
     // 接口
-
     public void setCustomActionMenuCallBack(CustomActionMenuCallBack callBack) {
         this.mCustomActionMenuCallBack = callBack;
     }
@@ -683,7 +742,7 @@ public class SelectableTextView extends EditText {
         private int mMenuItemMargin;
         private int mActionMenuBgColor = 0xff666666; // ActionMenu背景色
         private int mMenuItemTextColor = 0xffffffff; // MenuItem字体颜色
-        private List<String> mItemTitleList; // MenuItem 标题
+        private List<String> mItemTitleList;         // MenuItem 标题
 
         public ActionMenu(Context context) {
             this(context, null);
@@ -700,13 +759,13 @@ public class SelectableTextView extends EditText {
         }
 
         private void init() {
-            LinearLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 40);
+            LinearLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 45);
             setLayoutParams(params);
-            setPadding(20, 0, 20, 0);
+            setPadding(25, 0, 25, 0);
             setOrientation(HORIZONTAL);
             setGravity(Gravity.CENTER);
             setActionMenuBackGround(mActionMenuBgColor);
-            mMenuItemMargin = 20;
+            mMenuItemMargin = 25;
         }
 
         /**
