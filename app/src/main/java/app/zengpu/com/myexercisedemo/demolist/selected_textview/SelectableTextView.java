@@ -527,17 +527,31 @@ public class SelectableTextView extends EditText {
             lineTextOffsetX += blank_width;
             line_str = line_str.substring(3);
         }
-        // 判断是否包含英文
-        if (isContentABC(line_str)) {
-            // 以空格分割单词
-            String[] line_words = line_str.split(" ");
 
+        // 计算相邻字符(或单词)之间需要填充的宽度,英文按单词处理，中文按字符处理
+        // (TextView内容的实际宽度 - 该行字符串的宽度)/（字符或单词个数-1）
+        if (isContentABC(line_str)) {
+            // 包含英文,以空格分割单词
+            String[] line_words = line_str.split(" ");
+            float insert_blank = 1f;
+            if (line_words.length > 1)
+                insert_blank = (mViewTextWidth - desiredWidth) / (line_words.length - 1);
+            for (int i = 0; i < line_words.length; i++) {
+                String word_i = line_words[i] + " ";
+                float word_i_width = StaticLayout.getDesiredWidth(word_i, getPaint());
+                canvas.drawText(word_i, lineTextOffsetX, currentLineOffsetY, getPaint());
+                // 更新画笔X方向的偏移
+                lineTextOffsetX += word_i_width + insert_blank;
+            }
 
         } else {
             // 按照中文处理
-            // 计算相邻字符之间需要填充的宽度
-            // (TextView内容的实际宽度 - 该行字符串的宽度)/（字符个数-1）
-            float insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 1);
+            float insert_blank;
+            // 最后一个字符是标点符号的处理
+//            if (isUnicodeSymbol(line_str))
+//                insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 4);
+//            else
+                insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 1);
             for (int i = 0; i < line_str.length(); i++) {
                 String char_i = String.valueOf(line_str.charAt(i));
                 float char_i_width = StaticLayout.getDesiredWidth(char_i, getPaint());
@@ -566,9 +580,6 @@ public class SelectableTextView extends EditText {
         String line_str = text_str.substring(lineStart, lineEnd);
 
         float desiredWidth = StaticLayout.getDesiredWidth(text_str, lineStart, lineEnd, getPaint());
-        // 计算相邻字符之间需要填充的宽度
-        // (TextView内容的实际宽度 - 该行字符串的宽度)/（字符个数-1）
-        float insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 1);
 
         // 最左侧
         if (lineStart == charOffset)
@@ -576,13 +587,56 @@ public class SelectableTextView extends EditText {
         // 最右侧
         if (charOffset == lineEnd - 1)
             return mViewTextWidth + getPaddingLeft();
+
         // 中间位置
-        // 当前字符左侧所有字符的宽度
+        // 计算相邻字符之间需要填充的宽度
+        // (TextView内容的实际宽度 - 该行字符串的宽度)/（字符个数-1）
+        float insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 1);
+        // 计算当前字符左侧所有字符的宽度
         float allLeftCharWidth = StaticLayout.getDesiredWidth(text_str.substring(lineStart, charOffset), getPaint());
         // 相邻字符之间需要填充的宽度 + 当前字符左侧所有字符的宽度
         float position = insert_blank * (charOffset - lineStart) + allLeftCharWidth + getPaddingLeft();
 
         return position;
+
+//        float position = 0;
+//
+//        // 中间位置 分两步：
+//        // 1.先计算出相邻字符(或单词)之间需要填充的宽度,英文按单词处理，中文按字符处理
+//        // (TextView内容的实际宽度 - 该行字符串的宽度)/（字符或单词个数-1）
+//        // 2.再计算当前字符(或单词)左侧所有字符(或单词)的宽度
+//        float insert_blank = 1f;
+//        if (isContentABC(line_str)) {
+//            // 英文
+//            String[] line_words = line_str.split(" ");
+//            if (line_words.length > 1)
+//                insert_blank = (mViewTextWidth - desiredWidth) / (line_words.length - 1);
+//            String[] allLeftWords = text_str.substring(lineStart, charOffset).split(" ");
+//            String allLeftWordsStr = "";
+//            if (allLeftWords.length != 0) {
+//                for (int i = 0; i < allLeftWords.length; i++)
+//                    allLeftWordsStr += allLeftWords[i] + " ";
+//            }
+//            // 当前字符左侧所有单词的宽度
+//            float allLeftWordsWidth = StaticLayout.getDesiredWidth(allLeftWordsStr, getPaint());
+//            // 相邻单词之间需要填充的宽度 + 当前字符左侧所有单词的宽度
+//            position = insert_blank * allLeftWords.length + allLeftWordsWidth + getPaddingLeft();
+//
+//        } else {
+//            insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 1);
+//            // 当前字符左侧所有字符的宽度
+//            float allLeftCharWidth = StaticLayout.getDesiredWidth(text_str.substring(lineStart, charOffset), getPaint());
+//            // 相邻字符之间需要填充的宽度 + 当前字符左侧所有字符的宽度
+//            position = insert_blank * (charOffset - lineStart) + allLeftCharWidth + getPaddingLeft();
+//        }
+//
+//        insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 1);
+//        // 当前字符左侧所有字符的宽度
+//        float allLeftCharWidth = StaticLayout.getDesiredWidth(text_str.substring(lineStart, charOffset), getPaint());
+//        // 相邻字符之间需要填充的宽度 + 当前字符左侧所有字符的宽度
+//        position = insert_blank * (charOffset - lineStart) + allLeftCharWidth + getPaddingLeft();
+//
+//        return position;
     }
 
     /**
@@ -621,6 +675,19 @@ public class SelectableTextView extends EditText {
 //        String E1 = "[\u4e00-\u9fa5]";// 中文
         String regex = ".*[a-zA-Z]+.*";
         Matcher m = Pattern.compile(regex).matcher(line_str);
+        return m.matches();
+    }
+
+    /**
+     * 判断是否是中文标点符号
+     *
+     * @param str
+     * @return
+     */
+    private boolean isUnicodeSymbol(String str) {
+
+        String regex = ".*[`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]$+.*";
+        Matcher m = Pattern.compile(regex).matcher(str);
         return m.matches();
     }
 

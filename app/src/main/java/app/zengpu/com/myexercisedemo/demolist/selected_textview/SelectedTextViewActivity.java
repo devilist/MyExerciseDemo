@@ -53,8 +53,9 @@ public class SelectedTextViewActivity extends BaseActivity implements
         String c = Html.fromHtml(s).toString();
 
         selectableTextView = (SelectableTextView) findViewById(R.id.ctv_content);
-        selectableTextView.setText(c + c);
+//        selectableTextView.setText(c);
 //        selectableTextView.setText(getResources().getString(R.string.large_text));
+        selectableTextView.setText(getResources().getString(R.string.muti_text));
         selectableTextView.clearFocus();
         selectableTextView.setCustomActionMenuCallBack(this);
 
