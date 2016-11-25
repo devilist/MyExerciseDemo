@@ -1,10 +1,10 @@
 package app.zengpu.com.myexercisedemo.demolist.selected_textview;
 
 import android.os.Bundle;
-import android.support.v7.widget.SwitchCompat;
 import android.text.Html;
 import android.view.View;
-import android.widget.CompoundButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -20,12 +20,14 @@ import app.zengpu.com.myexercisedemo.Utils.LogUtil;
  */
 
 public class SelectedTextViewActivity extends BaseActivity implements
+        RadioGroup.OnCheckedChangeListener,
         SelectableTextView.CustomActionMenuCallBack {
 
-    private SwitchCompat switchCompat;
+    private RadioGroup rg_text_gravity;
+    private RadioGroup rg_text_content;
+    String s;
 
     private SelectableTextView selectableTextView;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +41,7 @@ public class SelectedTextViewActivity extends BaseActivity implements
     }
 
     private void initView() {
-        String s = "<p>　　金溪民方仲永，世隶耕。仲永生五年，未尝识书具，\n" +
+        s = "<p>　　金溪民方仲永，世隶耕。仲永生五年，未尝识书具，\n" +
                 "            忽啼求之。父异焉，借旁近与之，即书诗四句，并自为其名。\n" +
                 "            其诗以养父母、收族为意，传一乡秀才观之。自是指物作诗立就，\n" +
                 "            其文理皆有可观者。邑人奇之，稍稍宾客其父，或以钱币乞之。\n" +
@@ -50,15 +52,12 @@ public class SelectedTextViewActivity extends BaseActivity implements
                 "        则其受于人者不至也。彼其受之天也，如此其贤也，不受之人，且为众人；今夫不受之天，\n" +
                 "            固众人，又不受之人，得为众人而已耶？</p>";
 
-        String c = Html.fromHtml(s).toString();
+        s = Html.fromHtml(s).toString();
 
         selectableTextView = (SelectableTextView) findViewById(R.id.ctv_content);
-//        selectableTextView.setText(c);
-//        selectableTextView.setText(getResources().getString(R.string.large_text));
-        selectableTextView.setText(getResources().getString(R.string.muti_text));
+        selectableTextView.setText(Html.fromHtml(StringContentUtil.str_hanzi).toString());
         selectableTextView.clearFocus();
         selectableTextView.setCustomActionMenuCallBack(this);
-
         selectableTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,26 +65,39 @@ public class SelectedTextViewActivity extends BaseActivity implements
             }
         });
 
-        switchCompat = (SwitchCompat) findViewById(R.id.switch_compat);
-        switchCompat.setChecked(true);
-        switchCompat.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    selectableTextView.setTextJustify(true);
-                    selectableTextView.postInvalidate();
-                } else {
-                    selectableTextView.setTextJustify(false);
-                    selectableTextView.postInvalidate();
-                }
-            }
-        });
+        rg_text_gravity = (RadioGroup) findViewById(R.id.rg_text_gravity);
+        rg_text_content = (RadioGroup) findViewById(R.id.rg_text_content);
+        ((RadioButton)findViewById(R.id.rb_justify)).setChecked(true);
+        ((RadioButton)findViewById(R.id.rb_hanzi)).setChecked(true);
+        rg_text_gravity.setOnCheckedChangeListener(this);
+        rg_text_content.setOnCheckedChangeListener(this);
     }
 
     @Override
-    protected void onDestroy() {
-        closeDictDataBase();
-        super.onDestroy();
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+        switch (checkedId) {
+            case R.id.rb_justify:
+                selectableTextView.setTextJustify(true);
+                selectableTextView.postInvalidate();
+                break;
+            case R.id.rb_left:
+                selectableTextView.setTextJustify(false);
+                selectableTextView.postInvalidate();
+                break;
+            case R.id.rb_hanzi:
+                selectableTextView.setText(Html.fromHtml(StringContentUtil.str_hanzi).toString());
+                selectableTextView.postInvalidate();
+                break;
+            case R.id.rb_en:
+                selectableTextView.setText(Html.fromHtml(StringContentUtil.str_en).toString());
+                selectableTextView.postInvalidate();
+                break;
+            case R.id.rb_muti:
+                selectableTextView.setText(Html.fromHtml(StringContentUtil.str_muti).toString());
+                selectableTextView.postInvalidate();
+                break;
+        }
+
     }
 
     @Override
@@ -109,5 +121,11 @@ public class SelectedTextViewActivity extends BaseActivity implements
                 LogUtil.d("SelectedTextViewActivity", String.valueOf(selectedContent.charAt(0)) + ": \n "
                         + result.get(String.valueOf(selectedContent.charAt(0))));
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        closeDictDataBase();
+        super.onDestroy();
     }
 }

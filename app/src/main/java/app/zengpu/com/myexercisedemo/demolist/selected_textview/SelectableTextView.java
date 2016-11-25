@@ -531,27 +531,49 @@ public class SelectableTextView extends EditText {
         // 计算相邻字符(或单词)之间需要填充的宽度,英文按单词处理，中文按字符处理
         // (TextView内容的实际宽度 - 该行字符串的宽度)/（字符或单词个数-1）
         if (isContentABC(line_str)) {
-            // 包含英文,以空格分割单词
+            // 该行包含英文,以空格分割单词
             String[] line_words = line_str.split(" ");
-            float insert_blank = 1f;
+            // 计算相邻单词间需要插入的空白
+            float insert_blank = mViewTextWidth - desiredWidth;
             if (line_words.length > 1)
                 insert_blank = (mViewTextWidth - desiredWidth) / (line_words.length - 1);
+            // 遍历单词
             for (int i = 0; i < line_words.length; i++) {
+                // 判断分割后的每一个单词；如果是纯英文，按照纯英文单词处理，直接在画布上画出单词；
+                // 如果包括汉字，则按照汉字字符处理，逐个字符绘画
+                // 如果只有一个单词，按中文处理
+                // 最后一个单词按照纯英文单词处理
                 String word_i = line_words[i] + " ";
-                float word_i_width = StaticLayout.getDesiredWidth(word_i, getPaint());
-                canvas.drawText(word_i, lineTextOffsetX, currentLineOffsetY, getPaint());
-                // 更新画笔X方向的偏移
-                lineTextOffsetX += word_i_width + insert_blank;
+                if (line_words.length == 1 || (isContentHanZi(word_i) && i < line_words.length - 1)) {
+                    // 单词按照汉字字符处理
+                    // 计算单词中相邻字符间需要插入的空白
+                    float insert_blank_word_i = insert_blank;
+                    if (word_i.length() > 1)
+                        insert_blank_word_i = insert_blank / (word_i.length() - 1);
+                    // 遍历单词中字符，依次绘画
+                    for (int j = 0; j < word_i.length(); j++) {
+                        String word_i_char_j = String.valueOf(word_i.charAt(j));
+                        float word_i_char_j_width = StaticLayout.getDesiredWidth(word_i_char_j, getPaint());
+                        canvas.drawText(word_i_char_j, lineTextOffsetX, currentLineOffsetY, getPaint());
+                        // 更新画笔X方向的偏移
+                        lineTextOffsetX += word_i_char_j_width + insert_blank_word_i;
+                    }
+                } else {
+                    //单词按照纯英文处理
+                    float word_i_width = StaticLayout.getDesiredWidth(word_i, getPaint());
+                    canvas.drawText(word_i, lineTextOffsetX, currentLineOffsetY, getPaint());
+                    // 更新画笔X方向的偏移
+                    lineTextOffsetX += word_i_width + insert_blank;
+                }
             }
-
         } else {
-            // 按照中文处理
+            // 该行按照中文处理
             float insert_blank;
             // 最后一个字符是标点符号的处理
 //            if (isUnicodeSymbol(line_str))
 //                insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 4);
 //            else
-                insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 1);
+            insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 1);
             for (int i = 0; i < line_str.length(); i++) {
                 String char_i = String.valueOf(line_str.charAt(i));
                 float char_i_width = StaticLayout.getDesiredWidth(char_i, getPaint());
@@ -560,7 +582,6 @@ public class SelectableTextView extends EditText {
                 lineTextOffsetX += char_i_width + insert_blank;
             }
         }
-
     }
 
     /**
@@ -672,9 +693,21 @@ public class SelectableTextView extends EditText {
      * @return
      */
     private boolean isContentABC(String line_str) {
-//        String E1 = "[\u4e00-\u9fa5]";// 中文
         String regex = ".*[a-zA-Z]+.*";
         Matcher m = Pattern.compile(regex).matcher(line_str);
+        return m.matches();
+    }
+
+    /**
+     * 判断是否包含中文
+     *
+     * @param word_str
+     * @return
+     */
+    private boolean isContentHanZi(String word_str) {
+//        String E1 = "[\u4e00-\u9fa5]";// 中文
+        String regex = ".*[\\u4e00-\\u9fa5]+.*";
+        Matcher m = Pattern.compile(regex).matcher(word_str);
         return m.matches();
     }
 
@@ -685,12 +718,10 @@ public class SelectableTextView extends EditText {
      * @return
      */
     private boolean isUnicodeSymbol(String str) {
-
         String regex = ".*[`~!@#$^&*()=|{}':;',\\[\\].<>/?~！@#￥……&*（）——|{}【】‘；：”“'。，、？]$+.*";
         Matcher m = Pattern.compile(regex).matcher(str);
         return m.matches();
     }
-
 
     /**
      * 获取行高
