@@ -12,11 +12,10 @@ import android.view.View;
 import app.zengpu.com.myexercisedemo.Utils.LogUtil;
 
 /**
- * 具有viewpager效果的recyclerview
- * Created by zengpu on 2016/10/28.
+ * Created by tao on 2016/11/28.
  */
 
-public class RecyclerViewPager extends RecyclerView implements
+public class CustomRecyclerViewPager extends RecyclerView implements
         View.OnTouchListener,
         GestureDetector.OnGestureListener {
 
@@ -82,7 +81,7 @@ public class RecyclerViewPager extends RecyclerView implements
     private boolean is_trigger_onFling = false;
 
 
-    private OnPageSelectListener mOnPageSelectListener;
+    private RecyclerViewPager.OnPageSelectListener mOnPageSelectListener;
 
     private RecyclerView.Adapter adapter;
 
@@ -90,17 +89,17 @@ public class RecyclerViewPager extends RecyclerView implements
 
     private LinearLayoutManager linearLayoutManager;
 
-    public RecyclerViewPager(Context context) {
+    public CustomRecyclerViewPager(Context context) {
         super(context);
         init(context);
     }
 
-    public RecyclerViewPager(Context context, @Nullable AttributeSet attrs) {
+    public CustomRecyclerViewPager(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public RecyclerViewPager(Context context, @Nullable AttributeSet attrs, int defStyle) {
+    public CustomRecyclerViewPager(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context);
     }
@@ -359,7 +358,7 @@ public class RecyclerViewPager extends RecyclerView implements
         return childView.getLeft();
     }
 
-    public void setOnPageSelectListener(OnPageSelectListener mOnPageSelectListener) {
+    public void setOnPageSelectListener(RecyclerViewPager.OnPageSelectListener mOnPageSelectListener) {
         this.mOnPageSelectListener = mOnPageSelectListener;
     }
 
@@ -392,3 +391,4 @@ public class RecyclerViewPager extends RecyclerView implements
 
     }
 }
+

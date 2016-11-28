@@ -23,6 +23,7 @@ import app.zengpu.com.myexercisedemo.demolist.multi_drawer.MultiDrawerActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop0.PhotoLoopActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop1.ImageLoopActivity;
 import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.RefreshAndLoadActivity;
+import app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.ThreeDViewPagerActivity;
 import app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerViewPagerActivity;
 import app.zengpu.com.myexercisedemo.demolist.selected_textview.SelectedTextViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.videoRecord.VideoAppendActivity;
@@ -105,6 +106,7 @@ public class OneFragment extends Fragment {
         list.add(new String[]{"video record", VideoAppendActivity.class.getName()});
         list.add(new String[]{"APST", ApstActivity.class.getName()});
         list.add(new String[]{"RecyclerViewPager", RecyclerViewPagerActivity.class.getName()});
+        list.add(new String[]{"ThreeDViewPagerActivity", ThreeDViewPagerActivity.class.getName()});
         list.add(new String[]{"SelectedTextView", SelectedTextViewActivity.class.getName()});
     }
 }

@@ -137,6 +137,11 @@
             android:label="RecyclerViewPager"
             android:theme="@style/AppTheme.NoActionBar.StatusBarTransparent">
         </activity>
+        <activity
+            android:name=".demolist.recyclerViewPager.ThreeDViewPagerActivity"
+            android:label="CustomRecyclerViewPager"
+            android:theme="@style/AppTheme.NoActionBar.StatusBarTransparent">
+        </activity>
 
         <activity
             android:name=".demolist.selected_textview.SelectedTextViewActivity"

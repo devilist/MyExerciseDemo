@@ -22,6 +22,7 @@ public class RVPAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
     private List<AppInfo> appInfolist = new ArrayList<>();
+    private int layoutRes;
     private OnItemClickListener mOnItemClickListener;
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -56,12 +57,19 @@ public class RVPAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public RVPAdapter(Context context, List<AppInfo> appInfolist) {
         this.context = context;
         this.appInfolist = appInfolist;
+        this.layoutRes = R.layout.rvp_activity_item;
+    }
+
+    public RVPAdapter(Context context, List<AppInfo> appInfolist, int layoutRes) {
+        this.context = context;
+        this.appInfolist = appInfolist;
+        this.layoutRes = layoutRes;
     }
 
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(context).inflate(R.layout.rvp_activity_item, parent, false);
+        View v = LayoutInflater.from(context).inflate(layoutRes, parent, false);
         return new ViewHolder(v, mOnItemClickListener);
     }
 
