@@ -8,6 +8,7 @@ import android.animation.PropertyValuesHolder;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -17,10 +18,15 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextSwitcher;
+import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import java.lang.reflect.Field;
 
@@ -35,6 +41,9 @@ public class DSLScrollingActivity extends BaseActivity implements AppBarLayout.O
     private CollapsingToolbarLayout collapsingToolbarLayout;
 
     private Button animCustomBtn, animDefaultBtn, targetCustomBtn, targetDefaultBtn;
+
+    private TextSwitcher textSwitcher;
+    private Button textSwitcherChange;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +60,8 @@ public class DSLScrollingActivity extends BaseActivity implements AppBarLayout.O
         activityTransitionAnim();
         // 布局改变动画
         LayoutTransitions();
+        // textswithcer动画
+        initTextSwitcherAnim();
 
     }
 
@@ -144,6 +155,39 @@ public class DSLScrollingActivity extends BaseActivity implements AppBarLayout.O
         transition.setStagger(LayoutTransition.CHANGE_APPEARING, 300);
         transition.setStagger(LayoutTransition.CHANGE_DISAPPEARING, 300);
 
+    }
+
+    private int textSwitcherStrIndex = 0;
+
+    private void initTextSwitcherAnim() {
+        textSwitcher = (TextSwitcher) findViewById(R.id.ts_switcher);
+        textSwitcherChange = (Button) findViewById(R.id.btn_change);
+        final String[] arrayTexts = {"锄禾日当午", "汗滴禾下土", "谁知盘中餐", "粒粒皆辛苦"};
+        textSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
+            @Override
+            public View makeView() {
+                TextView tv = new TextView(DSLScrollingActivity.this);
+                tv.setTextSize(30);
+                tv.setTextColor(Color.BLACK);
+                tv.setGravity(Gravity.CENTER);
+                return tv;
+            }
+        });
+        textSwitcher.setText(arrayTexts[0]);
+        textSwitcherChange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textSwitcherStrIndex++;
+                if (textSwitcherStrIndex >= arrayTexts.length) {
+                    textSwitcherStrIndex = 0;
+                }
+                textSwitcher.setText(arrayTexts[textSwitcherStrIndex]);
+            }
+        });
+        // 设置切入动画
+        textSwitcher.setInAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left));
+        // 设置切出动画
+        textSwitcher.setOutAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right));
     }
 
 
