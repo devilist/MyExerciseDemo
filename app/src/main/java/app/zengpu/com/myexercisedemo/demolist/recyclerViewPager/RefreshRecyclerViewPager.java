@@ -249,7 +249,7 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
         int finalWidth = 0;
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
-            // measure
+            // pathMeasure
             measureChild(child, widthMeasureSpec, heightMeasureSpec);
             // 该view所需要的总宽度
             finalWidth += child.getMeasuredWidth();

@@ -147,6 +147,10 @@
             android:name=".demolist.selected_textview.SelectedTextViewActivity"
             android:label="selectedview">
         </activity>
+        <activity
+            android:name=".demolist.svg_path_anim.SvgAnimActivity"
+            android:label="svgAnim">
+        </activity>
 
 
     </application>

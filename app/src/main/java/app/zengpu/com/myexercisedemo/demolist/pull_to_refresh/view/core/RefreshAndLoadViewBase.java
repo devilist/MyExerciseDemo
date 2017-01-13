@@ -268,7 +268,7 @@ public abstract class RefreshAndLoadViewBase<T extends View> extends ViewGroup i
         int finalHeight = 0;
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
-            // measure
+            // pathMeasure
             measureChild(child, widthMeasureSpec, heightMeasureSpec);
             // 该view所需要的总高度
             finalHeight += child.getMeasuredHeight();
