@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              tools:context=".demolist.svg_path_anim.SvgAnimActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".demolist.svg_path_anim.SvgAnimActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -16,15 +16,31 @@
             android:layout_width="match_parent"
             android:layout_height="45dp"
             app:title="SelectableTextView"
-            app:titleTextColor="#ffffff"/>
+            app:titleTextColor="#ffffff" />
 
     </android.support.design.widget.AppBarLayout>
 
+
     <app.zengpu.com.myexercisedemo.demolist.svg_path_anim.SvgPathView
-        android:id="@+id/spv_view"
-        android:layout_width="200dp"
-        android:layout_height="100dp"
+        android:id="@+id/spv_view0"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="100dp"/>
+        android:layout_margin="50dp"
+        app:animDelay="500"
+        app:fillAnimDuration="1500"
+        app:fillColor="#ff5722"
+        app:needFill="true"
+        app:strokeAnimDuration="1000"
+        app:strokeColor="#000000"
+        app:strokeWidth="2"
+        app:svgPathString="@string/path_svgpathview" />
+
+    <app.zengpu.com.myexercisedemo.demolist.svg_path_anim.SvgPathView
+        android:id="@+id/spv_view1"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:padding="10dp" />
 
 </LinearLayout>
