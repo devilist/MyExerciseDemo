@@ -27,6 +27,7 @@ import app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerViewPage
 import app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.ThreeDViewPagerActivity;
 import app.zengpu.com.myexercisedemo.demolist.selected_textview.SelectedTextViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.svg_path_anim.SvgAnimActivity;
+import app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.videoRecord.VideoAppendActivity;
 
 
@@ -41,8 +42,8 @@ public class OneFragment extends Fragment {
 
     public static OneFragment instance() {
         OneFragment view = new OneFragment();
-		return view;
-	}
+        return view;
+    }
 
     @Nullable
     @Override
@@ -59,7 +60,7 @@ public class OneFragment extends Fragment {
         initView();
     }
 
-    private void initView(){
+    private void initView() {
 
         mRecyclerView = (RecyclerView) getView().findViewById(R.id.rv_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -110,5 +111,6 @@ public class OneFragment extends Fragment {
         list.add(new String[]{"ThreeDViewPagerActivity", ThreeDViewPagerActivity.class.getName()});
         list.add(new String[]{"SelectedTextView", SelectedTextViewActivity.class.getName()});
         list.add(new String[]{"SvgPathAnimView", SvgAnimActivity.class.getName()});
+        list.add(new String[]{"VerticalTextView", VerticalTextViewActivity.class.getName()});
     }
 }

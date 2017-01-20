@@ -151,6 +151,10 @@
             android:name=".demolist.svg_path_anim.SvgAnimActivity"
             android:label="svgAnim">
         </activity>
+        <activity
+            android:name=".demolist.vertical_textview.VerticalTextViewActivity"
+            android:label="VerticalTextView">
+        </activity>
 
 
     </application>
