@@ -27,7 +27,7 @@ import java.text.ParseException;
  *
  * @author romainnurik
  */
-public class SvgPathParser {
+public class ScaleSvgPathParser {
     private static final int TOKEN_ABSOLUTE_COMMAND = 1;
     private static final int TOKEN_RELATIVE_COMMAND = 2;
     private static final int TOKEN_VALUE = 3;
@@ -41,12 +41,12 @@ public class SvgPathParser {
     private float scaleX;
     private float scaleY;
 
-    public SvgPathParser() {
+    public ScaleSvgPathParser() {
         this.scaleX = 1;
         this.scaleY = 1;
     }
 
-    public SvgPathParser(float scaleX, float scaleY) {
+    public ScaleSvgPathParser(float scaleX, float scaleY) {
         this.scaleX = scaleX;
         this.scaleY = scaleY;
     }

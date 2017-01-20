@@ -12,7 +12,8 @@ import app.zengpu.com.myexercisedemo.R;
 public class SvgAnimActivity extends BaseActivity {
 
 
-    private SvgPathView svgPathView;
+    private SvgPathView svgPathView0;
+    private SvgPathView svgPathView1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,23 +21,23 @@ public class SvgAnimActivity extends BaseActivity {
         setContentView(R.layout.activity_svgpath);
 
         initView();
-
     }
 
     private void initView() {
 
-        svgPathView = (SvgPathView) findViewById(R.id.spv_view);
-        svgPathView.setSvgPathString(getString(R.string.poems_hhl));
+        svgPathView0 = (SvgPathView) findViewById(R.id.spv_view0);
+        svgPathView0.startAnim();
 
-//        SvgPathParser svgPathParser = new SvgPathParser();
-//
-//        try {
-//            Path path = svgPathParser.parsePath(getString(R.string.poems_hhl));
-//            SvgPath svgPath = new SvgPath(path);
-//            svgPathView.setSvgPath(svgPath);
-//            svgPathView.startAnim();
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
+        svgPathView1 = (SvgPathView) findViewById(R.id.spv_view1);
+        svgPathView1.setSvgPathString(getString(R.string.poems_hhl))
+                .setStrokeAnimDuration(5000)
+                .setStrokeColor(0xff757575)
+                .setStrokeWidth(1.0f)
+                .setAnimDelay(500)
+                .setNeedFill(true)
+                .setFillColor(0xff616161)
+                .setFillAnimDuration(3000)
+                .startAnim();
+
     }
 }

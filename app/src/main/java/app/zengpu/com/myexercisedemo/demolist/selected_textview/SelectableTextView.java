@@ -57,6 +57,7 @@ public class SelectableTextView extends EditText {
     private int mScreenHeight;      // 屏幕高度
     private int mStatusBarHeight;   // 状态栏高度
     private int mActionMenuHeight;  // 弹出菜单高度
+    private int mHighlightColor;    // 选中文字背景高亮颜色
 
     private float mTouchDownX = 0;
     private float mTouchDownY = 0;
@@ -82,6 +83,7 @@ public class SelectableTextView extends EditText {
     private PopupWindow mActionMenuPopupWindow; // 长按弹出菜单
     private ActionMenu mActionMenu = null;
 
+    private OnClickListener mOnClickListener;
     private CustomActionMenuCallBack mCustomActionMenuCallBack;
 
     public SelectableTextView(Context context) {
@@ -100,6 +102,7 @@ public class SelectableTextView extends EditText {
                 R.styleable.SelectableTextView);
         isTextJustify = mTypedArray.getBoolean(R.styleable.SelectableTextView_textJustify, true);
         isForbiddenActionMenu = mTypedArray.getBoolean(R.styleable.SelectableTextView_forbiddenActionMenu, false);
+        mHighlightColor = mTypedArray.getColor(R.styleable.SelectableTextView_textHeightColor, 0);
         mTypedArray.recycle();
 
         init();
@@ -133,6 +136,21 @@ public class SelectableTextView extends EditText {
 
     public void setForbiddenActionMenu(boolean forbiddenActionMenu) {
         isForbiddenActionMenu = forbiddenActionMenu;
+    }
+
+    @Override
+    public int getHighlightColor() {
+        if (mHighlightColor == 0)
+            return super.getHighlightColor();
+        else return mHighlightColor;
+    }
+
+    @Override
+    public void setOnClickListener(OnClickListener l) {
+        super.setOnClickListener(l);
+        if (null != l) {
+            mOnClickListener = l;
+        }
     }
 
     @Override
@@ -200,14 +218,18 @@ public class SelectableTextView extends EditText {
                     currentLine = layout.getLineForVertical(getScrollY() + (int) event.getY());
                     int mWordOffsetEnd = layout.getOffsetForHorizontal(currentLine, (int) event.getX());
                     // 至少选中一个字符
-                    if (mWordOffsetEnd == mStartTextOffset) {
-                        Selection.removeSelection(getEditableText());
-                        isLongPress = false;
-                        return false;
+                    mCurrentLine = currentLine;
+                    mCurrentTextOffset = mWordOffsetEnd;
+
+                    if (mCurrentTextOffset == mStartTextOffset) {
+                        mCurrentTextOffset += 1;
+//                        Selection.removeSelection(getEditableText());
+//                        isLongPress = false;
+//                        return false;
                     }
 
-                    Selection.setSelection(getEditableText(), Math.min(mStartTextOffset, mWordOffsetEnd),
-                            Math.max(mStartTextOffset, mWordOffsetEnd));
+                    Selection.setSelection(getEditableText(), Math.min(mStartTextOffset, mCurrentTextOffset),
+                            Math.max(mStartTextOffset, mCurrentTextOffset));
                     // 计算菜单显示位置
                     int mPopWindowOffsetY = calculatorActionMenuYPosition((int) mTouchDownRawY, (int) event.getRawY());
                     // 弹出菜单
@@ -217,8 +239,8 @@ public class SelectableTextView extends EditText {
 
                 } else if (event.getEventTime() - event.getDownTime() < TRIGGER_LONGPRESS_TIME_THRESHOLD) {
                     // 由于onTouchEvent最终返回了true,onClick事件会被屏蔽掉，因此在这里处理onClick事件
-                    if (hasOnClickListeners())
-                        callOnClick();
+                    if (null != mOnClickListener)
+                        mOnClickListener.onClick(this);
                 }
                 // 通知父布局继续拦截触摸事件
                 getParent().requestDisallowInterceptTouchEvent(false);
@@ -471,36 +493,51 @@ public class SelectableTextView extends EditText {
         // 创建三个矩形，分别对应：
         // 所有选中的行对应的矩形，起始行左侧未选中文字的对应的矩形，结束行右侧未选中的文字对应的矩形
         RectF rect_all, rect_lt, rect_rb;
+        // sdk版本控制
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (mStartTextOffset < mCurrentTextOffset) {
+                rect_all = new RectF(paddingLeft, mStartLine * h + paddingTop,
+                        mViewTextWidth + paddingLeft, (mCurrentLine + 1) * h + paddingTop);
+                rect_lt = new RectF(paddingLeft, mStartLine * h + paddingTop,
+                        startToLeftPosition, (mStartLine + 1) * h + paddingTop);
+                rect_rb = new RectF(currentToLeftPosition, mCurrentLine * h + paddingTop,
+                        mViewTextWidth + paddingLeft, (mCurrentLine + 1) * h + paddingTop);
+            } else {
+                rect_all = new RectF(paddingLeft, mCurrentLine * h + paddingTop,
+                        mViewTextWidth + paddingLeft, (mStartLine + 1) * h + paddingTop);
+                rect_lt = new RectF(paddingLeft, mCurrentLine * h + paddingTop,
+                        currentToLeftPosition, (mCurrentLine + 1) * h + paddingTop);
+                rect_rb = new RectF(startToLeftPosition, mStartLine * h + paddingTop,
+                        mViewTextWidth + paddingLeft, (mStartLine + 1) * h + paddingTop);
+            }
 
-        if (mStartTextOffset < mCurrentTextOffset) {
-            rect_all = new RectF(paddingLeft, mStartLine * h + paddingTop,
-                    mViewTextWidth + paddingLeft, (mCurrentLine + 1) * h + paddingTop);
-            rect_lt = new RectF(paddingLeft, mStartLine * h + paddingTop,
-                    startToLeftPosition, (mStartLine + 1) * h + paddingTop);
-            rect_rb = new RectF(currentToLeftPosition, mCurrentLine * h + paddingTop,
-                    mViewTextWidth + paddingLeft, (mCurrentLine + 1) * h + paddingTop);
+            // 创建三个路径，分别对应上面三个矩形
+            Path path_all = new Path();
+            Path path_lt = new Path();
+            Path path_rb = new Path();
+            path_all.addRect(rect_all, Path.Direction.CCW);
+            path_lt.addRect(rect_lt, Path.Direction.CCW);
+            path_rb.addRect(rect_rb, Path.Direction.CCW);
+            // 将左上角和右下角的矩形从path_all中减去
+            path_all.addRect(rect_all, Path.Direction.CCW);
+            path_all.op(path_lt, Path.Op.DIFFERENCE);
+            path_all.op(path_rb, Path.Op.DIFFERENCE);
+
+            canvas.drawPath(path_all, highlightPaint);
+
         } else {
-            rect_all = new RectF(paddingLeft, mCurrentLine * h + paddingTop,
-                    mViewTextWidth + paddingLeft, (mStartLine + 1) * h + paddingTop);
-            rect_lt = new RectF(paddingLeft, mCurrentLine * h + paddingTop,
-                    currentToLeftPosition, (mCurrentLine + 1) * h + paddingTop);
-            rect_rb = new RectF(startToLeftPosition, mStartLine * h + paddingTop,
-                    mViewTextWidth + paddingLeft, (mStartLine + 1) * h + paddingTop);
+            Path path_all = new Path();
+            path_all.moveTo(startToLeftPosition, (mStartLine + 1) * h + paddingTop);
+            path_all.lineTo(startToLeftPosition, mStartLine * h + paddingTop);
+            path_all.lineTo(mViewTextWidth + paddingLeft, mStartLine * h + paddingTop);
+            path_all.lineTo(mViewTextWidth + paddingLeft, mCurrentLine * h + paddingTop);
+            path_all.lineTo(currentToLeftPosition, mCurrentLine * h + paddingTop);
+            path_all.lineTo(currentToLeftPosition, (mCurrentLine + 1) * h + paddingTop);
+            path_all.lineTo(paddingLeft, (mCurrentLine + 1) * h + paddingTop);
+            path_all.lineTo(paddingLeft, (mStartLine + 1) * h + paddingTop);
+            path_all.lineTo(startToLeftPosition, (mStartLine + 1) * h + paddingTop);
+            canvas.drawPath(path_all, highlightPaint);
         }
-
-        // 创建三个路径，分别对应上面三个矩形
-        Path path_all = new Path();
-        Path path_lt = new Path();
-        Path path_rb = new Path();
-        path_all.addRect(rect_all, Path.Direction.CCW);
-        path_lt.addRect(rect_lt, Path.Direction.CCW);
-        path_rb.addRect(rect_rb, Path.Direction.CCW);
-
-        // 将左上角和右下角的矩形从path_all中减去
-        path_all.op(path_lt, Path.Op.DIFFERENCE);
-        path_all.op(path_rb, Path.Op.DIFFERENCE);
-
-        canvas.drawPath(path_all, highlightPaint);
         canvas.restore();
     }
 
@@ -568,12 +605,7 @@ public class SelectableTextView extends EditText {
             }
         } else {
             // 该行按照中文处理
-            float insert_blank;
-            // 最后一个字符是标点符号的处理
-//            if (isUnicodeSymbol(line_str))
-//                insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 4);
-//            else
-            insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 1);
+            float insert_blank = (mViewTextWidth - desiredWidth) / (line_str.length() - 1);
             for (int i = 0; i < line_str.length(); i++) {
                 String char_i = String.valueOf(line_str.charAt(i));
                 float char_i_width = StaticLayout.getDesiredWidth(char_i, getPaint());
@@ -723,20 +755,6 @@ public class SelectableTextView extends EditText {
         return m.matches();
     }
 
-    /**
-     * 获取行高
-     *
-     * @param fontSize
-     * @return
-     */
-    private int getFontHeight(float fontSize) {
-        Paint paint = new Paint();
-        paint.setTextSize(fontSize);
-        Paint.FontMetrics fm = paint.getFontMetrics();
-        float lineSpacingMultiplier = getLineSpacingMultiplier();
-        return (int) Math.ceil((fm.descent - fm.ascent) * lineSpacingMultiplier);
-    }
-
     /* ***************************************************************************************** */
 
     /**
@@ -857,7 +875,7 @@ public class SelectableTextView extends EditText {
         }
 
         private void init() {
-            LinearLayout.LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 45);
+            LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 45);
             setLayoutParams(params);
             setPadding(25, 0, 25, 0);
             setOrientation(HORIZONTAL);
@@ -873,7 +891,7 @@ public class SelectableTextView extends EditText {
             GradientDrawable gd = new GradientDrawable();//创建drawable
             gd.setColor(menuBgColor);
             gd.setCornerRadius(8);
-            setBackground(gd);
+            setBackgroundDrawable(gd);
         }
 
         /**
@@ -939,7 +957,7 @@ public class SelectableTextView extends EditText {
          */
         private View createMenuItem(final String itemTitle) {
             final TextView menuItem = new TextView(mContext);
-            LinearLayout.LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+            LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
             params.leftMargin = params.rightMargin = mMenuItemMargin;
             menuItem.setLayoutParams(params);
 
