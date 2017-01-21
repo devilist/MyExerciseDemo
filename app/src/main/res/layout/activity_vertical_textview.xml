@@ -1,15 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextView
+    <HorizontalScrollView
+        android:id="@+id/scroll_rtl"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="20dp"
-        android:textSize="18sp"
-        android:text="@string/hanzi_text"
-        />
+        android:layout_height="0dp"
+        android:layout_marginBottom="1px"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbarSize="1dp">
+
+        <app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextView
+            android:id="@+id/vtv_text_rtl"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="#6697540a"
+            android:padding="20dp"
+            android:text="@string/hanzi_text"
+            android:textSize="16sp"
+            app:charSpacingExtra="2dp"
+            app:lineSpacingExtra="10dp"
+            app:underLineText="true"
+            app:underLineWidth="2.5"
+            app:underlineOffset="3dp" />
+
+    </HorizontalScrollView>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbarSize="1dp">
+
+        <app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextView
+            android:id="@+id/vtv_text_ltr"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="#6697540a"
+            android:padding="20dp"
+            android:text="@string/hanzi_text"
+            android:textSize="16sp"
+            app:charSpacingExtra="2dp"
+            app:lineSpacingExtra="10dp"
+            app:textLeftToRight="true"
+            app:underLineText="true"
+            app:underLineWidth="2.5"
+            app:underlineOffset="3dp" />
+
+    </HorizontalScrollView>
+
 
 </LinearLayout>
