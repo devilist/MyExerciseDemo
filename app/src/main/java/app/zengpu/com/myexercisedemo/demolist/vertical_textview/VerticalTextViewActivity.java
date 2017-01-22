@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
-import android.widget.HorizontalScrollView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ import app.zengpu.com.myexercisedemo.demolist.selected_textview.StringContentUti
 public class VerticalTextViewActivity extends BaseActivity {
 
     private VerticalTextView vtv_text_rtl, vtv_text_ltr;
-    private HorizontalScrollView scroll_rtl;
+//    private HorizontalScrollView scroll_rtl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,11 +30,11 @@ public class VerticalTextViewActivity extends BaseActivity {
     }
 
     private void init() {
-        scroll_rtl = (HorizontalScrollView) findViewById(R.id.scroll_rtl);
+//        scroll_rtl = (HorizontalScrollView) findViewById(R.id.scroll_rtl);
         vtv_text_rtl = (VerticalTextView) findViewById(R.id.vtv_text_rtl);
         vtv_text_ltr = (VerticalTextView) findViewById(R.id.vtv_text_ltr);
 
-        vtv_text_rtl.setText(Html.fromHtml(StringContentUtil.str_hanzi).toString());
+        vtv_text_rtl.setText(StringContentUtil.str_hhl);
         vtv_text_ltr.setText(Html.fromHtml(StringContentUtil.str_hanzi).toString());
 
         vtv_text_ltr.setLeftToRight(false)

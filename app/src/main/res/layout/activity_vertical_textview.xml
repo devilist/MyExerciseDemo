@@ -5,33 +5,51 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <HorizontalScrollView
-        android:id="@+id/scroll_rtl"
-        android:layout_width="match_parent"
+    <app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextView
+        android:id="@+id/vtv_text_rtl"
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginBottom="1px"
         android:layout_weight="1"
-        android:fillViewport="true"
-        android:scrollbarSize="1dp"
-        android:visibility="visible">
+        android:background="#6697540a"
+        android:padding="20dp"
+        android:text="@string/hanzi_text"
+        android:textSize="18sp"
+        app:charSpacingExtra="2dp"
+        app:lineSpacingExtra="25dp"
+        app:showActionMenu="true"
+        app:textLeftToRight="false"
+        app:underLineText="false"
+        app:underLineWidth="2.5"
+        app:underlineOffset="3dp"/>
 
-        <app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextView
-            android:id="@+id/vtv_text_rtl"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="#6697540a"
-            android:padding="20dp"
-            android:text="@string/hanzi_text"
-            android:textSize="15sp"
-            app:charSpacingExtra="2dp"
-            app:lineSpacingExtra="5dp"
-            app:showActionMenu="true"
-            app:textLeftToRight="true"
-            app:underLineText="false"
-            app:underLineWidth="2.5"
-            app:underlineOffset="3dp"/>
+    <!--<HorizontalScrollView-->
+    <!--android:id="@+id/scroll_rtl"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="0dp"-->
+    <!--android:layout_marginBottom="1px"-->
+    <!--android:layout_weight="1"-->
+    <!--android:fillViewport="true"-->
+    <!--android:scrollbarSize="1dp"-->
+    <!--android:visibility="visible">-->
 
-    </HorizontalScrollView>
+    <!--<app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextView-->
+    <!--android:id="@+id/vtv_text_rtl"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:background="#6697540a"-->
+    <!--android:padding="20dp"-->
+    <!--android:text="@string/hanzi_text"-->
+    <!--android:textSize="18sp"-->
+    <!--app:charSpacingExtra="2dp"-->
+    <!--app:lineSpacingExtra="25dp"-->
+    <!--app:showActionMenu="true"-->
+    <!--app:textLeftToRight="false"-->
+    <!--app:underLineText="false"-->
+    <!--app:underLineWidth="2.5"-->
+    <!--app:underlineOffset="3dp"/>-->
+
+    <!--</HorizontalScrollView>-->
 
     <HorizontalScrollView
         android:layout_width="match_parent"
