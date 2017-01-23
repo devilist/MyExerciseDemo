@@ -32,7 +32,7 @@
         android:layout_weight="1"
         android:fillViewport="true"
         android:scrollbarSize="1dp"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextView
             android:id="@+id/vtv_text_rtl"

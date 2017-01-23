@@ -441,7 +441,7 @@ public class VerticalTextView extends TextView {
                 currentLine = (int) Math.ceil((getWidth() - offsetX - drawPadding[2]) / lineWidth);
         }
 
-        currentLine = currentLine <= 0 ? 1 : currentLine;
+        currentLine = currentLine <= 0 ? 1 : (currentLine > mMaxTextLine ? mMaxTextLine : currentLine);
 
         Log.d(TAG, "touch line is: " + currentLine);
         return currentLine;
