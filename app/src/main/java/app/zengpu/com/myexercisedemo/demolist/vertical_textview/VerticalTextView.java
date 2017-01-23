@@ -736,9 +736,9 @@ public class VerticalTextView extends TextView {
                 float drawOffsetY = currentLineOffsetY;
                 if (isSymbolNeedOffset(char_j))
                     drawOffsetY = drawOffsetY - (getTextSize() - 1.4f * getCharHeight(char_j, textPaint));
-                // 文字从右向左，标点符号靠右绘制，竖排标点除外
+                // 文字从左向右，标点符号靠右绘制，竖排标点除外
                 float drawOffsetX = currentLineOffsetX;
-                if (!isLeftToRight && !isVerticalSymbol(char_j))
+                if (isLeftToRight && !isVerticalSymbol(char_j))
                     drawOffsetX = drawOffsetX + getTextSize() / 2;
 
                 canvas.drawText(char_j, drawOffsetX, drawOffsetY, textPaint);
