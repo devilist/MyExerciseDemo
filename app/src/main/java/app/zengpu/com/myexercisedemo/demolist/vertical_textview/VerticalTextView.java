@@ -69,6 +69,10 @@ public class VerticalTextView extends TextView {
     private boolean isShowActionMenu;     // 是否显示ActionMenu，默认true
     private int mTextHighlightColor;      // 选中文字背景高亮颜色 默认0x60ffeb3b
 
+    // onMeasure相关
+    private int[] mTextAreaRoughBound; // 粗略计算的文本最大显示区域(包含padding)，用于view的测量和不同Gravity情况下文本的绘制
+    private int[] mMeasureMode; // 宽高的测量模式
+
     private SparseArray<Float[]> mLinesOffsetArray; // 记录每一行文字的X,Y偏移量
     private SparseArray<int[]> mLinesTextIndex;     // 记录每一行文字开始和结束字符的index
     private int mMaxTextLine = 0;                   // 最大行数
@@ -139,6 +143,7 @@ public class VerticalTextView extends TextView {
 
         mLinesOffsetArray = new SparseArray<>();
         mLinesTextIndex = new SparseArray<>();
+        mTextAreaRoughBound = new int[]{0, 0};
         mStatusBarHeight = getStatusBarHeight(mContext);
         mActionMenuHeight = dp2px(mContext, 45);
         mVibrator = (Vibrator) mContext.getSystemService(VIBRATOR_SERVICE);
@@ -193,52 +198,6 @@ public class VerticalTextView extends TextView {
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-        // view测量的的宽高(包含padding)
-        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-
-        // 文字的宽度
-        String[] subTextStr = getText().toString().split("\n");
-        int textLines = 0;
-        for (int j = 0; j < getText().length(); j++) {
-            if ("\n".equals(String.valueOf(getText().charAt(j))))
-                textLines++;
-        }
-        for (String aSubTextStr : subTextStr) {
-            textLines += (int) Math.ceil(aSubTextStr.length() * getTextSize()
-                    / (heightSize - getPaddingTop() - getPaddingBottom()));
-        }
-
-        int textWidth = getPaddingLeft() + getPaddingRight()
-                + (int) (textLines * getTextSize() + mLineSpacingExtra * (textLines - 1));
-
-        int measuredWidth;
-        if (widthSize == 0) {
-            // 当嵌套在HorizontalScrollView时，MeasureSpec.getSize(widthMeasureSpec)返回0，因此需要特殊处理
-            measuredWidth = textWidth;
-
-        } else if (widthSize <= mScreenWidth) {
-            measuredWidth = textWidth <= mScreenWidth ?
-                    Math.max(widthSize, textWidth) : widthSize;
-        } else {
-            measuredWidth = textWidth <= mScreenWidth ?
-                    mScreenWidth : Math.min(widthSize, textWidth);
-        }
-
-        int measureHeight;
-        if (heightSize == 0) {
-            // 当嵌套在ScrollView时，MeasureSpec.getSize(widthMeasureSpec)返回0，因此需要特殊处理
-            measureHeight = mScreenHeight;
-        } else {
-            measureHeight = heightSize;
-        }
-        setMeasuredDimension(measuredWidth, measureHeight);
-    }
-
-    @Override
     public void setOnClickListener(OnClickListener l) {
         super.setOnClickListener(l);
         if (null != l) {
@@ -246,6 +205,130 @@ public class VerticalTextView extends TextView {
         }
     }
 
+    /**
+     * 设置ActionMenu菜单内容监听
+     *
+     * @param callBack
+     */
+    public void setCustomActionMenuCallBack(CustomActionMenuCallBack callBack) {
+        this.mCustomActionMenuCallBack = callBack;
+    }
+
+    /* ***************************************************************************************** */
+    // view测量部分
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // view的初始测量宽高(包含padding)
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        Log.d(TAG, "widthSize " + widthSize);
+        Log.d(TAG, "heightSize " + heightSize);
+        // 粗略计算文字的最大宽度和最大高度，用于修正最后的测量宽高
+        mTextAreaRoughBound = getTextRoughSize(heightSize == 0 ? mScreenHeight : heightSize,
+                mLineSpacingExtra, mCharSpacingExtra);
+
+        int measuredWidth;
+        int measureHeight;
+
+//        if (widthSize == 0) {
+//            // 当嵌套在HorizontalScrollView时，MeasureSpec.getSize(widthMeasureSpec)返回0，因此需要特殊处理
+//            measuredWidth = mTextAreaRoughBound[0];
+//        } else if (widthSize <= mScreenWidth) {
+//            measuredWidth = mTextAreaRoughBound[0] <= mScreenWidth ?
+//                    Math.max(widthSize, mTextAreaRoughBound[0]) : widthSize;
+//        } else {
+//            measuredWidth = mTextAreaRoughBound[0] <= mScreenWidth ?
+//                    mScreenWidth : Math.min(widthSize, mTextAreaRoughBound[0]);
+//        }
+
+        if (widthSize == 0) {
+            // 当嵌套在HorizontalScrollView时，MeasureSpec.getSize(widthMeasureSpec)返回0，因此需要特殊处理
+            measuredWidth = mTextAreaRoughBound[0];
+        } else {
+            measuredWidth = widthMode == MeasureSpec.AT_MOST ? mTextAreaRoughBound[0] : widthSize;
+        }
+
+        if (heightSize == 0) {
+            // 当嵌套在ScrollView时，MeasureSpec.getSize(widthMeasureSpec)返回0，因此需要特殊处理
+            measureHeight = mScreenHeight;
+        } else {
+            measureHeight = heightMode == MeasureSpec.AT_MOST ? mTextAreaRoughBound[1] : heightSize;
+        }
+        setMeasuredDimension(measuredWidth, measureHeight);
+
+        Log.d(TAG, "measuredWidth " + measuredWidth);
+        Log.d(TAG, "measureHeight " + measureHeight);
+    }
+
+    /**
+     * 粗略计算文本的宽度和高度(包含padding)，用于修正最后的测量宽高
+     *
+     * @param oriHeightSize    初始测量高度 必须大于0。当等于0时，用屏幕高度代替
+     * @param lineSpacingExtra
+     * @param charSpacingExtra
+     * @return int[textWidth, textHeight]
+     */
+    private int[] getTextRoughSize(int oriHeightSize, float lineSpacingExtra,
+                                   float charSpacingExtra) {
+
+        // 将文本用换行符分隔，计算粗略的行数
+        String[] subTextStr = getText().toString().split("\n");
+        int textLines = 0;
+        // 用于计算最大高度的目标子段落
+        String targetSubPara = "";
+        int tempLines = 1;
+        float tempLength = 0;
+        // 计算每个段落的行数，然后累加
+        for (String aSubTextStr : subTextStr) {
+            // 段落的粗略长度(字符间距也要考虑进去)
+            float subParagraphLength = aSubTextStr.length() * (getTextSize() + charSpacingExtra);
+            // 段落长度除以初始测量高度，得到粗略行数
+            int subLines = (int) Math.ceil(subParagraphLength
+                    / Math.abs(oriHeightSize - getPaddingTop() - getPaddingBottom()));
+            textLines += subLines;
+            // 如果所有子段落的行数都为1,则最大高度为长度最长的子段落长度；否则最大高度为oriHeightSize；
+            if (subLines == 1 && tempLines == 1) {
+                if (subParagraphLength > tempLength) {
+                    tempLength = subParagraphLength;
+                    targetSubPara = aSubTextStr;
+                }
+            }
+            tempLines = subLines;
+        }
+        // 计算文本粗略高度，包括padding
+        int textHeight = getPaddingTop() + getPaddingBottom();
+        if (textLines > subTextStr.length)
+            textHeight = oriHeightSize;
+        else {
+            // 计算targetSubPara长度作为高度
+            for (int i = 0; i < targetSubPara.length(); i++) {
+                String char_i = String.valueOf(getText().toString().charAt(i));
+                // 区别标点符号 和 文字
+                if (isUnicodeSymbol(char_i)) {
+                    textHeight += 1.4f * getCharHeight(char_i, getTextPaint()) + charSpacingExtra;
+                } else {
+                    textHeight += getTextSize() + charSpacingExtra;
+                }
+            }
+        }
+        // 计算文本的粗略宽度，包括padding，
+        // 如果文本中有段落分隔符(\r\n)时，绘制文字时会多绘制一空行;
+        // 因此行数要加上段落分隔符个数。注意：\r\n 在java中会当做两个\n\n处理
+        String[] sub = getText().toString().split("\n\n");
+        if (sub.length > 1)
+            textLines += sub.length;
+        int textWidth = getPaddingLeft() + getPaddingRight() +
+                (int) (textLines * getTextSize() + lineSpacingExtra * (textLines - 1));
+        Log.d(TAG, "textRoughLines " + textLines);
+        Log.d(TAG, "textRoughWidth " + textWidth);
+        Log.d(TAG, "textRoughHeight " + textHeight);
+        return new int[]{textWidth, textHeight};
+    }
+
+    /* ***************************************************************************************** */
+    // 触摸事件部分。处理onclick事件，长按选择文字事件 和 弹出ActionMenu事件
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getAction();
@@ -277,8 +360,9 @@ public class VerticalTextView extends TextView {
                     boolean isTriggerTime = event.getEventTime() - event.getDownTime() >= TRIGGER_LONGPRESS_TIME_THRESHOLD;
                     boolean isTriggerDistance = Math.abs(event.getX() - mTouchDownX) < TRIGGER_LONGPRESS_DISTANCE_THRESHOLD
                             && Math.abs(event.getY() - mTouchDownY) < TRIGGER_LONGPRESS_DISTANCE_THRESHOLD;
-                    boolean isInBound = event.getX() >= getPaddingLeft() && event.getX() <= getWidth() - getPaddingRight()
-                            && event.getY() >= getPaddingBottom() && event.getY() <= getHeight() - getPaddingBottom();
+                    int[] drawPadding = getDrawPadding(isLeftToRight);
+                    boolean isInBound = event.getX() >= drawPadding[0] && event.getX() <= getWidth() - drawPadding[2]
+                            && event.getY() >= drawPadding[1] && event.getY() <= getHeight() - drawPadding[3];
                     if (isTriggerTime && isTriggerDistance && isInBound) {
                         Log.d(TAG, "ACTION_MOVE 长按");
                         isLongPress = true;
@@ -310,7 +394,7 @@ public class VerticalTextView extends TextView {
                     mCurrentLine = currentLine;
                     mCurrentTextOffset = mWordOffsetEnd;
                     // 手指抬起后选择文字
-                    selectText(mStartTextOffset, mCurrentTextOffset, mStartLine, mCurrentLine, mCharSpacingExtra);
+                    selectText(mStartTextOffset, mCurrentTextOffset, mStartLine, mCurrentLine, mCharSpacingExtra, isLeftToRight);
                     if (!TextUtils.isEmpty(mSelectedText)) {
                         // 计算菜单显示位置
                         int mPopWindowOffsetY = calculatorActionMenuYPosition((int) mTouchDownRawY, (int) event.getRawY());
@@ -343,17 +427,18 @@ public class VerticalTextView extends TextView {
 
         int currentLine = 1;
         float lineWidth = getTextSize() + mLineSpacingExtra;
+        int[] drawPadding = getDrawPadding(isLeftToRight);
         if (isLeftToRight) {
             // 边界控制
-            if (offsetX >= getWidth() - getPaddingRight())
+            if (offsetX >= getWidth() - drawPadding[2])
                 currentLine = mMaxTextLine;
             else
-                currentLine = (int) Math.ceil((offsetX - getPaddingLeft()) / lineWidth);
+                currentLine = (int) Math.ceil((offsetX - drawPadding[0]) / lineWidth);
         } else {
-            if (offsetX <= getPaddingLeft())
+            if (offsetX <= drawPadding[0])
                 currentLine = mMaxTextLine;
             else
-                currentLine = (int) Math.ceil((getWidth() - offsetX - getPaddingRight()) / lineWidth);
+                currentLine = (int) Math.ceil((getWidth() - offsetX - drawPadding[2]) / lineWidth);
         }
         Log.d(TAG, "touch line is: " + currentLine);
         return currentLine;
@@ -369,10 +454,10 @@ public class VerticalTextView extends TextView {
      * @param charSpacingExtra
      */
     private void selectText(float startOffsetY, float endOffsetY,
-                            int startLine, int endLine, float charSpacingExtra) {
+                            int startLine, int endLine, float charSpacingExtra, boolean isLeftToRight) {
         // 计算开始和结束的字符index
-        int index_start = getSelectTextIndex(startOffsetY, startLine, charSpacingExtra);
-        int index_end = getSelectTextIndex(endOffsetY, endLine, charSpacingExtra);
+        int index_start = getSelectTextIndex(startOffsetY, startLine, charSpacingExtra, isLeftToRight);
+        int index_end = getSelectTextIndex(endOffsetY, endLine, charSpacingExtra, isLeftToRight);
         if (index_start == index_end)
             mSelectedText = "";
         else
@@ -388,16 +473,17 @@ public class VerticalTextView extends TextView {
      * @param targetLine
      * @param charSpacingExtra 字符间距
      */
-    private int getSelectTextIndex(float offsetY, int targetLine, float charSpacingExtra) {
+    private int getSelectTextIndex(float offsetY, int targetLine, float charSpacingExtra, boolean isLeftToRight) {
+        int[] drawPadding = getDrawPadding(isLeftToRight);
         // 该行文字的起始和结束位置
         int[] lineIndex = mLinesTextIndex.get(targetLine);
         // 目标位置
         int targetIndex = lineIndex[1];
-        float tempY = getPaddingTop();
+        float tempY = drawPadding[1];
         // 边界控制
-        if (offsetY < getPaddingTop()) {
+        if (offsetY < drawPadding[1]) {
             return lineIndex[0];
-        } else if (offsetY > getHeight() - getPaddingBottom()) {
+        } else if (offsetY > getHeight() - drawPadding[3]) {
             return lineIndex[1];
         }
         /*
@@ -408,7 +494,7 @@ public class VerticalTextView extends TextView {
             String char_i = String.valueOf(getText().toString().charAt(i));
             // 区别换行符，标点符号 和 文字
             if (char_i.equals("\n")) {
-                tempY = getPaddingTop();
+                tempY = drawPadding[1];
             } else if (isUnicodeSymbol(char_i)) {
                 tempY += 1.4f * getCharHeight(char_i, getTextPaint()) + charSpacingExtra;
             } else {
@@ -532,10 +618,11 @@ public class VerticalTextView extends TextView {
 
             if (menuItemTitle.equals(ActionMenu.DEFAULT_MENU_ITEM_TITLE_SELECT_ALL)) {
                 //全选事件
+                int[] drawPadding = getDrawPadding(isLeftToRight);
                 mStartLine = 1;
                 mCurrentLine = mMaxTextLine;
-                mStartTextOffset = getPaddingTop();
-                mCurrentTextOffset = getHeight() - getPaddingBottom();
+                mStartTextOffset = drawPadding[1];
+                mCurrentTextOffset = getHeight() - drawPadding[3];
                 isLongPressTouchActionUp = true;
                 invalidate();
 
@@ -595,10 +682,11 @@ public class VerticalTextView extends TextView {
         int currentLineStartIndex = 0; // 行首位置标记
         mLinesOffsetArray.clear();
         mLinesTextIndex.clear();
+        int[] drawPadding = getDrawPadding(isLeftToRight); // 绘制文字的padding
         // 当前竖行的XY向偏移初始值
         float currentLineOffsetX = isLeftToRight ?
-                getPaddingLeft() : getWidth() - getPaddingRight() - getTextSize();
-        float currentLineOffsetY = getPaddingTop() + getTextSize();
+                drawPadding[0] : getWidth() - drawPadding[2] - getTextSize();
+        float currentLineOffsetY = drawPadding[1] + getTextSize();
         for (int j = 0; j < textStrLength; j++) {
             String char_j = String.valueOf(getText().charAt(j));
             /* 换行条件为：
@@ -612,9 +700,9 @@ public class VerticalTextView extends TextView {
              * 注意：文字是从左下角开始向上绘制的
             */
             boolean isLineBreaks = char_j.equals("\n");
-            boolean isCurrentLineFinish = currentLineOffsetY > getHeight() - getPaddingBottom()
+            boolean isCurrentLineFinish = currentLineOffsetY > getHeight() - drawPadding[3]
                     && (!isUnicodeSymbol(char_j) || (isUnicodeSymbol(char_j) &&
-                    currentLineOffsetY + getCharHeight(char_j, textPaint) > getHeight() - getPaddingBottom() + getTextSize()));
+                    currentLineOffsetY + getCharHeight(char_j, textPaint) > getHeight() - drawPadding[3] + getTextSize()));
 
             if (isLineBreaks || isCurrentLineFinish) {
                 // 记录记录偏移量,和行首行末字符的index；然后另起一行，
@@ -624,12 +712,12 @@ public class VerticalTextView extends TextView {
                 currentLineOffsetX = isLeftToRight ?
                         currentLineOffsetX + getTextSize() + lineSpacingExtra
                         : currentLineOffsetX - getTextSize() - lineSpacingExtra;
-                currentLineOffsetY = getPaddingTop() + getTextSize();
+                currentLineOffsetY = drawPadding[1] + getTextSize();
                 mMaxTextLine++;
             }
             // 判断是否是行首，记录行首字符位置；
-            // 判断行首的条件为：currentLineOffsetY == getPaddingTop()+getTextSize()
-            if (currentLineOffsetY == getPaddingTop() + getTextSize()) {
+            // 判断行首的条件为：currentLineOffsetY == drawPadding[1]+getTextSize()
+            if (currentLineOffsetY == drawPadding[1] + getTextSize()) {
                 currentLineStartIndex = j;
             }
 
@@ -641,7 +729,7 @@ public class VerticalTextView extends TextView {
             } else if (isUnicodeSymbol(char_j)) {
                 // 如果是Y向需要补偿标点符号，加一个补偿 getTextSize() - getCharHeight.
                 // 注意：如果该竖行第一个字符是标点符号的话，不加补偿;
-                // 判断是否是第一个字符的条件为：offsetY == getPaddingTop() + getTextSize()
+                // 判断是否是第一个字符的条件为：offsetY == drawPadding[1] + getTextSize()
                 float drawOffsetY = currentLineOffsetY;
                 if (isSymbolNeedOffset(char_j))
                     drawOffsetY = drawOffsetY - (getTextSize() - 1.4f * getCharHeight(char_j, textPaint));
@@ -688,9 +776,11 @@ public class VerticalTextView extends TextView {
         underLinePaint.setStyle(Paint.Style.FILL);
         underLinePaint.setStrokeWidth(mUnderLineWidth);
 
+        int[] drawPadding = getDrawPadding(isLeftToRight); // 绘制文字的padding
+
         for (int i = 0; i < mMaxTextLine; i++) {
             // Y向开始和结束位置
-            float yStart = getPaddingTop();
+            float yStart = drawPadding[1];
             float yEnd = mLinesOffsetArray.get(i + 1)[1] - getTextSize();
             // 如果end <= start 或者 该行字符为换行符，则不绘制下划线
             int[] lineIndex = mLinesTextIndex.get(i + 1);
@@ -698,8 +788,8 @@ public class VerticalTextView extends TextView {
             if (yEnd <= yStart || (lineText.equals("\n")))
                 continue;
             // Y向边界处理
-            if (yEnd > getHeight() - getPaddingBottom() - getTextSize())
-                yEnd = getHeight() - getPaddingBottom();
+            if (yEnd > getHeight() - drawPadding[3] - getTextSize())
+                yEnd = getHeight() - drawPadding[3];
             // 首行缩进处理
             int spaceNum = getLineStartSpaceNumber(lineText);
             if (spaceNum > 0) {
@@ -744,6 +834,8 @@ public class VerticalTextView extends TextView {
         highlightPaint.setColor(mTextHighlightColor);
         highlightPaint.setAlpha(60);
 
+        int[] drawPadding = getDrawPadding(isLeftToRight); // 绘制文字的padding
+
         // 预处理，如果startLine > endLine，交换二者
         if (startLine > endLine) {
             startLine = startLine + endLine;
@@ -756,38 +848,92 @@ public class VerticalTextView extends TextView {
         // 行宽
         int lineWidth = (int) (getTextSize() + lineSpacingExtra);
         // 开始行和结束行所选文字的y向偏移量
-        int startLineOffsetY = getSelectTextPreciseOffsetY(startOffsetY, startLine, charSpacingExtra);
-        int endLineOffsetY = getSelectTextPreciseOffsetY(endOffsetY, endLine, charSpacingExtra);
+        int startLineOffsetY = getSelectTextPreciseOffsetY(startOffsetY, startLine, charSpacingExtra, true, isLeftToRight);
+        int endLineOffsetY = getSelectTextPreciseOffsetY(endOffsetY, endLine, charSpacingExtra, false, isLeftToRight);
         // 围绕所选的文字创建一个Path闭合路径，一共八个点
         Path path_all = new Path();
         if (isLeftToRight) {
             // 往左偏移半个行距
-            int offsetLeftPadding = (int) (getPaddingLeft() - lineSpacingExtra / 2);
-            path_all.moveTo(offsetLeftPadding + (startLine - 1) * lineWidth, getPaddingTop() + startLineOffsetY);
-            path_all.lineTo(offsetLeftPadding + startLine * lineWidth, getPaddingTop() + startLineOffsetY);
-            path_all.lineTo(offsetLeftPadding + startLine * lineWidth, getPaddingTop());
-            path_all.lineTo(offsetLeftPadding + endLine * lineWidth, getPaddingTop());
-            path_all.lineTo(offsetLeftPadding + endLine * lineWidth, getPaddingTop() + endLineOffsetY);
-            path_all.lineTo(offsetLeftPadding + (endLine - 1) * lineWidth, getPaddingTop() + endLineOffsetY);
-            path_all.lineTo(offsetLeftPadding + (endLine - 1) * lineWidth, getHeight() - getPaddingBottom() + charSpacingExtra);
-            path_all.lineTo(offsetLeftPadding + (startLine - 1) * lineWidth, getHeight() - getPaddingBottom() + charSpacingExtra);
+            int offsetLeftPadding = (int) (drawPadding[0] - lineSpacingExtra / 2);
+            path_all.moveTo(offsetLeftPadding + (startLine - 1) * lineWidth, startLineOffsetY);
+            path_all.lineTo(offsetLeftPadding + startLine * lineWidth, startLineOffsetY);
+            path_all.lineTo(offsetLeftPadding + startLine * lineWidth, drawPadding[1]);
+            path_all.lineTo(offsetLeftPadding + endLine * lineWidth, drawPadding[1]);
+            path_all.lineTo(offsetLeftPadding + endLine * lineWidth, endLineOffsetY);
+            path_all.lineTo(offsetLeftPadding + (endLine - 1) * lineWidth, endLineOffsetY);
+            path_all.lineTo(offsetLeftPadding + (endLine - 1) * lineWidth, getHeight() - drawPadding[3] + charSpacingExtra);
+            path_all.lineTo(offsetLeftPadding + (startLine - 1) * lineWidth, getHeight() - drawPadding[3] + charSpacingExtra);
             path_all.close();
         } else {
             // 往右偏移半个行距
-            int offsetRightPadding = (int) (getWidth() - getPaddingRight() + lineSpacingExtra / 2);
-            path_all.moveTo(offsetRightPadding - (startLine - 1) * lineWidth, getPaddingTop() + startLineOffsetY);
-            path_all.lineTo(offsetRightPadding - startLine * lineWidth, getPaddingTop() + startLineOffsetY);
-            path_all.lineTo(offsetRightPadding - startLine * lineWidth, getPaddingTop());
-            path_all.lineTo(offsetRightPadding - endLine * lineWidth, getPaddingTop());
-            path_all.lineTo(offsetRightPadding - endLine * lineWidth, getPaddingTop() + endLineOffsetY);
-            path_all.lineTo(offsetRightPadding - (endLine - 1) * lineWidth, getPaddingTop() + endLineOffsetY);
-            path_all.lineTo(offsetRightPadding - (endLine - 1) * lineWidth, getHeight() - getPaddingBottom() + charSpacingExtra);
-            path_all.lineTo(offsetRightPadding - (startLine - 1) * lineWidth, getHeight() - getPaddingBottom() + charSpacingExtra);
+            int offsetRightPadding = (int) (getWidth() - drawPadding[2] + lineSpacingExtra / 2);
+            path_all.moveTo(offsetRightPadding - (startLine - 1) * lineWidth, startLineOffsetY);
+            path_all.lineTo(offsetRightPadding - startLine * lineWidth, startLineOffsetY);
+            path_all.lineTo(offsetRightPadding - startLine * lineWidth, drawPadding[1]);
+            path_all.lineTo(offsetRightPadding - endLine * lineWidth, drawPadding[1]);
+            path_all.lineTo(offsetRightPadding - endLine * lineWidth, endLineOffsetY);
+            path_all.lineTo(offsetRightPadding - (endLine - 1) * lineWidth, endLineOffsetY);
+            path_all.lineTo(offsetRightPadding - (endLine - 1) * lineWidth, getHeight() - drawPadding[3] + charSpacingExtra);
+            path_all.lineTo(offsetRightPadding - (startLine - 1) * lineWidth, getHeight() - drawPadding[3] + charSpacingExtra);
             path_all.close();
         }
         canvas.drawPath(path_all, highlightPaint);
         canvas.save();
         canvas.restore();
+    }
+
+    /**
+     * 根据文本的Gravity计算文字绘制时的padding
+     *
+     * @param isLeftToRight 文字阅读方向
+     * @return [left, top, right, bottom]
+     */
+    private int[] getDrawPadding(boolean isLeftToRight) {
+        int textBoundWidth = mTextAreaRoughBound[0];
+        int textBoundHeight = mTextAreaRoughBound[1];
+        int left, right, top, bottom;
+        int gravity;
+
+        if (textBoundWidth < getWidth()) {
+            // 先把水平方向的gravity解析出来
+            gravity = getGravity() & Gravity.HORIZONTAL_GRAVITY_MASK;
+            if (gravity == Gravity.CENTER || gravity == Gravity.CENTER_HORIZONTAL) {
+                left = getPaddingLeft() + (getWidth() - textBoundWidth) / 2;
+                right = getPaddingRight() + (getWidth() - textBoundWidth) / 2;
+            } else if (gravity == Gravity.RIGHT && isLeftToRight) {
+                left = getPaddingLeft() + getWidth() - textBoundWidth;
+                right = getPaddingRight();
+            } else if (gravity == Gravity.LEFT && !isLeftToRight) {
+                left = getPaddingLeft();
+                right = getPaddingRight() + getWidth() - textBoundWidth;
+            } else {
+                left = isLeftToRight ? getPaddingLeft() : getPaddingLeft() + getWidth() - textBoundWidth;
+                right = isLeftToRight ? getPaddingRight() + getWidth() - textBoundWidth : getPaddingRight();
+            }
+        } else {
+            left = getPaddingLeft();
+            right = getPaddingRight();
+        }
+
+        if (textBoundHeight < getHeight()) {
+            // 先把垂直方向的gravity解析出来
+            gravity = getGravity() & Gravity.VERTICAL_GRAVITY_MASK;
+            if (gravity == Gravity.CENTER || gravity == Gravity.CENTER_VERTICAL) {
+                top = getPaddingTop() + (getHeight() - textBoundHeight) / 2;
+                bottom = getPaddingBottom() + (getHeight() - textBoundHeight) / 2;
+            } else if (gravity == Gravity.BOTTOM) {
+                top = getPaddingTop() + getHeight() - textBoundHeight;
+                bottom = getPaddingBottom();
+            } else {
+                top = getPaddingTop();
+                bottom = getPaddingBottom() + getHeight() - textBoundHeight;
+            }
+        } else {
+            top = getPaddingTop();
+            bottom = getPaddingBottom();
+        }
+
+        return new int[]{left, top, right, bottom};
     }
 
     /**
@@ -798,17 +944,20 @@ public class VerticalTextView extends TextView {
      * @param charSpacingExtra
      * @return
      */
-    private int getSelectTextPreciseOffsetY(float offsetY, int targetLine, float charSpacingExtra) {
+    private int getSelectTextPreciseOffsetY(float offsetY, int targetLine, float charSpacingExtra,
+                                            boolean isStart, boolean isLeftToRight) {
+
+        int[] drawPadding = getDrawPadding(isLeftToRight); // 绘制文字的padding
         // 该行文字的起始和结束位置
         int[] lineIndex = mLinesTextIndex.get(targetLine);
         // 目标位置
-        int targetOffset = getPaddingTop();
-        int tempY = getPaddingTop();
+        int targetOffset = drawPadding[1];
+        int tempY = drawPadding[1];
         // 边界控制
-        if (offsetY < getPaddingTop()) {
-            return getPaddingTop();
-        } else if (offsetY > getHeight() - getPaddingBottom()) {
-            return getHeight() - getPaddingBottom();
+        if (offsetY < drawPadding[1]) {
+            return drawPadding[1];
+        } else if (offsetY > getHeight() - drawPadding[3]) {
+            return getHeight() - drawPadding[3];
         }
         /*
          * 循环累加每一个字符的高度，一直到tempY > offsetY 时停止，然后根据行首或行末计算精确的偏移量；
@@ -818,21 +967,21 @@ public class VerticalTextView extends TextView {
             String char_i = String.valueOf(getText().toString().charAt(i));
             // 区别换行符，标点符号 和 文字
             if (char_i.equals("\n")) {
-                tempY = getPaddingTop();
+                tempY = drawPadding[1];
             } else if (isUnicodeSymbol(char_i)) {
                 tempY += 1.4f * getCharHeight(char_i, getTextPaint()) + charSpacingExtra;
             } else {
                 tempY += getTextSize() + charSpacingExtra;
             }
             if (tempY <= offsetY) {
-                targetOffset = (int) (tempY - getTextSize() - charSpacingExtra);
+                targetOffset = tempY;
             }
             // 触发暂停条件
             if (tempY > offsetY) {
                 break;
             }
         }
-        return Math.max(targetOffset, getPaddingTop());
+        return Math.max(targetOffset, drawPadding[1]);
     }
 
     /**
@@ -981,15 +1130,6 @@ public class VerticalTextView extends TextView {
 
     /* ***************************************************************************************** */
     // 接口
-
-    /**
-     * 设置ActionMenu菜单内容监听
-     *
-     * @param callBack
-     */
-    public void setCustomActionMenuCallBack(CustomActionMenuCallBack callBack) {
-        this.mCustomActionMenuCallBack = callBack;
-    }
 
     /**
      * ActionMenu菜单内容监听

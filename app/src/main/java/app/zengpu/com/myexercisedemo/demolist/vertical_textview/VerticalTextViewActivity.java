@@ -38,14 +38,14 @@ public class VerticalTextViewActivity extends BaseActivity {
         vtv_text_ltr.setText(Html.fromHtml(StringContentUtil.str_hanzi).toString());
 
         vtv_text_ltr.setLeftToRight(false)
-                .setLineSpacingExtra(10)
+                .setLineSpacingExtra(5)
                 .setCharSpacingExtra(2)
-                .setUnderLineText(true)
+                .setUnderLineText(false)
                 .setShowActionMenu(true)
                 .setUnderLineColor(Color.BLUE)
                 .setUnderLineWidth(2.0f)
                 .setUnderLineOffset(3)
-                .setTextHighlightColor(Color.RED);
+                .setTextHighlightColor(0xCEAD53);
         vtv_text_ltr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
