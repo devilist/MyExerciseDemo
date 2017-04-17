@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="rich_textview">
+        <attr name="prefix_count" format="integer"/>
+        <attr name="prefix_text_padding" format="dimension"/>
+        <attr name="prefix_padding" format="dimension"/>
+        <attr name="prefix_textSize" format="dimension"/>
+        <attr name="prefix_text_color" format="color|reference"/>
+        <attr name="prefix_bg_radius" format="dimension"/>
+        <attr name="prefix_bg" format="reference"/>
+    </declare-styleable>
+</resources>

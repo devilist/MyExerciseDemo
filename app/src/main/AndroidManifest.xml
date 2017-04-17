@@ -155,7 +155,10 @@
             android:name=".demolist.vertical_textview.VerticalTextViewActivity"
             android:label="VerticalTextView">
         </activity>
-
+        <activity
+            android:name=".demolist.rich_textview.RichTextViewActivity"
+            android:label="RichTextView">
+        </activity>
 
     </application>
 

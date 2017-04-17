@@ -1,11 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="10dp">
+
     <TextView
+        android:id="@+id/tv_tip"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Third Fragment"
-        android:textSize="18sp"/>
+        android:padding="5dp"
+        android:text="richtextview"
+        android:textSize="20sp"/>
+
+    <app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextView
+        android:id="@+id/rtv_0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#cccccc"
+        android:includeFontPadding="false"
+        android:padding="10dp"
+        android:text="这是一个自定义的文件，这是一个自定义的文件。这是一个自定义的文件。这是一个自定义的文件。这是一个自定义的文件。"
+        android:textSize="22sp"
+        app:prefix_bg="@mipmap/bg_rich_text"
+        app:prefix_bg_radius="4dp"
+        app:prefix_count="4"
+        app:prefix_padding="5dp"
+        app:prefix_textSize="16sp"
+        app:prefix_text_color="@android:color/background_dark"
+        app:prefix_text_padding="5dp"/>
+
 </LinearLayout>

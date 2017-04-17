@@ -63,6 +63,8 @@ public class DSLScrollingActivity extends BaseActivity implements AppBarLayout.O
         // textswithcer动画
         initTextSwitcherAnim();
 
+
+
     }
 
     /**
@@ -189,6 +191,7 @@ public class DSLScrollingActivity extends BaseActivity implements AppBarLayout.O
         // 设置切出动画
         textSwitcher.setOutAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right));
     }
+
 
 
     public static void actionStart(Context context) {

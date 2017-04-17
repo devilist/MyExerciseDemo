@@ -25,6 +25,7 @@ import app.zengpu.com.myexercisedemo.demolist.photoloop1.ImageLoopActivity;
 import app.zengpu.com.myexercisedemo.demolist.pull_to_refresh.RefreshAndLoadActivity;
 import app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.RecyclerViewPagerActivity;
 import app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.ThreeDViewPagerActivity;
+import app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.selected_textview.SelectedTextViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.svg_path_anim.SvgAnimActivity;
 import app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextViewActivity;
@@ -112,5 +113,6 @@ public class OneFragment extends Fragment {
         list.add(new String[]{"SelectedTextView", SelectedTextViewActivity.class.getName()});
         list.add(new String[]{"SvgPathAnimView", SvgAnimActivity.class.getName()});
         list.add(new String[]{"VerticalTextView", VerticalTextViewActivity.class.getName()});
+        list.add(new String[]{"RichTextView", RichTextViewActivity.class.getName()});
     }
 }
