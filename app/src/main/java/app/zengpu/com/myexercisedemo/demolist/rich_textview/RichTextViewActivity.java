@@ -30,11 +30,6 @@ public class RichTextViewActivity extends BaseActivity {
             public void onPrefixClick(View v, String text) {
                 Toast.makeText(RichTextViewActivity.this, "点击了前缀区域", Toast.LENGTH_SHORT).show();
             }
-
-//            @Override
-//            public void onTextClick() {
-//                Toast.makeText(getContext(), "点击了文字区域", Toast.LENGTH_SHORT).show();
-//            }
         });
         rtv_0.setOnClickListener(new View.OnClickListener() {
             @Override
