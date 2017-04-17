@@ -1,6 +1,5 @@
 package app.zengpu.com.myexercisedemo.demolist.vertical_textview;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
@@ -34,18 +33,18 @@ public class VerticalTextViewActivity extends BaseActivity {
         vtv_text_rtl = (VerticalTextView) findViewById(R.id.vtv_text_rtl);
         vtv_text_ltr = (VerticalTextView) findViewById(R.id.vtv_text_ltr);
 
-        vtv_text_rtl.setText(StringContentUtil.str_hhl);
-        vtv_text_ltr.setText(Html.fromHtml(StringContentUtil.str_hanzi).toString());
+        vtv_text_rtl.setText(StringContentUtil.str_juaner);
+        vtv_text_ltr.setText(Html.fromHtml(StringContentUtil.str_cbf).toString());
 
         vtv_text_ltr.setLeftToRight(false)
-                .setLineSpacingExtra(5)
+                .setLineSpacingExtra(10)
                 .setCharSpacingExtra(2)
-                .setUnderLineText(false)
+                .setUnderLineText(true)
                 .setShowActionMenu(true)
-                .setUnderLineColor(Color.BLUE)
-                .setUnderLineWidth(2.0f)
+                .setUnderLineColor(0xffCEAD53)
+                .setUnderLineWidth(2.5f)
                 .setUnderLineOffset(3)
-                .setTextHighlightColor(0xCEAD53);
+                .setTextHighlightColor(0xffCEAD53);
         vtv_text_ltr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
