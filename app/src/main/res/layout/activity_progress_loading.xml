@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            app:title="progress_loading"
+            app:titleTextColor="#ffffff" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <Button
+        android:id="@+id/btn_load"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:text="加载" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp">
+
+        <ImageView
+            android:id="@+id/iv_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerInside" />
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="50dp"
+            app:progress_text_color="#f26d85"
+            app:progress_text_size="16sp"
+            app:progress_width="8dp" />
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/btn_load1"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:text="加载" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="85dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view1"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="20dp"
+            app:progress_text_color="#f26d85"
+            app:progress_text_size="14sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="2dp" />
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view2"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="30dp"
+            app:progress_text_color="#f26d85"
+            app:progress_text_size="15sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="3dp" />
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:padding="2dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="35dp"
+            app:progress_text_color="#f26d85"
+            app:progress_text_size="16sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="4dp" />
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view33"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginLeft="20dp"
+            android:background="#eeeeee"
+            android:padding="2dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="35dp"
+            app:progress_text_color="#f26d85"
+            app:progress_text_size="16sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="4dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="85dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view4"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="20dp"
+            app:progress_text_color="#ffffff"
+            app:progress_text_size="14sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="20dp" />
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view5"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="30dp"
+            app:progress_text_color="#ffffff"
+            app:progress_text_size="15sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="30dp" />
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:padding="2dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="35dp"
+            app:progress_text_color="#ffffff"
+            app:progress_text_size="16sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="40dp" />
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view66"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginLeft="20dp"
+            android:background="#eeeeee"
+            android:padding="2dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="35dp"
+            app:progress_text_color="#ffffff"
+            app:progress_text_size="16sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="40dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="85dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view7"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="20dp"
+            app:progress_show_text="false"
+            app:progress_text_color="#ffffff"
+            app:progress_text_size="14sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="20dp" />
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view8"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="30dp"
+            app:progress_show_text="false"
+            app:progress_text_color="#ffffff"
+            app:progress_text_size="15sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="30dp" />
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:padding="2dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="35dp"
+            app:progress_show_text="false"
+            app:progress_text_color="#ffffff"
+            app:progress_text_size="16sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="35dp" />
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view99"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginLeft="20dp"
+            android:background="#eeeeee"
+            android:padding="2dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="35dp"
+            app:progress_show_text="false"
+            app:progress_text_color="#ffffff"
+            app:progress_text_size="16sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="35dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="85dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view10"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="20dp"
+            app:progress_show_text="false"
+            app:progress_text_color="#ffffff"
+            app:progress_text_size="14sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="2dp" />
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view11"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="30dp"
+            app:progress_show_text="false"
+            app:progress_text_color="#ffffff"
+            app:progress_text_size="15sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="3dp" />
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:padding="2dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="35dp"
+            app:progress_show_text="false"
+            app:progress_text_color="#ffffff"
+            app:progress_text_size="16sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="4dp" />
+
+        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+            android:id="@+id/progress_view1212"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginLeft="20dp"
+            android:background="#eeeeee"
+            android:padding="2dp"
+            app:progress_loaded_color="#f26d85"
+            app:progress_radius="35dp"
+            app:progress_show_text="false"
+            app:progress_text_color="#ffffff"
+            app:progress_text_size="16sp"
+            app:progress_unload_color="#dddddd"
+            app:progress_width="4dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
