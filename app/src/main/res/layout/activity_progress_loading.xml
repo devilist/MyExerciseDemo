@@ -18,34 +18,43 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <Button
-        android:id="@+id/btn_load"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
-        android:text="加载" />
-
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp">
+        android:layout_height="150dp"
+        android:gravity="center_vertical">
 
-        <ImageView
-            android:id="@+id/iv_image"
+        <Button
+            android:id="@+id/btn_load"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="20dp"
+            android:text="加载" />
+
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerInside" />
+            android:padding="1dp">
 
-        <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
-            android:id="@+id/progress_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            app:progress_loaded_color="#f26d85"
-            app:progress_radius="50dp"
-            app:progress_text_color="#f26d85"
-            app:progress_text_size="16sp"
-            app:progress_width="8dp" />
+            <ImageView
+                android:id="@+id/iv_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerInside" />
 
-    </RelativeLayout>
+            <app.zengpu.com.myexercisedemo.demolist.glide_with_progress.widget.ProgressView
+                android:id="@+id/progress_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                app:progress_loaded_color="#f26d85"
+                app:progress_radius="30dp"
+                app:progress_text_color="#f26d85"
+                app:progress_text_size="16sp"
+                app:progress_width="4dp" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/btn_load1"

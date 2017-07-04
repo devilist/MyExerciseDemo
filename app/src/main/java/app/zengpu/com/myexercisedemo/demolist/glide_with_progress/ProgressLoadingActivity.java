@@ -80,7 +80,7 @@ public class ProgressLoadingActivity extends BaseActivity {
 
     private void loadPic() {
         LogUtil.d("ProgressLoadingActivity", "loadPic");
-        String url = "http://img1.guiquan.miaotu.net/2017-06-23/7fd2b2b7582af48acdb6d23192bde46d.jpg";
+        String url = "http://o9xuvf3m3.bkt.clouddn.com/new_york.jpg";
         ProgressModelLoader loader = new ProgressModelLoader(new ProgressListener() {
             @Override
             public void progress(long bytesRead, long contentLength, boolean done) {
