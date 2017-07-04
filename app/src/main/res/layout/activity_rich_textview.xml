@@ -19,7 +19,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextView
+    <app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextView0
         android:id="@+id/rtv_0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
         app:prefix_text_color="@android:color/background_dark"
         app:prefix_text_padding="5dp"/>
 
-    <app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextView
+    <app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextView0
         android:id="@+id/rtv_1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -53,5 +53,11 @@
         app:prefix_textSize="12sp"
         app:prefix_text_color="@android:color/white"
         app:prefix_text_padding="5dp"/>
+
+    <app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextView
+        android:id="@+id/tv_html"
+        android:layout_width="match_parent"
+        android:textSize="14sp"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

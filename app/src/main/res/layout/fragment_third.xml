@@ -15,7 +15,7 @@
         android:text="richtextview"
         android:textSize="20sp"/>
 
-    <app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextView
+    <app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextView0
         android:id="@+id/rtv_0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

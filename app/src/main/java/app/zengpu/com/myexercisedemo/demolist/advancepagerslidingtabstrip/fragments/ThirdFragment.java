@@ -9,14 +9,14 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import app.zengpu.com.myexercisedemo.R;
-import app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextView;
+import app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextView0;
 
 
 /**
  * Created by linhonghong on 2015/8/11.
  */
 public class ThirdFragment extends Fragment {
-    RichTextView rtv_0;
+    RichTextView0 rtv_0;
 
     public static ThirdFragment instance() {
         ThirdFragment view = new ThirdFragment();
@@ -38,8 +38,8 @@ public class ThirdFragment extends Fragment {
 
 
     private void initRichTextview() {
-        rtv_0 = (RichTextView) getView().findViewById(R.id.rtv_0);
-        rtv_0.setOnPrefixClickListener(new RichTextView.OnPrefixClickListener() {
+        rtv_0 = (RichTextView0) getView().findViewById(R.id.rtv_0);
+        rtv_0.setOnPrefixClickListener(new RichTextView0.OnPrefixClickListener() {
             @Override
             public void onPrefixClick(View v, String text) {
                 Toast.makeText(getContext(), "点击了前缀区域", Toast.LENGTH_SHORT).show();
