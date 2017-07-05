@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
 
     <android.support.design.widget.AppBarLayout
@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="45dp"
             app:title="RichTextView"
-            app:titleTextColor="#ffffff"/>
+            app:titleTextColor="#ffffff" />
 
     </android.support.design.widget.AppBarLayout>
 
@@ -35,7 +35,7 @@
         app:prefix_padding="5dp"
         app:prefix_textSize="14sp"
         app:prefix_text_color="@android:color/background_dark"
-        app:prefix_text_padding="5dp"/>
+        app:prefix_text_padding="5dp" />
 
     <app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextView0
         android:id="@+id/rtv_1"
@@ -52,12 +52,41 @@
         app:prefix_padding="5dp"
         app:prefix_textSize="12sp"
         app:prefix_text_color="@android:color/white"
-        app:prefix_text_padding="5dp"/>
+        app:prefix_text_padding="5dp" />
 
     <app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextView
         android:id="@+id/tv_html"
         android:layout_width="match_parent"
-        android:textSize="14sp"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textSize="14sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_add_prefix"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:text="prefix" />
+
+        <EditText
+            android:id="@+id/et_prefix"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <app.zengpu.com.myexercisedemo.demolist.rich_textview.PrefixEditText
+            android:id="@+id/pet_text"
+            android:layout_width="match_parent"
+            android:maxLength="15"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tv_left_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
 </LinearLayout>

@@ -1,15 +1,10 @@
 package app.zengpu.com.myexercisedemo.demolist.rich_textview;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Html;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.TextPaint;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.text.style.URLSpan;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,12 +22,18 @@ public class RichTextViewActivity extends BaseActivity {
     RichTextView0 rtv_0;
     private RichTextView tv_html;
 
+    private Button btn_add_prefix;
+    private EditText et_prefix;
+    private PrefixEditText pet_text;
+    private TextView tv_left_count;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rich_textview);
 
         initRichTextview();
+        initPrefixEdittext();
     }
 
     private void initRichTextview() {
@@ -64,37 +65,20 @@ public class RichTextViewActivity extends BaseActivity {
                 DSLFullscreenActivity.actionStart(RichTextViewActivity.this);
             }
         });
-//        SpannableStringBuilder builder = new SpannableStringBuilder(charSequence);
-//        URLSpan[] urls = builder.getSpans(0, charSequence.length(), URLSpan.class);
-//        for (final URLSpan span : urls) {
-//            final int start = builder.getSpanStart(span);
-//            final int end = builder.getSpanEnd(span);
-//            int flag = builder.getSpanFlags(span);
-//            final String link = span.getURL();
-//            String des = span.toString();
-//
-//
-//            builder.setSpan(new ClickableSpan() {
-//                @Override
-//                public void onClick(View widget) {
-//                    LogUtil.d("RichTextViewActivity", "url " + link + " start " + start + " end " + end);
-//                    widget.postInvalidate();
-//                    DSLFullscreenActivity.actionStart(RichTextViewActivity.this);
-//                }
-//
-//                @Override
-//                public void updateDrawState(TextPaint ds) {
-//                    super.updateDrawState(ds);
-//                    ds.setColor(Color.parseColor("#f26d85"));
-//
-//                    ds.setUnderlineText(false);
-//                }
-//            }, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//            builder.removeSpan(span);
-//        }
-//
-//        tv_html.setLinksClickable(true);
-//        tv_html.setMovementMethod(LinkMovementMethod.getInstance());
-//        tv_html.setText(builder);
+    }
+
+    private void initPrefixEdittext() {
+        btn_add_prefix = (Button) findViewById(R.id.btn_add_prefix);
+        et_prefix = (EditText) findViewById(R.id.et_prefix);
+        pet_text = (PrefixEditText) findViewById(R.id.pet_text);
+        tv_left_count = (TextView) findViewById(R.id.tv_left_count);
+        pet_text.setLeftTextCountView(tv_left_count);
+
+        btn_add_prefix.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pet_text.addPrefixText(et_prefix.getText().toString());
+            }
+        });
     }
 }
