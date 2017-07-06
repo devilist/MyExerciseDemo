@@ -79,7 +79,7 @@
         <app.zengpu.com.myexercisedemo.demolist.rich_textview.PrefixEditText
             android:id="@+id/pet_text"
             android:layout_width="match_parent"
-            android:maxLength="15"
+            android:maxLength="50"
             android:layout_height="wrap_content" />
 
         <TextView

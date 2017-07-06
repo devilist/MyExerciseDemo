@@ -3,6 +3,7 @@ package app.zengpu.com.myexercisedemo.demolist.rich_textview;
 import android.content.Context;
 import android.text.Editable;
 import android.text.Html;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -22,16 +23,21 @@ import java.util.regex.Pattern;
  */
 public class PrefixEditText extends EditText implements TextWatcher {
 
-    private String mCurrentPrefixText = "";      // all the current prefix text
+    private static final String ATTRIBUTE_SPACE = "http://schemas.android.com/apk/res/android";
+
     private String mLastPrefixText = "";         // all the prefix text before the latest text changed
+    private String mCurrentPrefixText = "";      // all the current prefix text
     private String mPrefixSeparateChar = "#";    // char separator surrounding the prefix item text
     private String mPrefixTextColor = "#f26d85"; // prefix item text color
     private int mMaxPrefixCount = 3;             // max count of prefix item text
     private List<String> mCurrentPrefixItems = new ArrayList<>();
 
-    private String mContentText = "";   // content text without the prefix text
+    private String mContentText = "";   // content text without the prefix
     private int mLastTextLength = 0;
+
     private int mMaxLength = -1;
+    // the text max length whether exclude the prefix length, default is true
+    private boolean isMaxLengthExcludePrefix = true;
     private TextView mLeftTextCountView;
 
     public PrefixEditText(Context context) {
@@ -40,12 +46,12 @@ public class PrefixEditText extends EditText implements TextWatcher {
 
     public PrefixEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mMaxLength = attrs.getAttributeIntValue("http://schemas.android.com/apk/res/android", "maxLength", -1);
+        mMaxLength = attrs.getAttributeIntValue(ATTRIBUTE_SPACE, "maxLength", -1);
     }
 
     public PrefixEditText(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mMaxLength = attrs.getAttributeIntValue("http://schemas.android.com/apk/res/android", "maxLength", -1);
+        mMaxLength = attrs.getAttributeIntValue(ATTRIBUTE_SPACE, "maxLength", -1);
     }
 
     @Override
@@ -78,6 +84,23 @@ public class PrefixEditText extends EditText implements TextWatcher {
     }
 
     private void updateText(String prefixText, String contentText) {
+        // update maxLength
+        if (mMaxLength != -1) {
+            if (isMaxLengthExcludePrefix) {
+                // prefix length is excluded from the MaxLength, therefore once the prefix length is changed,
+                // the real total length must be update so that the content text max length is always not changed.
+                int maxLength = mMaxLength + prefixText.length();
+                updateMaxLength(maxLength);
+            } else {
+                updateMaxLength(mMaxLength);
+            }
+            if (null != mLeftTextCountView) {
+                int contentLength = isMaxLengthExcludePrefix ?
+                        contentText.length() : contentText.length() + prefixText.length();
+                mLeftTextCountView.setText(contentLength + "/" + mMaxLength);
+            }
+        }
+        // update text
         String html_str = "<font color =" + mPrefixTextColor + ">" + prefixText + "</font>" + contentText;
         setText(Html.fromHtml(html_str));
     }
@@ -85,7 +108,7 @@ public class PrefixEditText extends EditText implements TextWatcher {
     @Override
     protected void onSelectionChanged(int selStart, int selEnd) {
         super.onSelectionChanged(selStart, selEnd);
-        // current selection's start position must be behind at the PrefixText !
+        // current selection's start position must be behind the PrefixText !
         mCurrentPrefixText = getPrefixText(getText().toString());
         if (!TextUtils.isEmpty(mCurrentPrefixText)) {
             int prefixLength = mCurrentPrefixText.length();
@@ -111,7 +134,7 @@ public class PrefixEditText extends EditText implements TextWatcher {
             return;
         String result = s.toString();
         if (result.length() < mLastTextLength) {
-            // text reduce; delete prefix item text one by one
+            // text reduces; delete prefix item text one by one
             if (getSelectionStart() == 0) {
                 setSelection(Math.min(mCurrentPrefixText.length(), result.length()));
             }
@@ -123,12 +146,13 @@ public class PrefixEditText extends EditText implements TextWatcher {
                     updateText(mCurrentPrefixText, mContentText);
                     mLastPrefixText = mCurrentPrefixText;
                 }
+            } else {
+                mContentText = result.replace(mCurrentPrefixText, "");
             }
-            mContentText = result.replace(mCurrentPrefixText, "");
         } else {
+            // text increases. update current selection start position after a new prefix text is added
             mCurrentPrefixText = getPrefixText(result);
             mContentText = result.replace(mCurrentPrefixText, "");
-            // update current selection start position after a new prefix text is added
             if (!mLastPrefixText.equals(mCurrentPrefixText)) {
                 int increase_length = mCurrentPrefixText.length() - mLastPrefixText.length();
                 if (increase_length > 0) {
@@ -140,7 +164,9 @@ public class PrefixEditText extends EditText implements TextWatcher {
             }
         }
         if (null != mLeftTextCountView && mMaxLength != -1) {
-            mLeftTextCountView.setText(getText().length() + "/" + mMaxLength);
+            int contentLength = isMaxLengthExcludePrefix ?
+                    getText().length() - mCurrentPrefixText.length() : getText().length();
+            mLeftTextCountView.setText(contentLength + "/" + mMaxLength);
         }
     }
 
@@ -170,6 +196,24 @@ public class PrefixEditText extends EditText implements TextWatcher {
             return;
         }
         this.mPrefixTextColor = prefixTextColor;
+    }
+
+    public void setMaxLengthExcludePrefix(boolean maxLengthExcludePrefix) {
+        isMaxLengthExcludePrefix = maxLengthExcludePrefix;
+        updateText(mCurrentPrefixText, mContentText);
+    }
+
+    public void setMaxLength(int maxLength) {
+        if (maxLength <= 0 && maxLength != -1) {
+            Log.w("PrefixEditText", "maxLength must be not less zero !");
+            return;
+        }
+        mMaxLength = maxLength;
+        if (!isMaxLengthExcludePrefix) {
+            if (maxLength < mCurrentPrefixText.length())
+                mCurrentPrefixText = "";
+        }
+        updateText(mCurrentPrefixText, mContentText);
     }
 
     public String getTextWithoutPrefix() {
@@ -210,5 +254,11 @@ public class PrefixEditText extends EditText implements TextWatcher {
             currentPrefixItems.add(mPrefixSeparateChar + m.group(1) + mPrefixSeparateChar + " ");
         }
         return currentPrefixItems;
+    }
+
+    private void updateMaxLength(int maxLength) {
+        InputFilter[] FilterArray = new InputFilter[1];
+        FilterArray[0] = new InputFilter.LengthFilter(maxLength);
+        setFilters(FilterArray);
     }
 }
