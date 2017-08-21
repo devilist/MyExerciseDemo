@@ -171,6 +171,11 @@
             android:label="ProgressLoading">
         </activity>
 
+        <activity
+            android:name=".demolist.cardlistview.CardListViewActivity"
+            android:label="ProgressLoading">
+        </activity>
+
     </application>
 
 </manifest>

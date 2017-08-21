@@ -17,6 +17,7 @@ import java.util.List;
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.Utils.CustomAlertDialog;
 import app.zengpu.com.myexercisedemo.demolist.advancepagerslidingtabstrip.activity.ApstActivity;
+import app.zengpu.com.myexercisedemo.demolist.cardlistview.CardListViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.design_support_library.adapter.OneRecyclerViewAdapter;
 import app.zengpu.com.myexercisedemo.demolist.galleryfinaldemo.GalleryFinalActivity;
 import app.zengpu.com.myexercisedemo.demolist.glide_with_progress.ProgressLoadingActivity;
@@ -116,5 +117,6 @@ public class OneFragment extends Fragment {
         list.add(new String[]{"VerticalTextView", VerticalTextViewActivity.class.getName()});
         list.add(new String[]{"RichTextView", RichTextViewActivity.class.getName()});
         list.add(new String[]{"ProgressLoading", ProgressLoadingActivity.class.getName()});
+        list.add(new String[]{"cardlistview", CardListViewActivity.class.getName()});
     }
 }
