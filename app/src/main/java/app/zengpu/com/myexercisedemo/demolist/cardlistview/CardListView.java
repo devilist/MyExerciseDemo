@@ -8,8 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
-import app.zengpu.com.myexercisedemo.Utils.LogUtil;
-
 /**
  * Created by zengp on 2017/8/21.
  */
@@ -17,8 +15,8 @@ import app.zengpu.com.myexercisedemo.Utils.LogUtil;
 public class CardListView extends ViewGroup {
 
     private Context mContext;
-    private int mVisibleCardCount = 3; // the count of cards that can be seen at the top
-    private int mCardOffset = 5; // the x y offset from a card to its next card
+    private int mVisibleCardCount = 5; // the count of cards that can be seen at the top
+    private int mCardOffset = 30; // the x y offset from a card to its next card
 
     private ListAdapter mAdapter;
     private AdapterDataObserver mObserver;
@@ -44,7 +42,7 @@ public class CardListView extends ViewGroup {
     }
 
     public void setCardOffset(int cardOffset) {
-        if (cardOffset < 0) {
+        if (cardOffset <= 0) {
             Log.w("CardListView", "card Offset must be not less than zero !");
         } else
             this.mCardOffset = cardOffset;
@@ -55,6 +53,7 @@ public class CardListView extends ViewGroup {
         if (getChildCount() <= 0)
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         else {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             // contain padding that must be subtracted when size of child views is evaluated
             int widthSize = MeasureSpec.getSize(widthMeasureSpec);
             int heightSize = MeasureSpec.getSize(heightMeasureSpec);
@@ -64,15 +63,20 @@ public class CardListView extends ViewGroup {
             int finalW = widthSize;
             int finalH = heightSize;
 
+            // you must measure all the children
+            for (int i = 0; i < getChildCount(); i++) {
+                measureChild(getChildAt(i), widthMeasureSpec, heightMeasureSpec);
+            }
+
             // child size
             int childW, childH;
             // Here, we only measure the first child view size for the reason that
             // we as default think all the child view sizes are the same;
             View child = getChildAt(0);
-            measureChild(child, widthMeasureSpec, heightMeasureSpec);
-            MarginLayoutParams params = (MarginLayoutParams) child.getLayoutParams();
-            childW = params.width;
-            childH = params.height;
+            childW = child.getLayoutParams().width;
+            childH = child.getLayoutParams().height;
+            Log.w("CardListView", "widthSize " + widthSize + " heightSize " + heightSize);
+            Log.w("CardListView", "childW " + childW + " childH " + childH);
 
             // measure width
             if (widthMode == MeasureSpec.AT_MOST) {
@@ -92,7 +96,8 @@ public class CardListView extends ViewGroup {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         if (getChildCount() > 0) {
             View child = getChildAt(0);
-            MarginLayoutParams params = (MarginLayoutParams) child.getLayoutParams();
+            LayoutParams params = child.getLayoutParams();
+            Log.w("CardListView", "onLayout childW " + params.width + " childH " + params.height);
             // calculate the validate areas that all the visible cards cover.
             // What a flurried moment !!! the follow is the most complicated and soul-stirring algorithm
             // just for myself right now that is no more easy than any others' across the whole world !!!
@@ -101,26 +106,19 @@ public class CardListView extends ViewGroup {
             int childHeightWithTotalOffset = params.height + mCardOffset * (mVisibleCardCount - 1);
             int left = (getMeasuredWidth() - childWidthWithTotalOffset) / 2;
             int top = (getMeasuredHeight() - childHeightWithTotalOffset) / 2;
-            if (getChildCount() <= mVisibleCardCount) {
-                for (int i = getChildCount() - 1; i <= 0; i--) {
-                    View child_i = getChildAt(i);
-                    int left_i = left + mCardOffset * i;
-                    int top_i = top + mCardOffset * (getChildCount() - 1 - i);
-                    child_i.layout(left_i, top_i, left_i + params.width, top_i + params.height);
+
+            for (int i = getChildCount() - 1; i >= 0; i--) {
+                View child_i = getChildAt(i);
+                int left_i, top_i;
+                // what the fuck!!!
+                if (getChildCount() - 1 - i >= mVisibleCardCount - 1) {
+                    left_i = left + mCardOffset * (mVisibleCardCount - 1);
+                    top_i = top;
+                } else {
+                    left_i = left + mCardOffset * (getChildCount() - 1 - i);
+                    top_i = top + mCardOffset * (mVisibleCardCount - 1 - (getChildCount() - 1 - i));
                 }
-            } else {
-                for (int i = getChildCount() - 1; i <= 0; i--) {
-                    View child_i = getChildAt(i);
-                    if (i > mVisibleCardCount - 1) {
-                        child_i.layout(left + mCardOffset * (mVisibleCardCount - 1),
-                                top, left + mCardOffset * (mVisibleCardCount - 1) + params.width,
-                                top + params.height);
-                    } else {
-                        int left_i = left + mCardOffset * i;
-                        int top_i = top + mCardOffset * (getChildCount() - 1 - i);
-                        child_i.layout(left_i, top_i, left_i + params.width, top_i + params.height);
-                    }
-                }
+                child_i.layout(left_i, top_i, left_i + params.width, top_i + params.height);
             }
         }
     }
@@ -139,19 +137,17 @@ public class CardListView extends ViewGroup {
         if (mAdapter != null) {
             mObserver = new AdapterDataObserver();
             mAdapter.registerDataSetObserver(mObserver);
+            mObserver.onChanged();
         }
     }
 
     private void loadView() {
         removeAllViews();
         if (null != mAdapter && mAdapter.getCount() > 0) {
-            LogUtil.d("LabelLayout", "count " + mAdapter.getCount());
-            for (int i = 0; i < mAdapter.getCount(); i++) {
+            // view added at last will be show at top
+            for (int i = mAdapter.getCount() - 1; i >= 0; i--) {
                 View view = mAdapter.getView(i, null, this);
-                MarginLayoutParams params = new MarginLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-                        LayoutParams.WRAP_CONTENT));
-                addView(view, params);
-                invalidate();
+                addView(view);
             }
         }
     }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <!--<app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextView-->
     <!--android:id="@+id/vtv_text_rtl"-->
@@ -23,48 +23,69 @@
     <!--app:underLineWidth="2.5"-->
     <!--app:underlineOffset="3dp"/>-->
 
+    <app.zengpu.com.myexercisedemo.demolist.vertical_textview.SlideCoverView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <HorizontalScrollView
+            android:id="@+id/scroll_rtl"
+            android:layout_width="360dp"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:scrollbarSize="1dp"
+            android:visibility="visible">
+
+            <app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextView
+                android:id="@+id/vtv_text_ltr"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="#FDFBF8"
+                android:gravity="center"
+                android:padding="30dp"
+                android:text="@string/hanzi_text"
+                android:textColor="#808080"
+                android:textSize="16sp"
+                app:charSpacingExtra="2dp"
+                app:lineSpacingExtra="15dp"
+                app:showActionMenu="true"
+                app:textLeftToRight="true"
+                app:underLineColor="#CEAD53"
+                app:underLineText="true"
+                app:underLineWidth="2.5"
+                app:underlineOffset="3dp" />
+
+        </HorizontalScrollView>
+
+        <LinearLayout
+            android:layout_width="360dp"
+            android:layout_height="match_parent"
+            android:background="#44682ba3"
+            android:elevation="100dp"
+            android:gravity="center">
+
+
+            <TextView
+                android:id="@+id/tv_cover"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="cover" />
+
+
+        </LinearLayout>
+
+
+    </app.zengpu.com.myexercisedemo.demolist.vertical_textview.SlideCoverView>
+
 
     <HorizontalScrollView
-        android:id="@+id/scroll_rtl"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginBottom="1px"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
         android:fillViewport="true"
         android:scrollbarSize="1dp"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextView
             android:id="@+id/vtv_text_rtl"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="#FDFBF8"
-            android:gravity="center"
-            android:padding="30dp"
-            android:text="@string/hanzi_text"
-            android:textColor="#808080"
-            android:textSize="16sp"
-            app:charSpacingExtra="2dp"
-            app:lineSpacingExtra="15dp"
-            app:showActionMenu="true"
-            app:textLeftToRight="false"
-            app:underLineColor="#CEAD53"
-            app:underLineText="true"
-            app:underLineWidth="2.5"
-            app:underlineOffset="3dp"/>
-
-    </HorizontalScrollView>
-
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true"
-        android:scrollbarSize="1dp"
-        android:visibility="visible">
-
-        <app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextView
-            android:id="@+id/vtv_text_ltr"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="#FDFBF8"
@@ -77,7 +98,7 @@
             app:textLeftToRight="true"
             app:underLineText="false"
             app:underLineWidth="2.5"
-            app:underlineOffset="3dp"/>
+            app:underlineOffset="3dp" />
 
     </HorizontalScrollView>
 

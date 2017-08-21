@@ -10,6 +10,7 @@ import java.util.List;
 
 import app.zengpu.com.myexercisedemo.BaseActivity;
 import app.zengpu.com.myexercisedemo.R;
+import app.zengpu.com.myexercisedemo.Utils.LogUtil;
 import app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.AppInfo;
 
 /**
@@ -33,8 +34,9 @@ public class CardListViewActivity extends BaseActivity {
 
     private void initView() {
         clv_list = (CardListView) findViewById(R.id.clv_list);
-        adapter = new CardListAdapter(this, appInfolist);
+        adapter = new CardListAdapter(this);
         clv_list.setAdapter(adapter);
+        adapter.addData(appInfolist);
     }
 
     private void initData() {
@@ -49,6 +51,8 @@ public class CardListViewActivity extends BaseActivity {
             int versionCode = packageInfo.versionCode;
             String versionName = packageInfo.versionName;
             String packageName = packageInfo.packageName;
+
+            LogUtil.d("CardListViewActivity", "appName " + appName);
 
             AppInfo appInfo = new AppInfo();
             appInfo.setAppName(appName);
