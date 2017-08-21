@@ -90,7 +90,7 @@ public class CardListView extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (getChildCount() >= 0) {
+        if (getChildCount() > 0) {
             View child = getChildAt(0);
             MarginLayoutParams params = (MarginLayoutParams) child.getLayoutParams();
             // calculate the validate areas that all the visible cards cover.
