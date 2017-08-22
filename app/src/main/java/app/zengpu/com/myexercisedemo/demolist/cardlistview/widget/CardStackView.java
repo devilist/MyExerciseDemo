@@ -1,51 +1,65 @@
-package app.zengpu.com.myexercisedemo.demolist.cardlistview;
+package app.zengpu.com.myexercisedemo.demolist.cardlistview.widget;
 
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewGroupCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListAdapter;
+import android.widget.BaseAdapter;
+
 
 /**
  * Created by zengp on 2017/8/21.
  */
 
-public class CardListView extends ViewGroup {
+public class CardStackView extends ViewGroup {
 
     private Context mContext;
-    private int mVisibleCardCount = 5; // the count of cards that can be seen at the top
-    private int mCardOffset = 30; // the x y offset from a card to its next card
-
-    private ListAdapter mAdapter;
+    private CardAdapter mAdapter;
     private AdapterDataObserver mObserver;
 
-    public CardListView(Context context) {
+    private CardDragHelper mCardDragHelper;
+
+    OnCardDragListener mListener;
+
+    public CardStackView(Context context) {
         this(context, null);
     }
 
-    public CardListView(Context context, AttributeSet attrs) {
+    public CardStackView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public CardListView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CardStackView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mContext = context;
+        mCardDragHelper = new CardDragHelper(this);
     }
 
-    public void setVisibleCardCount(int visibleCardCount) {
-        if (visibleCardCount < 3) {
-            Log.w("CardListView", "visible Cards Count must be not less than three !");
-        } else
-            this.mVisibleCardCount = visibleCardCount;
+    int getCardOffset() {
+        if (mAdapter.getCardOffset() <= 0)
+            throw new IllegalArgumentException("cardOffset must be over zero !!!");
+        return mAdapter.getCardOffset();
     }
 
-    public void setCardOffset(int cardOffset) {
-        if (cardOffset <= 0) {
-            Log.w("CardListView", "card Offset must be not less than zero !");
-        } else
-            this.mCardOffset = cardOffset;
+    int getCardElevation() {
+        if (mAdapter.getCardElevation() < 0)
+            throw new IllegalArgumentException("cardElevation must be over zero !!!");
+        return mAdapter.getCardOffset();
+    }
+
+    int getVisibleCardCount() {
+        int visibleCardCount = mAdapter.getVisibleCardCount();
+        if (visibleCardCount <= 0)
+            throw new IllegalArgumentException("visibleCardCount must be over zero !!!");
+        return mAdapter.getVisibleCardCount();
+    }
+
+    public void setOnCardDragListener(OnCardDragListener listener) {
+        this.mListener = listener;
     }
 
     @Override
@@ -75,18 +89,16 @@ public class CardListView extends ViewGroup {
             View child = getChildAt(0);
             childW = child.getLayoutParams().width;
             childH = child.getLayoutParams().height;
-            Log.w("CardListView", "widthSize " + widthSize + " heightSize " + heightSize);
-            Log.w("CardListView", "childW " + childW + " childH " + childH);
 
             // measure width
             if (widthMode == MeasureSpec.AT_MOST) {
                 // wrap_content
-                finalW = childW + (mVisibleCardCount - 1) * mCardOffset + getPaddingLeft() + getPaddingRight();
+                finalW = childW + (getVisibleCardCount() - 1) * getCardOffset() + getPaddingLeft() + getPaddingRight();
             }
             // measure height
             if (heightMode == MeasureSpec.AT_MOST) {
                 // wrap_content
-                finalH = childH + (mVisibleCardCount - 1) * mCardOffset + getPaddingTop() + getPaddingBottom();
+                finalH = childH + (getVisibleCardCount() - 1) * getCardOffset() + getPaddingTop() + getPaddingBottom();
             }
             setMeasuredDimension(finalW, finalH);
         }
@@ -97,13 +109,12 @@ public class CardListView extends ViewGroup {
         if (getChildCount() > 0) {
             View child = getChildAt(0);
             LayoutParams params = child.getLayoutParams();
-            Log.w("CardListView", "onLayout childW " + params.width + " childH " + params.height);
             // calculate the validate areas that all the visible cards cover.
             // What a flurried moment !!! the follow is the most complicated and soul-stirring algorithm
             // just for myself right now that is no more easy than any others' across the whole world !!!
             // guys who see this code you never know !!!
-            int childWidthWithTotalOffset = params.width + mCardOffset * (mVisibleCardCount - 1);
-            int childHeightWithTotalOffset = params.height + mCardOffset * (mVisibleCardCount - 1);
+            int childWidthWithTotalOffset = params.width + getCardOffset() * (getVisibleCardCount() - 1);
+            int childHeightWithTotalOffset = params.height + getCardOffset() * (getVisibleCardCount() - 1);
             int left = (getMeasuredWidth() - childWidthWithTotalOffset) / 2;
             int top = (getMeasuredHeight() - childHeightWithTotalOffset) / 2;
 
@@ -111,15 +122,18 @@ public class CardListView extends ViewGroup {
                 View child_i = getChildAt(i);
                 int left_i, top_i;
                 // what the fuck!!!
-                if (getChildCount() - 1 - i >= mVisibleCardCount - 1) {
-                    left_i = left + mCardOffset * (mVisibleCardCount - 1);
+                if (getChildCount() - 1 - i > getVisibleCardCount() - 1) {
+                    left_i = left + getCardOffset() * (getVisibleCardCount() - 1);
                     top_i = top;
                 } else {
-                    left_i = left + mCardOffset * (getChildCount() - 1 - i);
-                    top_i = top + mCardOffset * (mVisibleCardCount - 1 - (getChildCount() - 1 - i));
+                    left_i = left + getCardOffset() * (getChildCount() - 1 - i);
+                    top_i = top + getCardOffset() * (getVisibleCardCount() - 1 - (getChildCount() - 1 - i));
+                    // set elevations for all the visible children
+                    ViewCompat.setTranslationZ(child_i, getCardElevation() * (getVisibleCardCount() - (getChildCount() - 1 - i)));
                 }
                 child_i.layout(left_i, top_i, left_i + params.width, top_i + params.height);
             }
+            mCardDragHelper.setTargetDragCard();
         }
     }
 
@@ -128,7 +142,11 @@ public class CardListView extends ViewGroup {
         return new MarginLayoutParams(mContext, attrs);
     }
 
-    public void setAdapter(ListAdapter adapter) {
+    public CardAdapter getAdapter() {
+        return mAdapter;
+    }
+
+    public void setAdapter(CardAdapter adapter) {
         if (null != mObserver && null != mAdapter) {
             mAdapter.unregisterDataSetObserver(mObserver);
         }
@@ -152,11 +170,57 @@ public class CardListView extends ViewGroup {
         }
     }
 
+    protected void dropView() {
+        if (mAdapter.isEnableDataRecycle())
+            mAdapter.recycleData();
+        else
+            mAdapter.delItem(0);
+    }
+
     private class AdapterDataObserver extends DataSetObserver {
         @Override
         public void onChanged() {
             super.onChanged();
             loadView();
         }
+    }
+
+    public static abstract class CardAdapter extends BaseAdapter {
+
+        protected abstract void delItem(int position);
+
+        protected abstract void recycleData();
+
+        // the count of cards that can be seen at the top
+        public int getVisibleCardCount() {
+            return 3;
+        }
+
+        // the x y offset from a card to its next card
+        public int getCardOffset() {
+            return 30;
+        }
+
+        // the x y offset from a card to its next card
+        public int getCardElevation() {
+            return 20;
+        }
+
+        // whether card can rotate when dragged
+        public boolean isEnableRotate() {
+            return true;
+        }
+
+        // whether data can be recycled or del
+        public boolean isEnableDataRecycle() {
+            return true;
+        }
+    }
+
+    public interface OnCardDragListener {
+
+        void onDraggingStateChanged(View view, boolean isDragging, boolean isDropped, float offsetX, float offsetY);
+
+        void onCardDragging(View view, float offsetX, float offsetY);
     }
 }
