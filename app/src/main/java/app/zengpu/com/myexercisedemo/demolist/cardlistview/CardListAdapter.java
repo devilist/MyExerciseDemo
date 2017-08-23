@@ -79,7 +79,7 @@ public class CardListAdapter extends CardStackView.CardAdapter {
 
     @Override
     public boolean isEnableDataRecycle() {
-        return false;
+        return true;
     }
 
     @Override

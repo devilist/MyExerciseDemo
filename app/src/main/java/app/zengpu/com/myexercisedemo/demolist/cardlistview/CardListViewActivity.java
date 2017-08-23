@@ -38,8 +38,8 @@ public class CardListViewActivity extends BaseActivity {
         clv_list = (CardStackView) findViewById(R.id.clv_list);
         adapter = new CardListAdapter(this);
         clv_list.setAdapter(adapter);
-//        adapter.addData(appInfolist.size() > 7 ? appInfolist.subList(0, 7) : appInfolist);
-        adapter.addData(appInfolist);
+        adapter.addData(appInfolist.size() > 7 ? appInfolist.subList(0, 7) : appInfolist);
+//        adapter.addData(appInfolist);
         clv_list.setOnCardDragListener(new CardStackView.OnCardDragListener() {
             @Override
             public void onDraggingStateChanged(View view, boolean isDragging, boolean isDropped, float offsetX, float offsetY) {

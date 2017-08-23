@@ -11,8 +11,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.OvershootInterpolator;
 
-import app.zengpu.com.myexercisedemo.Utils.LogUtil;
-
 
 /**
  * a helper to handle the drag event of the CardStackView's child views;
@@ -65,14 +63,10 @@ class CardDragHelper implements View.OnTouchListener {
         int velocityY = 0;
         // only the last child (holding first data) can be touch
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            LogUtil.d("CardDragHelper", "ACTION_DOWN ");
-            LogUtil.d("CardDragHelper", "mTouchDownX " + mTouchDownX + " mTouchDownY " + mTouchDownY);
             mTouchDownX = event.getRawX();
             mTouchDownY = event.getRawY();
 //            dispatchOnDragEvent(v, false, false, 0, 0);
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            LogUtil.d("CardDragHelper", "ACTION_MOVE ");
-            LogUtil.d("CardDragHelper", "mTouchDownX " + mTouchDownX + " mTouchDownY " + mTouchDownY);
             if (event.getEventTime() - event.getDownTime() >= 100) {
                 dragCard(v, event.getRawX() - mTouchDownX, event.getRawY() - mTouchDownY);
                 dispatchOnDragEvent(v, true, false, event.getRawX() - mTouchDownX, event.getRawY() - mTouchDownY);
