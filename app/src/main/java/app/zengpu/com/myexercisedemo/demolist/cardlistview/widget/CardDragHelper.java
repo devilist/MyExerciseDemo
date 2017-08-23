@@ -27,7 +27,8 @@ class CardDragHelper implements View.OnTouchListener {
     private int mScreenHeight;
     // the dragged border position to differentiate whether the dragged card be drop or reset
     private float mDragThresholdX, mDragThresholdY;
-    private int mVelocityThreshold = 2500;
+    private int mMinVelocityThreshold = 2000;
+    private int mMaxVelocityThreshold = 4500;
 
     private VelocityTracker mVelocityTracker = null;
 
@@ -64,10 +65,14 @@ class CardDragHelper implements View.OnTouchListener {
         int velocityY = 0;
         // only the last child (holding first data) can be touch
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            LogUtil.d("CardDragHelper", "ACTION_DOWN ");
+            LogUtil.d("CardDragHelper", "mTouchDownX " + mTouchDownX + " mTouchDownY " + mTouchDownY);
             mTouchDownX = event.getRawX();
             mTouchDownY = event.getRawY();
 //            dispatchOnDragEvent(v, false, false, 0, 0);
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+            LogUtil.d("CardDragHelper", "ACTION_MOVE ");
+            LogUtil.d("CardDragHelper", "mTouchDownX " + mTouchDownX + " mTouchDownY " + mTouchDownY);
             if (event.getEventTime() - event.getDownTime() >= 100) {
                 dragCard(v, event.getRawX() - mTouchDownX, event.getRawY() - mTouchDownY);
                 dispatchOnDragEvent(v, true, false, event.getRawX() - mTouchDownX, event.getRawY() - mTouchDownY);
@@ -80,7 +85,9 @@ class CardDragHelper implements View.OnTouchListener {
                 velocityY = (int) mVelocityTracker.getYVelocity();
             }
             int velocity = (int) Math.sqrt(velocityX * velocityX + velocityY * velocityY);
-            if (velocity >= 2500 && velocity <= 4000) {
+            if (velocity > mMaxVelocityThreshold && event.getEventTime() - event.getDownTime() < 100) {
+                return true;
+            } else if (velocity >= mMinVelocityThreshold) {
                 releaseCard(v, event.getRawX() - mTouchDownX, event.getRawY() - mTouchDownY, velocity);
                 return true;
             } else if (event.getEventTime() - event.getDownTime() >= 100) {
@@ -94,7 +101,7 @@ class CardDragHelper implements View.OnTouchListener {
 
     // hold the card just dragging as free as you can
     private void dragCard(View card, float offset_x, float offset_y) {
-        LogUtil.d("CardDragHelper", "offset_x " + offset_x + " offset_y " + offset_y);
+//        LogUtil.d("CardDragHelper", "offset_x " + offset_x + " offset_y " + offset_y);
         // trans
         card.setTranslationX(offset_x);
         card.setTranslationY(offset_y);
@@ -102,6 +109,9 @@ class CardDragHelper implements View.OnTouchListener {
         float distance = (float) Math.sqrt(offset_x * offset_x + offset_y * offset_y);
         float maxDistance = (float) Math.sqrt(mScreenWidth * mScreenWidth + mScreenHeight * mScreenHeight);
         float factor = Math.min(1, distance / maxDistance);
+        // tansZ
+        float ori_elevation = mCardStackView.getVisibleCardCount() * mCardStackView.getCardElevation();
+        ViewCompat.setTranslationZ(card, (float) (ori_elevation * (1 + Math.sqrt(factor))));
         //scale
         card.setScaleX(1 - factor);
         card.setScaleY(1 - factor);
@@ -122,7 +132,7 @@ class CardDragHelper implements View.OnTouchListener {
         // check card status to decide next action
         if (Math.abs(offset_x) >= mDragThresholdX
                 || Math.abs(offset_y) >= mDragThresholdY
-                || (velocity >= 2500 && velocity <= 4000)) {
+                || (velocity >= mMinVelocityThreshold && velocity <= mMaxVelocityThreshold)) {
             dropCard(card);
         } else {
             resetDragCard(card);
@@ -143,7 +153,9 @@ class CardDragHelper implements View.OnTouchListener {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float offset = (float) animation.getAnimatedValue();
-                card.setRotation(oriRotateDeg + oriRotateDeg * (1 - offset));
+                card.setTranslationX(4 * oriTransX - 3 * oriTransX * offset);
+                card.setTranslationY(4 * oriTransY - 3 * oriTransY * offset);
+                card.setRotation(3 * oriRotateDeg - 2 * oriRotateDeg * offset);
                 card.setScaleX(oriScaleX * offset);
                 card.setScaleY(oriScaleY * offset);
                 card.setAlpha(oriAlpha * offset);
@@ -157,14 +169,8 @@ class CardDragHelper implements View.OnTouchListener {
             public void onAnimationEnd(Animator animation) {
                 mCardStackView.dropView();
             }
-
-            @Override
-            public void onAnimationStart(Animator animation) {
-                super.onAnimationStart(animation);
-                card.setOnTouchListener(null);
-            }
         });
-        animator.setDuration(200);
+        animator.setDuration(350);
         animator.start();
     }
 
@@ -177,6 +183,9 @@ class CardDragHelper implements View.OnTouchListener {
         final float oriScaleY = card.getScaleY();
         final float oriAlpha = card.getAlpha();
 
+        final float oriTransZ = ViewCompat.getTranslationZ(card);
+        final float targetTransZ = mCardStackView.getVisibleCardCount() * mCardStackView.getCardElevation();
+
         ValueAnimator animator = ValueAnimator.ofFloat(1, 0);
         animator.setInterpolator(new OvershootInterpolator());
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -185,25 +194,13 @@ class CardDragHelper implements View.OnTouchListener {
                 float offset = (float) animation.getAnimatedValue();
                 card.setTranslationX(oriTransX * offset);
                 card.setTranslationY(oriTransY * offset);
+                ViewCompat.setTranslationZ(card, targetTransZ + (oriTransZ - targetTransZ) * offset);
                 card.setRotation(oriRotateDeg * offset);
                 card.setScaleX((oriScaleX - 1) * offset + 1);
                 card.setScaleY((oriScaleY - 1) * offset + 1);
                 card.setAlpha((oriAlpha - 1) * offset + 1);
                 refreshOtherVisibleCardsPosition(oriTransX * offset, oriTransY * offset);
                 dispatchOnDragEvent(card, false, false, oriTransX * offset, oriTransY * offset);
-            }
-        });
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                card.setOnTouchListener(CardDragHelper.this);
-            }
-
-            @Override
-            public void onAnimationStart(Animator animation) {
-                super.onAnimationStart(animation);
-                card.setOnTouchListener(null);
             }
         });
         animator.setDuration(500);
