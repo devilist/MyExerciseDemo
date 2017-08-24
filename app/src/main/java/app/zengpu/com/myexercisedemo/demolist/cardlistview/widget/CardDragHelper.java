@@ -8,6 +8,7 @@ import android.support.v4.view.ViewCompat;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.OvershootInterpolator;
 
@@ -43,7 +44,46 @@ class CardDragHelper implements View.OnTouchListener {
         mDragThresholdY = mScreenHeight / 3;
     }
 
-    void setTargetDragCard() {
+    void onLayoutCards() {
+        // layout all the children as possible as you can
+        onLayoutCards(mCardStackView, mCardStackView.getVisibleCardCount(),
+                mCardStackView.getCardOffset(), mCardStackView.getCardElevation());
+        // set target dragged card
+        setTargetDragCard();
+    }
+
+    private void onLayoutCards(ViewGroup parent, int visibleCardCount, int cardOffset, int cardElevation) {
+        if (parent.getChildCount() > 0) {
+            View child = parent.getChildAt(0);
+            ViewGroup.LayoutParams params = child.getLayoutParams();
+            // calculate the validate areas that all the visible cards cover.
+            // What a flurried moment !!! the follow is the most complicated and soul-stirring algorithm
+            // just for myself right now that is no more easy than any others' across the whole world !!!
+            // guys who see this code you never know !!!
+            int childWidthWithTotalOffset = params.width + cardOffset * (visibleCardCount - 1);
+            int childHeightWithTotalOffset = params.height + cardOffset * (visibleCardCount - 1);
+            int left = (parent.getMeasuredWidth() - childWidthWithTotalOffset) / 2;
+            int top = (parent.getMeasuredHeight() - childHeightWithTotalOffset) / 2;
+
+            for (int i = parent.getChildCount() - 1; i >= 0; i--) {
+                View child_i = parent.getChildAt(i);
+                int left_i, top_i;
+                // what the fuck!!!
+                if (parent.getChildCount() - 1 - i > visibleCardCount - 1) {
+                    left_i = left + cardOffset * (visibleCardCount - 1);
+                    top_i = top;
+                } else {
+                    left_i = left + cardOffset * (parent.getChildCount() - 1 - i);
+                    top_i = top + cardOffset * (visibleCardCount - 1 - (parent.getChildCount() - 1 - i));
+                    // set elevations for all the visible children
+                    ViewCompat.setTranslationZ(child_i, cardElevation * (visibleCardCount - (parent.getChildCount() - 1 - i)));
+                }
+                child_i.layout(left_i, top_i, left_i + params.width, top_i + params.height);
+            }
+        }
+    }
+
+    private void setTargetDragCard() {
         if (mCardStackView.getChildCount() > 0) {
             for (int i = 0; i < mCardStackView.getChildCount(); i++) {
                 // only the last child that hold the first data can be dragged through the whole onTouch event
@@ -147,8 +187,8 @@ class CardDragHelper implements View.OnTouchListener {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float offset = (float) animation.getAnimatedValue();
-                card.setTranslationX(4 * oriTransX - 3 * oriTransX * offset);
-                card.setTranslationY(4 * oriTransY - 3 * oriTransY * offset);
+                card.setTranslationX(3 * oriTransX - 2 * oriTransX * offset);
+                card.setTranslationY(3 * oriTransY - 2 * oriTransY * offset);
                 card.setRotation(3 * oriRotateDeg - 2 * oriRotateDeg * offset);
                 card.setScaleX(oriScaleX * offset);
                 card.setScaleY(oriScaleY * offset);
@@ -164,7 +204,7 @@ class CardDragHelper implements View.OnTouchListener {
                 mCardStackView.dropView();
             }
         });
-        animator.setDuration(350);
+        animator.setDuration(200);
         animator.start();
     }
 

@@ -2,10 +2,7 @@ package app.zengpu.com.myexercisedemo.demolist.cardlistview.widget;
 
 import android.content.Context;
 import android.database.DataSetObserver;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewGroupCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -106,35 +103,36 @@ public class CardStackView extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        if (getChildCount() > 0) {
-            View child = getChildAt(0);
-            LayoutParams params = child.getLayoutParams();
-            // calculate the validate areas that all the visible cards cover.
-            // What a flurried moment !!! the follow is the most complicated and soul-stirring algorithm
-            // just for myself right now that is no more easy than any others' across the whole world !!!
-            // guys who see this code you never know !!!
-            int childWidthWithTotalOffset = params.width + getCardOffset() * (getVisibleCardCount() - 1);
-            int childHeightWithTotalOffset = params.height + getCardOffset() * (getVisibleCardCount() - 1);
-            int left = (getMeasuredWidth() - childWidthWithTotalOffset) / 2;
-            int top = (getMeasuredHeight() - childHeightWithTotalOffset) / 2;
-
-            for (int i = getChildCount() - 1; i >= 0; i--) {
-                View child_i = getChildAt(i);
-                int left_i, top_i;
-                // what the fuck!!!
-                if (getChildCount() - 1 - i > getVisibleCardCount() - 1) {
-                    left_i = left + getCardOffset() * (getVisibleCardCount() - 1);
-                    top_i = top;
-                } else {
-                    left_i = left + getCardOffset() * (getChildCount() - 1 - i);
-                    top_i = top + getCardOffset() * (getVisibleCardCount() - 1 - (getChildCount() - 1 - i));
-                    // set elevations for all the visible children
-                    ViewCompat.setTranslationZ(child_i, getCardElevation() * (getVisibleCardCount() - (getChildCount() - 1 - i)));
-                }
-                child_i.layout(left_i, top_i, left_i + params.width, top_i + params.height);
-            }
-            mCardDragHelper.setTargetDragCard();
-        }
+        mCardDragHelper.onLayoutCards();
+//        if (getChildCount() > 0) {
+//            View child = getChildAt(0);
+//            LayoutParams params = child.getLayoutParams();
+//            // calculate the validate areas that all the visible cards cover.
+//            // What a flurried moment !!! the follow is the most complicated and soul-stirring algorithm
+//            // just for myself right now that is no more easy than any others' across the whole world !!!
+//            // guys who see this code you never know !!!
+//            int childWidthWithTotalOffset = params.width + getCardOffset() * (getVisibleCardCount() - 1);
+//            int childHeightWithTotalOffset = params.height + getCardOffset() * (getVisibleCardCount() - 1);
+//            int left = (getMeasuredWidth() - childWidthWithTotalOffset) / 2;
+//            int top = (getMeasuredHeight() - childHeightWithTotalOffset) / 2;
+//
+//            for (int i = getChildCount() - 1; i >= 0; i--) {
+//                View child_i = getChildAt(i);
+//                int left_i, top_i;
+//                // what the fuck!!!
+//                if (getChildCount() - 1 - i > getVisibleCardCount() - 1) {
+//                    left_i = left + getCardOffset() * (getVisibleCardCount() - 1);
+//                    top_i = top;
+//                } else {
+//                    left_i = left + getCardOffset() * (getChildCount() - 1 - i);
+//                    top_i = top + getCardOffset() * (getVisibleCardCount() - 1 - (getChildCount() - 1 - i));
+//                    // set elevations for all the visible children
+//                    ViewCompat.setTranslationZ(child_i, getCardElevation() * (getVisibleCardCount() - (getChildCount() - 1 - i)));
+//                }
+//                child_i.layout(left_i, top_i, left_i + params.width, top_i + params.height);
+//            }
+//            mCardDragHelper.setTargetDragCard();
+//        }
     }
 
     @Override
