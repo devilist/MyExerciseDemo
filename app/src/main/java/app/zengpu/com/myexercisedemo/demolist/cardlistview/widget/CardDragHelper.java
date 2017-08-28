@@ -204,7 +204,7 @@ class CardDragHelper implements View.OnTouchListener {
                 mCardStackView.dropView();
             }
         });
-        animator.setDuration(200);
+        animator.setDuration(150);
         animator.start();
     }
 

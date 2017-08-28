@@ -49,8 +49,7 @@ public class CardStackView extends ViewGroup {
     }
 
     int getVisibleCardCount() {
-        int visibleCardCount = mAdapter.getVisibleCardCount();
-        if (visibleCardCount <= 0)
+        if (mAdapter.getVisibleCardCount() <= 0)
             throw new IllegalArgumentException("visibleCardCount must be over zero !!!");
         return mAdapter.getVisibleCardCount();
     }
@@ -64,7 +63,6 @@ public class CardStackView extends ViewGroup {
         if (getChildCount() <= 0)
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         else {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             // contain padding that must be subtracted when size of child views is evaluated
             int widthSize = MeasureSpec.getSize(widthMeasureSpec);
             int heightSize = MeasureSpec.getSize(heightMeasureSpec);
