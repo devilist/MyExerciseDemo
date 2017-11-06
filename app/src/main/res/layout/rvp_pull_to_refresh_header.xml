@@ -39,6 +39,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="10dp"
+        android:visibility="gone"
         android:foregroundGravity="center"
         android:indeterminate="true" />
 

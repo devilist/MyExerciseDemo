@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.ProgressBar;
 import android.widget.Scroller;
@@ -50,7 +51,7 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
     /**
      * 手指滑动时的摩擦系数
      */
-    private  float mTouchScrollFrictionFactor = 0.35f;
+    private float mTouchScrollFrictionFactor = 0.55f;
 
     /**
      * 触发刷新加载操作的最小距离
@@ -178,6 +179,15 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
      * 左滑加载是否失败，用于处理失败后footer的隐藏问题
      */
     private boolean isLoadFailure = false;
+    /**
+     * 是否隐藏刷新进度条
+     */
+    private boolean isHiddenRefreshProgress = false;
+
+    /**
+     * 是否隐藏加载更多进度条
+     */
+    private boolean isHiddenLoadProgress = false;
 
     public RefreshRecyclerViewPager(Context context) {
         this(context, null);
@@ -191,14 +201,13 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
         super(context, attrs, defStyleAttr);
 
         // 初始化Scroller对象
-        mScroller = new Scroller(context);
+        mScroller = new Scroller(context, new DecelerateInterpolator(0.5f));
         // 获取屏幕高度
         mScreenWidth = context.getResources().getDisplayMetrics().widthPixels;
         // header 的宽度为屏幕宽度的 1/3
         mHeaderWidth = mScreenWidth / 3;
         mFooterWidth = mScreenWidth / 3;
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
-
         // 初始化整个布局
 //        config = initHeaderAndFooter();
         initLayout(context);
@@ -275,7 +284,8 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
         View child2 = getChildAt(2);
         child0.layout(left, top, left + child0.getMeasuredWidth(), child0.getMeasuredHeight() + top);
         left += child0.getMeasuredWidth();
-        child2.layout(left, top, left + child2.getMeasuredWidth(), child2.getMeasuredHeight() + top);
+        child2.layout(left, (getMeasuredHeight() - child2.getMeasuredHeight()) / 2,
+                left + child2.getMeasuredWidth(), child2.getMeasuredHeight() + (getMeasuredHeight() - child2.getMeasuredHeight()) / 2);
         left += child2.getMeasuredWidth();
         child1.layout(left, top, left + child1.getMeasuredWidth(), child1.getMeasuredHeight() + top);
         // 为mRecyclerView添加滚动监听
@@ -323,9 +333,7 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
      * @return
      */
     protected boolean isLeft() {
-        LinearLayoutManager lm = (LinearLayoutManager) mRecyclerView.getLayoutManager();
-        return lm.findFirstCompletelyVisibleItemPosition() == 0
-                && getScrollX() <= mRefreshHeaderView.getMeasuredWidth();
+        return !mRecyclerView.canScrollHorizontally(-1);
     }
 
     /**
@@ -335,10 +343,7 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
      * @return
      */
     protected boolean isRight() {
-        LinearLayoutManager lm = (LinearLayoutManager) mRecyclerView.getLayoutManager();
-        return mRecyclerView != null && mRecyclerView.getAdapter() != null
-                && lm.findLastCompletelyVisibleItemPosition() ==
-                mRecyclerView.getAdapter().getItemCount() - 1;
+        return !mRecyclerView.canScrollHorizontally(1);
     }
 
     /**
@@ -414,8 +419,12 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
 
                 // 如果拉到了最左侧, 并且是右滑,则拦截触摸事件,从而转到onTouchEvent来处理右滑刷新事件
                 if (isLeft() && mXOffset > 0) {
-                    isScrollToLeft = true;
                     isScrollToRight = false;
+                    if (isCanRefresh) {
+                        isScrollToLeft = true;
+                    } else {
+                        isScrollToLeft = false;
+                    }
                     // 如果RecyclerView没有完全占满屏幕，隐藏footer
                     if (isRecyclerViewCompletelyShow()) {
                         mLoadMoreFooterView.setVisibility(GONE);
@@ -589,7 +598,7 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
         if (curScrollX <= mInitScrollX / 2) {
             mScroller.startScroll(curScrollX, getScrollY(), mRefreshHeaderView.getPaddingLeft() - curScrollX, 0);
             mCurrentStatus = STATUS_REFRESHING;
-            mHeaderProgressBar.setVisibility(View.VISIBLE);
+            mHeaderProgressBar.setVisibility(isHiddenRefreshProgress ? GONE : VISIBLE);
         } else {
             mScroller.startScroll(curScrollX, getScrollY(), mInitScrollX - curScrollX, 0);
             mCurrentStatus = STATUS_IDLE;
@@ -609,7 +618,7 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
             mScroller.startScroll(curScrollX, getScrollY(),
                     mHeaderWidth + mLoadMoreFooterView.getPaddingRight() - curScrollX, 0);
             mCurrentStatus = STATUS_LOADING;
-            mFooterProgressBar.setVisibility(View.VISIBLE);
+            mFooterProgressBar.setVisibility(isHiddenLoadProgress ? GONE : VISIBLE);
         } else {
             mScroller.startScroll(curScrollX, getScrollY(), mHeaderWidth - curScrollX, 0);
             mCurrentStatus = STATUS_IDLE;
@@ -726,7 +735,7 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
 
         scrollTo(mInitScrollX / 2, 0);
         mCurrentStatus = STATUS_REFRESHING;
-        mHeaderProgressBar.setVisibility(View.VISIBLE);
+        mHeaderProgressBar.setVisibility(isHiddenRefreshProgress ? GONE : VISIBLE);
         mHeaderTipsTextView.setVisibility(INVISIBLE);
 
         doRefresh();
@@ -739,7 +748,7 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
 
         scrollTo(mInitScrollX + mFooterWidth / 2, 0);
         mCurrentStatus = STATUS_LOADING;
-        mFooterProgressBar.setVisibility(View.VISIBLE);
+        mFooterProgressBar.setVisibility(isHiddenRefreshProgress ? GONE : VISIBLE);
         mFooterTipsTextView.setVisibility(INVISIBLE);
 
         doLoadMore();
@@ -777,6 +786,13 @@ public class RefreshRecyclerViewPager extends ViewGroup implements AbsListView.O
         this.isCanRefresh = canRefresh;
     }
 
+    public void setHiddenRefreshProgress(boolean hiddenRefreshProgress) {
+        isHiddenRefreshProgress = hiddenRefreshProgress;
+    }
+
+    public void setHiddenLoadProgress(boolean hiddenLoadProgress) {
+        isHiddenLoadProgress = hiddenLoadProgress;
+    }
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {

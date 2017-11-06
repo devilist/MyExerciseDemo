@@ -149,6 +149,11 @@
             android:label="CustomRecyclerViewPager"
             android:theme="@style/AppTheme.NoActionBar.StatusBarTransparent">
         </activity>
+        <activity
+            android:name=".demolist.recyclerViewPager.snap.SnapHelperActivity"
+            android:label="SnapHelperActivity"
+            android:theme="@style/AppTheme.NoActionBar.StatusBarTransparent">
+        </activity>
 
         <activity
             android:name=".demolist.selected_textview.SelectedTextViewActivity"

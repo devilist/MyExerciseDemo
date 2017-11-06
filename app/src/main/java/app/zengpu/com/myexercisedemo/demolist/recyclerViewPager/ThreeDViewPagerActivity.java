@@ -106,7 +106,7 @@ public class ThreeDViewPagerActivity extends AppCompatActivity implements ViewPa
         viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(3);
 
-        viewPager.setPageMargin(-70);
+        viewPager.setPageMargin(-50);
 
         rootRl.setOnTouchListener(new View.OnTouchListener() {
             @Override
