@@ -286,6 +286,13 @@ public class SnakeViewMaker implements View.OnTouchListener {
         mTargetLocation[1] = top;
     }
 
+    public void setVisibility(int visibility) {
+        if (!mChildren.isEmpty()) {
+            for (View child : mChildren)
+                child.setVisibility(visibility);
+        }
+    }
+
     private float getOvershootInterpolation(float tension, float t) {
         t -= 1.0f;
         return t * t * ((tension + 1) * t + tension) + 1.0f;
