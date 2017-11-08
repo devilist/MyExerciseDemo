@@ -16,10 +16,8 @@ import java.util.List;
 
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.Utils.CustomAlertDialog;
-import app.zengpu.com.myexercisedemo.demolist.advancepagerslidingtabstrip.activity.ApstActivity;
 import app.zengpu.com.myexercisedemo.demolist.cardlistview.CardListViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.design_support_library.adapter.OneRecyclerViewAdapter;
-import app.zengpu.com.myexercisedemo.demolist.galleryfinaldemo.GalleryFinalActivity;
 import app.zengpu.com.myexercisedemo.demolist.glide_with_progress.ProgressLoadingActivity;
 import app.zengpu.com.myexercisedemo.demolist.multi_drawer.MultiDrawerActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop0.PhotoLoopActivity;
@@ -30,6 +28,7 @@ import app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.snap.SnapHelperA
 import app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.ThreeDViewPagerActivity;
 import app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.selected_textview.SelectedTextViewActivity;
+import app.zengpu.com.myexercisedemo.demolist.snakeview.SnakeViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.svg_path_anim.SvgAnimActivity;
 import app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.videoRecord.VideoAppendActivity;
@@ -76,41 +75,24 @@ public class OneFragment extends Fragment {
         mAdapter.setOnItemClickListener(new OneRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
+                try {
+                    Class<?> activityClazz = Class.forName(list.get(position)[1]);
+                    Intent intent = new Intent(getContext(), activityClazz);
+                    startActivity(intent);
 
-                if (position == 0) {
-                    new CustomAlertDialog(getContext(),
-                            R.string.dialog_title,
-                            R.string.dialog_message,
-                            null, new CustomAlertDialog.AlertDialogClickListener() {
-                        @Override
-                        public void onResult(boolean confirmed, Bundle bundle) {
-
-                            Toast.makeText(getContext(), String.valueOf(confirmed), Toast.LENGTH_SHORT).show();
-                        }
-                    }, true, R.style.MyAlertDialog).show();
-                } else {
-                    try {
-                        Class<?> activityClazz = Class.forName(list.get(position)[1]);
-                        Intent intent = new Intent(getContext(), activityClazz);
-                        startActivity(intent);
-
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
             }
         });
     }
 
     private void initData() {
-        list.add(new String[]{"CustomAlertDialog", CustomAlertDialog.class.getName()});
         list.add(new String[]{"muti drawer ", MultiDrawerActivity.class.getName()});
         list.add(new String[]{"image loop:ViewPager+Handler", PhotoLoopActivity.class.getName()});
         list.add(new String[]{"image loop:ViewPager+timer", ImageLoopActivity.class.getName()});
         list.add(new String[]{"refresh and load ", RefreshAndLoadActivity.class.getName()});
-        list.add(new String[]{"GalleryFinal", GalleryFinalActivity.class.getName()});
         list.add(new String[]{"video record", VideoAppendActivity.class.getName()});
-        list.add(new String[]{"APST", ApstActivity.class.getName()});
         list.add(new String[]{"RecyclerViewPager", RecyclerViewPagerActivity.class.getName()});
         list.add(new String[]{"ThreeDViewPagerActivity", ThreeDViewPagerActivity.class.getName()});
         list.add(new String[]{"SnapHelperActivity", SnapHelperActivity.class.getName()});
@@ -120,5 +102,6 @@ public class OneFragment extends Fragment {
         list.add(new String[]{"RichTextView", RichTextViewActivity.class.getName()});
         list.add(new String[]{"ProgressLoading", ProgressLoadingActivity.class.getName()});
         list.add(new String[]{"cardlistview", CardListViewActivity.class.getName()});
+        list.add(new String[]{"SnakeView", SnakeViewActivity.class.getName()});
     }
 }

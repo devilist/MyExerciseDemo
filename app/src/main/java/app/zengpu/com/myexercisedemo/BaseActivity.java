@@ -2,20 +2,17 @@ package app.zengpu.com.myexercisedemo;
 
 import android.database.SQLException;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 import java.io.IOException;
 
 import app.zengpu.com.myexercisedemo.Utils.AssetsDataBaseHelper;
 import app.zengpu.com.myexercisedemo.Utils.LogUtil;
-import me.imid.swipebacklayout.lib.SwipeBackLayout;
-import me.imid.swipebacklayout.lib.app.SwipeBackActivity;
 
 /**
  * Created by tao on 2016/8/26.
  */
-public class BaseActivity extends SwipeBackActivity {
-
-    private SwipeBackLayout mSwipeBackLayout;
+public class BaseActivity extends AppCompatActivity {
 
     protected AssetsDataBaseHelper assetsDataBaseHelper;
 
@@ -27,11 +24,6 @@ public class BaseActivity extends SwipeBackActivity {
     }
 
     protected void isSwipeBackEnabled(boolean isSwipeBackEnabled) {
-        if (isSwipeBackEnabled) {
-            mSwipeBackLayout = getSwipeBackLayout();
-            mSwipeBackLayout.setEdgeSize(200);
-            mSwipeBackLayout.setEdgeTrackingEnabled(SwipeBackLayout.EDGE_ALL);
-        }
     }
 
     /**
