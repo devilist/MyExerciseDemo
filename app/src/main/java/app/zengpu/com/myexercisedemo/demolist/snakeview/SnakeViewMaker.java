@@ -37,7 +37,6 @@ import android.widget.LinearLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-import app.zengpu.com.myexercisedemo.Utils.LogUtil;
 
 /**
  * a view wrapper that makes the wrapped view move like a snake when touched and dragged
@@ -277,11 +276,11 @@ public class SnakeViewMaker implements View.OnTouchListener {
                 if (isTranslucentStatus && !isFitSystemWindows)
                     statusBarHeight = 0;
             }
-            LogUtil.d("SnakeViewMaker", "isTranslucentStatus " + isTranslucentStatus);
-            LogUtil.d("SnakeViewMaker", "isFitSystemWindows " + isFitSystemWindows);
+            Log.d("SnakeViewMaker", "isTranslucentStatus " + isTranslucentStatus);
+            Log.d("SnakeViewMaker", "isFitSystemWindows " + isFitSystemWindows);
         }
-        LogUtil.d("SnakeViewMaker", "statusBarHeight " + statusBarHeight);
-        LogUtil.d("SnakeViewMaker", "titleBarHeight " + titleBarHeight);
+        Log.d("SnakeViewMaker", "statusBarHeight " + statusBarHeight);
+        Log.d("SnakeViewMaker", "titleBarHeight " + titleBarHeight);
         mContentTopInWindow = titleBarHeight + statusBarHeight;
         int top = mTargetLocation[1] - mContentTopInWindow;
         mTargetLocation[1] = top;
