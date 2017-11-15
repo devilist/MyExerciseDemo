@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package app.zengpu.com.myexercisedemo.demolist.zoom_imageview;
+package app.zengpu.com.myexercisedemo.demolist.imageview_scale;
 
 import android.os.Bundle;
 
@@ -27,7 +27,7 @@ import app.zengpu.com.myexercisedemo.R;
  * Created by zengp on 2017/11/13.
  */
 
-public class ZoomImageViewActivity extends BaseActivity {
+public class ScaleImageViewActivity extends BaseActivity {
     private ScaleImageView imageView;
 
     @Override

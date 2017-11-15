@@ -146,7 +146,7 @@
             android:name=".demolist.snakeview.SnakeViewActivity"
             android:label="SnakeView"/>
         <activity
-            android:name=".demolist.zoom_imageview.ZoomImageViewActivity"
+            android:name=".demolist.imageview_scale.ScaleImageViewActivity"
             android:label="ZoomImageView"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar.StatusBarTransparent"/>

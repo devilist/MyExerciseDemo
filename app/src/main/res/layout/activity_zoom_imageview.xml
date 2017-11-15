@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <app.zengpu.com.myexercisedemo.demolist.zoom_imageview.ScaleImageView
+    <app.zengpu.com.myexercisedemo.demolist.imageview_scale.ScaleImageView
         android:id="@+id/iv_zoom"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

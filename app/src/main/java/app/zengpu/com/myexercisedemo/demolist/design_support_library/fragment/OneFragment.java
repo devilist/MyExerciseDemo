@@ -9,13 +9,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import app.zengpu.com.myexercisedemo.R;
-import app.zengpu.com.myexercisedemo.Utils.CustomAlertDialog;
 import app.zengpu.com.myexercisedemo.demolist.cardlistview.CardListViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.design_support_library.adapter.OneRecyclerViewAdapter;
 import app.zengpu.com.myexercisedemo.demolist.glide_with_progress.ProgressLoadingActivity;
@@ -32,7 +30,7 @@ import app.zengpu.com.myexercisedemo.demolist.snakeview.SnakeViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.svg_path_anim.SvgAnimActivity;
 import app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.videoRecord.VideoAppendActivity;
-import app.zengpu.com.myexercisedemo.demolist.zoom_imageview.ZoomImageViewActivity;
+import app.zengpu.com.myexercisedemo.demolist.imageview_scale.ScaleImageViewActivity;
 
 
 /**
@@ -104,6 +102,6 @@ public class OneFragment extends Fragment {
         list.add(new String[]{"ProgressLoading", ProgressLoadingActivity.class.getName()});
         list.add(new String[]{"cardlistview", CardListViewActivity.class.getName()});
         list.add(new String[]{"SnakeView", SnakeViewActivity.class.getName()});
-        list.add(new String[]{"ZoomImageView", ZoomImageViewActivity.class.getName()});
+        list.add(new String[]{"ZoomImageView", ScaleImageViewActivity.class.getName()});
     }
 }

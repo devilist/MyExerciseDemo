@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.zengpu.com.myexercisedemo.demolist.zoom_imageview;
+package app.zengpu.com.myexercisedemo.demolist.imageview_scale;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
