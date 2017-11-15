@@ -32,6 +32,7 @@ import app.zengpu.com.myexercisedemo.demolist.snakeview.SnakeViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.svg_path_anim.SvgAnimActivity;
 import app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.videoRecord.VideoAppendActivity;
+import app.zengpu.com.myexercisedemo.demolist.zoom_imageview.ZoomImageViewActivity;
 
 
 /**
@@ -103,5 +104,6 @@ public class OneFragment extends Fragment {
         list.add(new String[]{"ProgressLoading", ProgressLoadingActivity.class.getName()});
         list.add(new String[]{"cardlistview", CardListViewActivity.class.getName()});
         list.add(new String[]{"SnakeView", SnakeViewActivity.class.getName()});
+        list.add(new String[]{"ZoomImageView", ZoomImageViewActivity.class.getName()});
     }
 }

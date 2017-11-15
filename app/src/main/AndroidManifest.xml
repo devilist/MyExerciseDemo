@@ -50,6 +50,7 @@
             android:name=".demolist.design_support_library.activity.DSLMainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -144,6 +145,11 @@
         <activity
             android:name=".demolist.snakeview.SnakeViewActivity"
             android:label="SnakeView"/>
+        <activity
+            android:name=".demolist.zoom_imageview.ZoomImageViewActivity"
+            android:label="ZoomImageView"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar.StatusBarTransparent"/>
 
     </application>
 

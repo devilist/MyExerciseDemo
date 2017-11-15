@@ -16,12 +16,14 @@
 
 package app.zengpu.com.myexercisedemo.demolist.snakeview;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -51,6 +53,8 @@ public class SnakeViewMaker implements View.OnTouchListener {
 
     private int mChildCount = 5;
     private List<ImageView> mChildren = new ArrayList<>();
+    private View mShieldView = null;  // a shield to block the touch, click, or scroll event when snake is going
+    private boolean mShieldEnabled = true;
 
     private int mTargetWidth = 0;
     private int mTargetHeight = 0;
@@ -80,8 +84,8 @@ public class SnakeViewMaker implements View.OnTouchListener {
             this.mAttachViewGroup = attach;
             updateTargetViewCache();
             if (mTargetHeight == 0 || mTargetWidth == 0 || null == mTargetBitmap) {
-                // if it is the first time to attach, the target view may be not finishing the drawing process,
-                // so a listener is needed to observe the view draw finish event
+                // if it is the first time to attach, the target view may be not finished the drawing process,
+                // so a listener is needed to observe the view draw finishing event
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                     mTargetView.getViewTreeObserver().addOnWindowFocusChangeListener(
                             new ViewTreeObserver.OnWindowFocusChangeListener() {
@@ -110,6 +114,18 @@ public class SnakeViewMaker implements View.OnTouchListener {
             } else {
                 attachToRootLayoutInternal();
             }
+
+            // if there is scrolling event, update position
+            mTargetView.getViewTreeObserver().addOnScrollChangedListener(
+                    new ViewTreeObserver.OnScrollChangedListener() {
+                        @Override
+                        public void onScrollChanged() {
+                            if (mTargetHeight > 0 && mTargetWidth > 0
+                                    && null != mTargetBitmap) {
+                                updateChildrenPosition();
+                            }
+                        }
+                    });
         }
     }
 
@@ -123,19 +139,37 @@ public class SnakeViewMaker implements View.OnTouchListener {
             mTargetBitmap = Bitmap.createBitmap(bitmap);
         }
         mTargetView.setDrawingCacheEnabled(false);
-
     }
 
     private void attachToRootLayoutInternal() {
+
+        // remove shield and children
+        if (null != mShieldView) {
+            mAttachViewGroup.removeView(mShieldView);
+        }
         if (!mChildren.isEmpty()) {
             for (View child : mChildren)
                 mAttachViewGroup.removeView(child);
             mChildren.clear();
         }
-        updateTargetViewLocation();
+
+        // add a shield to block the touch, click, or scroll event when snake is going
+        if (null == mShieldView) {
+            mShieldView = new ImageView(mContext);
+            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            mShieldView.setLayoutParams(layoutParams);
+            mShieldView.setBackgroundColor(Resources.getSystem().getColor(android.R.color.transparent));
+            mShieldView.setClickable(true);
+            mShieldView.setFocusableInTouchMode(true);
+        }
+        mAttachViewGroup.addView(mShieldView);
+        mShieldView.setVisibility(View.GONE);
+
         // add child
+        updateTargetViewLocation();
         for (int i = 0; i < mChildCount; i++) {
-            ImageView child_i = new ImageView(mTargetView.getContext());
+            ImageView child_i = new ImageView(mContext);
             mAttachViewGroup.addView(child_i);
             child_i.getLayoutParams().width = mTargetWidth;
             child_i.getLayoutParams().height = mTargetHeight;
@@ -145,7 +179,6 @@ public class SnakeViewMaker implements View.OnTouchListener {
             child_i.setTranslationY(mTargetLocation[1]);
             float alpha = i == mChildCount - 1 ? 1f : 0.5f / mChildCount * (i + 1);
             child_i.setAlpha(alpha);
-            ViewCompat.setTranslationZ(child_i, 20 * i);
             mChildren.add(child_i);
             if (i == mChildCount - 1) {
                 child_i.setOnTouchListener(this);
@@ -161,9 +194,29 @@ public class SnakeViewMaker implements View.OnTouchListener {
         mTargetView.setVisibility(View.INVISIBLE);
     }
 
+    private void updateChildrenPosition() {
+        updateTargetViewLocation();
+        for (View child : mChildren) {
+            child.setTranslationX(mTargetLocation[0]);
+            child.setTranslationY(mTargetLocation[1]);
+            child.requestLayout();
+        }
+    }
+
+    public void updateSnakeImage() {
+        updateTargetViewCache();
+        for (ImageView child : mChildren) {
+            child.setImageBitmap(mTargetBitmap);
+            child.invalidate();
+        }
+    }
+
     public void detachSnake() {
         mTargetView.setVisibility(View.VISIBLE);
         if (null != mAttachViewGroup) {
+            if (null != mShieldView) {
+                mAttachViewGroup.removeView(mShieldView);
+            }
             for (View child : mChildren)
                 mAttachViewGroup.removeView(child);
             mChildren.clear();
@@ -179,11 +232,8 @@ public class SnakeViewMaker implements View.OnTouchListener {
         int velocityX = 0;
         int velocityY = 0;
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            mChildren.get(mChildCount - 1).setFocusable(true);
-            mChildren.get(mChildCount - 1).setFocusableInTouchMode(true);
-            mChildren.get(mChildCount - 1).requestFocus();
-            mChildren.get(mChildCount - 1).requestFocusFromTouch();
             updateTargetViewLocation();
+            mShieldView.setVisibility(mShieldEnabled ? View.VISIBLE : View.GONE);
         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
             if (event.getEventTime() - event.getDownTime() >= 100) {
                 float accX = 0;
@@ -204,11 +254,13 @@ public class SnakeViewMaker implements View.OnTouchListener {
 
         } else if (event.getAction() == MotionEvent.ACTION_UP) {
             mChildren.get(mChildCount - 1).setClickable(true);
-            releaseView();
             if (event.getEventTime() - event.getDownTime() < 100) {
+                mShieldView.setVisibility(View.GONE);
                 return false;
-            } else
+            } else {
+                releaseView();
                 return true;
+            }
         }
         return false;
     }
@@ -252,6 +304,13 @@ public class SnakeViewMaker implements View.OnTouchListener {
                 }
             }, delay);
         }
+        mChildren.get(0).animate().setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                // when all animators finish, release the shield view
+                mShieldView.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void updateTargetViewLocation() {
@@ -263,33 +322,44 @@ public class SnakeViewMaker implements View.OnTouchListener {
             Activity activity = (Activity) mContext;
             ViewGroup content = activity.findViewById(android.R.id.content);
             titleBarHeight = content.getTop();
-            // statusbar height
-            // compat
-            boolean isTranslucentStatus = false;
-            boolean isFitSystemWindows = true;
+            // statusBar height compat
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 WindowManager.LayoutParams params = activity.getWindow().getAttributes();
-                isTranslucentStatus = (params.flags & WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS) != 0;
+                boolean isTranslucentStatus = (params.flags & WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS) != 0;
+                boolean isFitSystemWindows = true;
                 if (null != content.getChildAt(0))
                     isFitSystemWindows = content.getChildAt(0).getFitsSystemWindows();
 
                 if (isTranslucentStatus && !isFitSystemWindows)
                     statusBarHeight = 0;
             }
-            Log.d("SnakeViewMaker", "isTranslucentStatus " + isTranslucentStatus);
-            Log.d("SnakeViewMaker", "isFitSystemWindows " + isFitSystemWindows);
         }
-        Log.d("SnakeViewMaker", "statusBarHeight " + statusBarHeight);
-        Log.d("SnakeViewMaker", "titleBarHeight " + titleBarHeight);
         mContentTopInWindow = titleBarHeight + statusBarHeight;
         int top = mTargetLocation[1] - mContentTopInWindow;
         mTargetLocation[1] = top;
+    }
+
+    public SnakeViewMaker interceptTouchEvent(boolean intercept) {
+        this.mShieldEnabled = intercept;
+        return this;
     }
 
     public void setVisibility(int visibility) {
         if (!mChildren.isEmpty()) {
             for (View child : mChildren)
                 child.setVisibility(visibility);
+        }
+    }
+
+    public void setClickable(boolean clickable) {
+        if (!mChildren.isEmpty()) {
+            mChildren.get(mChildCount - 1).setClickable(clickable);
+        }
+    }
+
+    public void setEnabled(boolean enabled) {
+        if (!mChildren.isEmpty()) {
+            mChildren.get(mChildCount - 1).setEnabled(enabled);
         }
     }
 
