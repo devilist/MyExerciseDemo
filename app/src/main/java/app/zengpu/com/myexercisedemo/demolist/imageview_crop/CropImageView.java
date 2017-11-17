@@ -26,6 +26,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.graphics.drawable.BitmapDrawable;
@@ -194,7 +195,7 @@ public class CropImageView extends ImageView implements ViewTreeObserver.OnGloba
 
                     @Override
                     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                        if (mIsScaleOrRotateAnimating || getCurrentScale() <= mMinScale)
+                        if (mIsScaleOrRotateAnimating)
                             return true;
                         if (e2.getAction() == MotionEvent.ACTION_MOVE) {
                             if (!mIsTouchScaling) {
@@ -351,26 +352,41 @@ public class CropImageView extends ImageView implements ViewTreeObserver.OnGloba
         int timeCount = 100;
         final float everyDeg = mTotalRotation > 180 ?
                 (360 - mTotalRotation) / timeCount : -mTotalRotation / timeCount;
+        // for trans XY (only when current scale equals midScale)
+        RectF currentBound = getCurrentBoundRectF();
+        final float everyTransX = (getWidth() / 2 - currentBound.centerX()) / timeCount;
+        final float everyTransY = (getHeight() / 2 - currentBound.centerY()) / timeCount;
+
+        final boolean needRotation = mTotalRotation > 0;
+        final boolean needTrans = getCurrentScale() == targetScale && mTotalRotation == 0;
+
         for (int i = 0; i < timeCount; i++) {
             postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    mMatrix.postRotate(everyDeg, getWidth() / 2, getHeight() / 2);
+                    if (needRotation)
+                        mMatrix.postRotate(everyDeg, getWidth() / 2, getHeight() / 2);
+                    if (needTrans) {
+                        mMatrix.postTranslate(everyTransX, everyTransY);
+                    }
                     setImageMatrix(mMatrix);
                 }
             }, duration / timeCount * i);
         }
 
         // for scale
+        final boolean needScale = getCurrentScale() != targetScale;
         ValueAnimator scaleAnimator = ValueAnimator.ofFloat(getCurrentScale(), targetScale);
         scaleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                float currentScale = (float) animation.getAnimatedValue();
-                float currentFactor = currentScale / getCurrentScale();
-                checkBound(true);
-                mMatrix.postScale(currentFactor, currentFactor, scaleCenterX, scaleCenterY);
-                setImageMatrix(mMatrix);
+                if (needScale) {
+                    float currentScale = (float) animation.getAnimatedValue();
+                    float currentFactor = currentScale / getCurrentScale();
+                    checkBound(true);
+                    mMatrix.postScale(currentFactor, currentFactor, scaleCenterX, scaleCenterY);
+                    setImageMatrix(mMatrix);
+                }
             }
         });
         scaleAnimator.addListener(new AnimatorListenerAdapter() {
