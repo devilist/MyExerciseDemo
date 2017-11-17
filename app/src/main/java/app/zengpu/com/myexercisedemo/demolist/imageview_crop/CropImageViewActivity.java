@@ -43,7 +43,8 @@ public class CropImageViewActivity extends BaseActivity implements CropImageView
         btn_crop = findViewById(R.id.btn_crop);
         imageView = findViewById(R.id.iv_crop);
 
-        String url = "http://img1.guiquan.miaotu.net/2016-07-07/c5aa826edc5d35d8c231f6bd074371ca.jpg";
+//        String url = "http://img1.guiquan.miaotu.net/2016-07-07/c5aa826edc5d35d8c231f6bd074371ca.jpg";
+        String url = "http://o9xuvf3m3.bkt.clouddn.com/new_york.jpg";
         Glide.with(this).load(url).asBitmap().into(imageView);
         String externalPath = Environment.getExternalStorageDirectory().getPath() + "/" + getPackageName() + "/";
         imageView.cropOutSize(1000, 1000)

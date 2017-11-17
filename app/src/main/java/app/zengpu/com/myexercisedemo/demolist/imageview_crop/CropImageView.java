@@ -240,7 +240,7 @@ public class CropImageView extends ImageView implements ViewTreeObserver.OnGloba
         // scale by width
         float scale = width * 1f / intrinsicWidth;
         // crop area size
-        mCropSize = Math.min(width, height) * 0.6f;
+        mCropSize = Math.min(width, height) * 0.7f;
         mMinScale = mCropSize * 1f / intrinsicWidth;
         mMidScale = scale;
         mMaxScale = scale * 4;
@@ -476,62 +476,65 @@ public class CropImageView extends ImageView implements ViewTreeObserver.OnGloba
     public void cropToFile() {
         if (!mIsCropFinish) return;
         mIsCropFinish = false;
-        if (null == mCropFileDir || TextUtils.isEmpty(mCropFileDir)) {
-            dispatchCropListener("", "crop failure: invalid file dir", false);
-        } else {
-            File outFile = new File(mCropFileDir);
-            if (!outFile.exists())
-                outFile.mkdir();
-            if (mCropOutWidth <= 0 || mCropOutHeight <= 0) {
-                mCropOutWidth = mCropOutHeight = (int) mCropSize;
-            }
-
-            Bitmap outBitmap = ((BitmapDrawable) getDrawable()).getBitmap();
-            if (null == outBitmap) {
-                dispatchCropListener("", "crop failure: invalid src bitmap", false);
-                return;
-            }
-            // trans,scale rotate
-            Matrix matrix = new Matrix(mMatrix);
-            try {
-                outBitmap = Bitmap.createBitmap(outBitmap, 0, 0, outBitmap.getWidth(),
-                        outBitmap.getHeight(), matrix, true);
-            } catch (Exception e) {
-                dispatchCropListener("", "crop failure: " + e.getMessage(), false);
-                return;
-            }
-            // crop area
-            RectF currentBound = new RectF();
-            currentBound.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
-            matrix.mapRect(currentBound);
-            float focusLeft = (getWidth() - mCropSize) / 2;
-            float focusTop = (getHeight() - mCropSize) / 2;
-            float focusRight = focusLeft + mCropSize;
-            float focusBottom = focusTop + mCropSize;
-            // check bound
-            if (focusLeft >= currentBound.left && focusTop >= currentBound.top
-                    && focusRight <= currentBound.right && focusBottom <= currentBound.bottom) {
-                float cropLeft = focusLeft - currentBound.left;
-                float cropTop = focusTop - currentBound.top;
-                // create crop area image
-                outBitmap = Bitmap.createBitmap(outBitmap, (int) cropLeft, (int) cropTop, (int) mCropSize, (int) mCropSize,
-                        null, true);
+        if (null != getDrawable()) {
+            if (null == mCropFileDir || TextUtils.isEmpty(mCropFileDir)) {
+                dispatchCropListener("", "crop failure: invalid file dir", false);
             } else {
-                // out of bitmap bound
-                Bitmap bitmap = Bitmap.createBitmap((int) mCropSize, (int) mCropSize, Bitmap.Config.ARGB_8888);
-                bitmap.setHasAlpha(true);
-                Canvas canvas = new Canvas(bitmap);
-                float cropLeft = currentBound.left - focusLeft;
-                float cropTop = currentBound.top - focusTop;
-                canvas.drawBitmap(outBitmap, cropLeft, cropTop, new Paint(Paint.ANTI_ALIAS_FLAG));
-                outBitmap = bitmap;
-            }
+                File outFile = new File(mCropFileDir);
+                if (!outFile.exists())
+                    outFile.mkdir();
+                if (mCropOutWidth <= 0 || mCropOutHeight <= 0) {
+                    mCropOutWidth = mCropOutHeight = (int) mCropSize;
+                }
 
-            if (mCropOutWidth != mCropSize || mCropOutHeight != mCropSize) {
-                outBitmap = Bitmap.createScaledBitmap(outBitmap, mCropOutWidth, mCropOutHeight, true);
+                Bitmap outBitmap = ((BitmapDrawable) getDrawable()).getBitmap();
+                if (null == outBitmap) {
+                    dispatchCropListener("", "crop failure: invalid src bitmap", false);
+                    return;
+                }
+                // trans,scale,rotate
+                Matrix matrix = new Matrix(mMatrix);
+                try {
+                    outBitmap = Bitmap.createBitmap(outBitmap, 0, 0, outBitmap.getWidth(),
+                            outBitmap.getHeight(), matrix, true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    dispatchCropListener("", "crop failure: " + e.getMessage(), false);
+                    return;
+                }
+                // crop area
+                RectF currentBound = new RectF();
+                currentBound.set(0, 0, getDrawable().getIntrinsicWidth(), getDrawable().getIntrinsicHeight());
+                matrix.mapRect(currentBound);
+                float focusLeft = (getWidth() - mCropSize) / 2;
+                float focusTop = (getHeight() - mCropSize) / 2;
+                float focusRight = focusLeft + mCropSize;
+                float focusBottom = focusTop + mCropSize;
+                // check bound
+                if (focusLeft >= currentBound.left && focusTop >= currentBound.top
+                        && focusRight <= currentBound.right && focusBottom <= currentBound.bottom) {
+                    float cropLeft = focusLeft - currentBound.left;
+                    float cropTop = focusTop - currentBound.top;
+                    // create crop area image
+                    outBitmap = Bitmap.createBitmap(outBitmap, (int) cropLeft, (int) cropTop, (int) mCropSize, (int) mCropSize,
+                            null, true);
+                } else {
+                    // out of bitmap bound
+                    Bitmap bitmap = Bitmap.createBitmap((int) mCropSize, (int) mCropSize, Bitmap.Config.ARGB_8888);
+                    bitmap.setHasAlpha(true);
+                    Canvas canvas = new Canvas(bitmap);
+                    float cropLeft = currentBound.left - focusLeft;
+                    float cropTop = currentBound.top - focusTop;
+                    canvas.drawBitmap(outBitmap, cropLeft, cropTop, new Paint(Paint.ANTI_ALIAS_FLAG));
+                    outBitmap = bitmap;
+                }
+
+                if (mCropOutWidth != mCropSize || mCropOutHeight != mCropSize) {
+                    outBitmap = Bitmap.createScaledBitmap(outBitmap, mCropOutWidth, mCropOutHeight, true);
+                }
+                // save crop bitmap
+                saveBitmapToFile(outBitmap);
             }
-            // save crop bitmap
-            saveBitmapToFile(outBitmap);
         }
     }
 
