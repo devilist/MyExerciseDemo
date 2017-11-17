@@ -352,6 +352,7 @@ public class CropImageView extends ImageView implements ViewTreeObserver.OnGloba
         int timeCount = 100;
         final float everyDeg = mTotalRotation > 180 ?
                 (360 - mTotalRotation) / timeCount : -mTotalRotation / timeCount;
+
         // for trans XY (only when current scale equals midScale)
         RectF currentBound = getCurrentBoundRectF();
         final float everyTransX = (getWidth() / 2 - currentBound.centerX()) / timeCount;
