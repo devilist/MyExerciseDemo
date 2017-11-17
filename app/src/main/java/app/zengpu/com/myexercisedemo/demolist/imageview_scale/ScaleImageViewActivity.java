@@ -33,7 +33,7 @@ public class ScaleImageViewActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_zoom_imageview);
+        setContentView(R.layout.activity_imageview_scale);
 
         imageView = findViewById(R.id.iv_zoom);
 
