@@ -26,7 +26,6 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.graphics.drawable.BitmapDrawable;
@@ -36,7 +35,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.GestureDetectorCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -175,7 +173,7 @@ public class CropImageView extends ImageView implements ViewTreeObserver.OnGloba
     }
 
     private void init() {
-        setBackgroundColor(Resources.getSystem().getColor(android.R.color.black));
+        setBackgroundColor(0xff202020);
         setScaleType(ScaleType.MATRIX);
         mMatrix = new Matrix();
         mDistanceDown = new Distance();
@@ -491,6 +489,7 @@ public class CropImageView extends ImageView implements ViewTreeObserver.OnGloba
     }
 
     public void cropToFile() {
+        if (mIsScaleOrRotateAnimating) return;
         if (!mIsCropFinish) return;
         mIsCropFinish = false;
         if (null != getDrawable()) {
@@ -586,7 +585,7 @@ public class CropImageView extends ImageView implements ViewTreeObserver.OnGloba
 
     private void drawCropBorder(Canvas canvas) {
         int cropBorderColor = 0xffffffff;
-        int shieldColor = 0xbb000000;
+        int shieldColor = 0xee202020;
         Path focusPath = new Path();
         float focusLeft = (getWidth() - mCropSize) / 2;
         float focusTop = (getHeight() - mCropSize) / 2;
@@ -600,7 +599,7 @@ public class CropImageView extends ImageView implements ViewTreeObserver.OnGloba
         Paint mBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mBorderPaint.setColor(cropBorderColor);
         mBorderPaint.setStyle(Paint.Style.STROKE);
-        mBorderPaint.setStrokeWidth(1);
+        mBorderPaint.setStrokeWidth(0.5f);
         mBorderPaint.setAntiAlias(true);
         canvas.drawPath(focusPath, mBorderPaint);
     }

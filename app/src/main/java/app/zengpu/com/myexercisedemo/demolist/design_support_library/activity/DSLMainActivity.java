@@ -82,8 +82,8 @@ public class DSLMainActivity extends AppCompatActivity implements NavigationView
 
     private void setupViewpagerAndTab(ViewPager viewPager) {
         DSLMainPagerAdapter pagerAdapter = new DSLMainPagerAdapter(getSupportFragmentManager());
-        pagerAdapter.addFragment(new TwoFragment(),"二");
         pagerAdapter.addFragment(new OneFragment(),"一");
+        pagerAdapter.addFragment(new TwoFragment(),"二");
         pagerAdapter.addFragment(new ThreeFragment(),"三");
         viewPager.setAdapter(pagerAdapter);
         viewPager.setCurrentItem(0);
