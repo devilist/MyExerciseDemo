@@ -576,11 +576,15 @@ public class CropImageView extends ImageView implements ViewTreeObserver.OnGloba
         }).start();
     }
 
-    private void dispatchCropListener(String filePath, String message, boolean isCropSuccess) {
-        if (null != mImageCropListener) {
-            mImageCropListener.onCropResult(filePath, message, isCropSuccess);
-        }
-        mIsCropFinish = true;
+    private void dispatchCropListener(final String filePath, final String message, final boolean isCropSuccess) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                if (null != mImageCropListener)
+                    mImageCropListener.onCropResult(filePath, message, isCropSuccess);
+                mIsCropFinish = true;
+            }
+        });
     }
 
     private void drawCropBorder(Canvas canvas) {
