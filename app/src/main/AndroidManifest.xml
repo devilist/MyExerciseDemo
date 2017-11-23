@@ -144,16 +144,20 @@
             android:label="CardListView" />
         <activity
             android:name=".demolist.snakeview.SnakeViewActivity"
-            android:label="SnakeView"/>
+            android:label="SnakeView" />
         <activity
             android:name=".demolist.imageview_scale.ScaleImageViewActivity"
             android:label="ScaleImageView"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar.StatusBarTransparent"/>
+            android:theme="@style/AppTheme.NoActionBar.StatusBarTransparent" />
         <activity
             android:name=".demolist.imageview_crop.CropImageViewActivity"
             android:label="CropImageView"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".demolist.wheel_picker.WheelPickerActivity"
+            android:label="WheelPicker"
+            android:screenOrientation="portrait" />
 
     </application>
 
