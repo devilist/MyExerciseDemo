@@ -18,57 +18,61 @@ package app.zengpu.com.myexercisedemo.demolist.wheel_picker;
 
 import android.os.Bundle;
 import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.TextView;
 
 import app.zengpu.com.myexercisedemo.BaseActivity;
 import app.zengpu.com.myexercisedemo.R;
+import app.zengpu.com.myexercisedemo.demolist.wheel_picker.dialog.WheelPicker;
 
 /**
  * Created by zengp on 2017/11/22.
  */
 
-public class WheelPickerActivity extends BaseActivity {
+public class WheelPickerActivity extends BaseActivity implements View.OnClickListener {
 
-    private RecyclerWheelPicker rv_list1, rv_list2, rv_list3;
+    private TextView tv_double, tv_triple;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wheel_picker);
 
-        initView();
+        tv_double = findViewById(R.id.tv_double);
+        tv_triple = findViewById(R.id.tv_triple);
+
+        tv_double.setOnClickListener(this);
+        tv_triple.setOnClickListener(this);
+
     }
 
-    private void initView() {
-        final List<String> list1 = new ArrayList();
-        for (int i = 1917; i < 2018; i++)
-            list1.add(i + "");
-        final List<String> list2 = new ArrayList();
-        for (int i = 0; i < 13; i++)
-            list2.add(i + "");
-        final List<String> list3 = new ArrayList();
-        for (int i = 1; i < 32; i++)
-            list3.add(i + "");
-        rv_list1 = findViewById(R.id.rv_list1);
-        rv_list2 = findViewById(R.id.rv_list2);
-        rv_list3 = findViewById(R.id.rv_list3);
 
-        rv_list1.setUnit("年");
-        rv_list2.setUnit("月");
-        rv_list3.setUnit("日");
-        rv_list1.setData(list1);
-        rv_list2.setData(list2);
-        rv_list3.setData(list3);
-
-        rv_list1.setOnWheelScrollListener(new RecyclerWheelPicker.OnWheelScrollListener() {
-            @Override
-            public void onWheelScrollChanged(boolean isScrolling, int position, String data) {
-                Log.d("RecyclerWheelPicker", "isScrolling " + isScrolling + " position " + position + " data " + data);
-                rv_list2.setScrollEnabled(!isScrolling);
-                rv_list3.setScrollEnabled(!isScrolling);
-            }
-        });
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.tv_triple:
+                TripleWheelPicker.instance()
+                        .setGravity(Gravity.BOTTOM)
+                        .setPickerListener(new WheelPicker.OnPickerListener() {
+                            @Override
+                            public void onPickResult(String pick1, String pick2, String pick3) {
+                                Log.d("RecyclerWheelPicker", "result " + pick1 + "-" + pick2 + "-" + pick3);
+                            }
+                        }).build().show(getSupportFragmentManager());
+                break;
+            case R.id.tv_double:
+                DoubleWheelPicker.instance()
+                        .setGravity(Gravity.BOTTOM)
+                        .setResource(R.raw.picker_location)
+                        .showAllItem(true)
+                        .setPickerListener(new WheelPicker.OnPickerListener() {
+                            @Override
+                            public void onPickResult(String pick1, String pick2, String pick3) {
+                                Log.d("RecyclerWheelPicker", "result " + pick1 + "-" + pick2 + "-" + pick3);
+                            }
+                        }).build().show(getSupportFragmentManager());
+                break;
+        }
     }
 }

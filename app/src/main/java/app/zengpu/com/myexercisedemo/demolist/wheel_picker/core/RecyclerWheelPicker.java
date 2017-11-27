@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package app.zengpu.com.myexercisedemo.demolist.wheel_picker;
+package app.zengpu.com.myexercisedemo.demolist.wheel_picker.core;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -22,6 +22,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearSnapHelper;
@@ -40,6 +42,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import app.zengpu.com.myexercisedemo.R;
+import app.zengpu.com.myexercisedemo.demolist.wheel_picker.bean.Data;
 
 /**
  * Created by zengp on 2017/11/22.
@@ -56,12 +59,18 @@ public class RecyclerWheelPicker extends RecyclerView {
     private TextPaint mUnitTextPaint;
     private Rect mDecorationRect;
 
+    private SoundPool mSoundPool;
+    private int mSoundTrigger = -1;
+    private boolean mPickerSoundEnabled = true;
+
+    private boolean mIsScrolling = false;
+
     private WheelAdapter mAdapter;
-    private WheelPickerLayoutManager layoutManager;
+    private WheelPickerLayoutManager mLayoutManager;
     private OnWheelScrollListener mListener;
 
     public interface OnWheelScrollListener {
-        void onWheelScrollChanged(boolean isScrolling, int position, String data);
+        void onWheelScrollChanged(RecyclerWheelPicker wheelPicker, boolean isScrolling, int position, Data data);
     }
 
     public RecyclerWheelPicker(Context context) {
@@ -81,14 +90,16 @@ public class RecyclerWheelPicker extends RecyclerView {
         mDecorationColor = mTypedArray.getColor(R.styleable.RecyclerWheelPicker_rwp_decorationColor, 0xff333333);
         mTextColor = mTypedArray.getColor(R.styleable.RecyclerWheelPicker_rwp_textColor, Color.BLACK);
         mTextSize = mTypedArray.getDimension(R.styleable.RecyclerWheelPicker_rwp_textSize, 22 * scaledDensity);
-        mUnitColor = mTypedArray.getColor(R.styleable.RecyclerWheelPicker_rwp_textColor, mTextColor);
-        mUnitSize = mTypedArray.getDimension(R.styleable.RecyclerWheelPicker_rwp_textSize, mTextSize);
+        mUnitColor = mTypedArray.getColor(R.styleable.RecyclerWheelPicker_rwp_unitColor, mTextColor);
+        mUnitSize = mTypedArray.getDimension(R.styleable.RecyclerWheelPicker_rwp_unitSize, mTextSize);
         mTypedArray.recycle();
 
         init(context);
     }
 
     private void init(Context context) {
+        initSound();
+
         setOverScrollMode(OVER_SCROLL_NEVER);
 
         mDecorationPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -97,35 +108,44 @@ public class RecyclerWheelPicker extends RecyclerView {
 
         mAdapter = new WheelAdapter(context);
         super.setAdapter(mAdapter);
-        layoutManager = new WheelPickerLayoutManager(this);
-        super.setLayoutManager(layoutManager);
+        mLayoutManager = new WheelPickerLayoutManager(this);
+        super.setLayoutManager(mLayoutManager);
         new LinearSnapHelper().attachToRecyclerView(this);
 
         addOnScrollListener(new OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (null != mListener) {
-                    if (newState == SCROLL_STATE_IDLE) {
-                        int centerPosition = layoutManager.findCenterItemPosition();
-                        if (centerPosition == NO_POSITION)
-                            mListener.onWheelScrollChanged(true, NO_POSITION, "");
-                        else
-                            mListener.onWheelScrollChanged(false, centerPosition, mAdapter.getData(centerPosition));
+                if (newState == SCROLL_STATE_IDLE) {
+                    int centerPosition = mLayoutManager.findCenterItemPosition();
+                    if (centerPosition == NO_POSITION) {
+                        dispatchOnScrollEvent(true, NO_POSITION, null);
                     } else
-                        mListener.onWheelScrollChanged(true, NO_POSITION, "");
-                }
+                        dispatchOnScrollEvent(false, centerPosition, mAdapter.getData(centerPosition));
+                } else
+                    dispatchOnScrollEvent(true, NO_POSITION, null);
             }
 
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (null != mListener) {
-                    if (dx == 0 && dy == 0)
-                        mListener.onWheelScrollChanged(false, 0, mAdapter.getData(0));
-                    else
-                        mListener.onWheelScrollChanged(true, NO_POSITION, "");
+                if (Math.abs(dy) > 1 && mLayoutManager.mItemHeight > 0) {
+                    int currentTrigger = mLayoutManager.mVerticalOffset / mLayoutManager.mItemHeight;
+                    if (!mLayoutManager.mIsOverScroll && currentTrigger != mSoundTrigger) {
+                        playSound();
+                        mSoundTrigger = currentTrigger;
+                    }
                 }
+                if (dx == 0 && dy == 0)
+                    dispatchOnScrollEvent(false, 0, mAdapter.getData(0));
+                else
+                    dispatchOnScrollEvent(true, NO_POSITION, null);
             }
         });
+    }
+
+    private void dispatchOnScrollEvent(boolean isScrolling, int position, Data data) {
+        mIsScrolling = isScrolling;
+        if (null != mListener)
+            mListener.onWheelScrollChanged(RecyclerWheelPicker.this, isScrolling, position, data);
     }
 
     @Override
@@ -140,16 +160,41 @@ public class RecyclerWheelPicker extends RecyclerView {
         this.mUnitText = unitText;
     }
 
-    public void setData(List<String> data) {
-        mAdapter.setData(data, mTextColor, mTextSize);
+    public void setPickerSoundEnabled(boolean enabled) {
+        this.mPickerSoundEnabled = enabled;
     }
 
-    public void setScrollEnabled(boolean scrollEnabled) {
-        this.mScrollEnabled = scrollEnabled;
+    public void setData(List<Data> data) {
+        mAdapter.setData(data, mTextColor, mTextSize);
+        Log.d("setData", " vertical " + mLayoutManager.mVerticalOffset + " isover " + mLayoutManager.mIsOverScroll);
+        mLayoutManager.updateVerticalOffset();
+    }
+
+    public void setScrollEnabled(final boolean scrollEnabled) {
+        if (mScrollEnabled != scrollEnabled) {
+            if (scrollEnabled) {
+                mScrollEnabled = scrollEnabled;
+                smoothScrollBy(0, 1);
+            }
+            if (mLayoutManager.findCenterItemPosition() == -1) {
+                postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mScrollEnabled = scrollEnabled;
+                    }
+                }, 200);
+            } else {
+                mScrollEnabled = scrollEnabled;
+            }
+        }
     }
 
     public boolean isScrollEnabled() {
         return mScrollEnabled;
+    }
+
+    public boolean isScrolling() {
+        return mIsScrolling;
     }
 
     @Override
@@ -249,11 +294,28 @@ public class RecyclerWheelPicker extends RecyclerView {
         return getWidth() - getPaddingLeft() - getPaddingRight();
     }
 
+    private void initSound() {
+        mSoundPool = new SoundPool(10, AudioManager.STREAM_SYSTEM, 5);
+        try {
+            mSoundPool.load(getContext(), R.raw.wheelpickerkeypress, 1);
+        } catch (Exception e) {
+        }
+    }
+
+    public void release() {
+        mSoundPool.release();
+    }
+
+    private void playSound() {
+        try {
+            mSoundPool.play(1, 1, 1, 0, 0, 1);
+        } catch (Exception e) {
+        }
+    }
 
     private class WheelAdapter extends Adapter<ViewHolder> {
-
         Context context;
-        List<String> data;
+        List<Data> data;
         int textColor;
         float textSize;
 
@@ -261,7 +323,7 @@ public class RecyclerWheelPicker extends RecyclerView {
             this.context = context;
         }
 
-        void setData(List<String> data, int textColor, float textSize) {
+        void setData(List<Data> data, int textColor, float textSize) {
             this.data = data;
             this.textColor = textColor;
             this.textSize = textSize;
@@ -271,8 +333,11 @@ public class RecyclerWheelPicker extends RecyclerView {
         @Override
         public WheelHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             TextView textView = new TextView(context);
-            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    (int) (textSize * 1.3f));
+//            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+//                    (int) (textSize * 1.3f));
+            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(getLayoutParams());
+            layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            layoutParams.height = (int) (textSize * 1.3f);
             textView.setLayoutParams(layoutParams);
             textView.setGravity(Gravity.CENTER);
             return new WheelHolder(textView);
@@ -282,15 +347,15 @@ public class RecyclerWheelPicker extends RecyclerView {
         public void onBindViewHolder(ViewHolder holder, int position) {
             if (null != data) {
                 TextView textView = (TextView) holder.itemView;
-                textView.setText(data.get(position));
+                textView.setText(data.get(position).data);
                 textView.setTextColor(textColor);
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
                 textView.setGravity(Gravity.CENTER);
             }
         }
 
-        String getData(int position) {
-            return null == data || position > data.size() - 1 ? "" : data.get(position);
+        Data getData(int position) {
+            return null == data || position > data.size() - 1 ? null : data.get(position);
         }
 
         @Override

@@ -33,7 +33,6 @@ import app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextView
 import app.zengpu.com.myexercisedemo.demolist.videoRecord.VideoAppendActivity;
 import app.zengpu.com.myexercisedemo.demolist.imageview_scale.ScaleImageViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.wheel_picker.WheelPickerActivity;
-import app.zengpu.com.myexercisedemo.demolist.wheel_picker.adapter.WheelPickerAdapter;
 
 
 /**

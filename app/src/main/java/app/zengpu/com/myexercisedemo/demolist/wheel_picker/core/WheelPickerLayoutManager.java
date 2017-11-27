@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package app.zengpu.com.myexercisedemo.demolist.wheel_picker;
+package app.zengpu.com.myexercisedemo.demolist.wheel_picker.core;
 
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -25,6 +25,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.view.View;
+import android.view.ViewGroup;
 
 
 /**
@@ -34,9 +35,10 @@ import android.view.View;
 class WheelPickerLayoutManager extends LinearLayoutManager {
 
     private RecyclerWheelPicker mRecyclerView;
-    private int mVerticalOffset = 0; // offset in vertical orientation when scrolling
-    private int mItemHeight = 0;
+    int mVerticalOffset = 0; // offset in vertical orientation when scrolling
+    int mItemHeight = 1;
     private int mMaxOverScrollOffset = 0;
+    boolean mIsOverScroll = false; // whether no item cross the center
     private SparseArray<Rect> mItemAreas; // record all visible child display area
     private final float MILLISECONDS_PER_INCH = 50f; // scroll speed
 
@@ -49,6 +51,12 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
     @Override
     public void setOrientation(int orientation) {
         super.setOrientation(VERTICAL);
+    }
+
+    @Override
+    public RecyclerView.LayoutParams generateDefaultLayoutParams() {
+        return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
     }
 
     @Override
@@ -129,16 +137,23 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
     public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
         // scrap all attached views and re-layout by scrolling distance
         detachAndScrapAttachedViews(recycler);
+        mIsOverScroll = false;
         // scroll to top bound ; dy < 0; mVerticalOffset < 0
-        if (dy < 0 && mVerticalOffset + dy <= -mMaxOverScrollOffset) {
-            dy = 5;
-            int offset = -(mVerticalOffset + mMaxOverScrollOffset);
-            if (getChildCount() == 0) dy += offset;
+        if (dy < 0) {
+            if (mVerticalOffset + dy <= -mItemHeight)
+                mIsOverScroll = true;
+            if (mVerticalOffset + dy <= -mMaxOverScrollOffset) {
+                dy = 5;
+                int offset = -(mVerticalOffset + mMaxOverScrollOffset);
+                if (getChildCount() == 0) dy += offset;
+            }
         }
         // scroll to bottom bound ; dy > 0; mVerticalOffset > 0
         if (dy > 0) {
             int totalItemCount = mRecyclerView.getAdapter().getItemCount();
             int verticalOffset = mVerticalOffset - (totalItemCount - 1) * mItemHeight;
+            if (verticalOffset + dy >= 0)
+                mIsOverScroll = true;
             if (dy > 0 && verticalOffset + dy >= mMaxOverScrollOffset) {
                 dy = -5;
                 int offset = -(verticalOffset - mMaxOverScrollOffset);
@@ -148,8 +163,15 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
         offsetChildrenVertical(-dy);
         fillView(recycler, state);
         mVerticalOffset += dy;
-
         return dy;
+    }
+
+    void updateVerticalOffset() {
+        int totalItemCount = mRecyclerView.getAdapter().getItemCount();
+        if (mVerticalOffset > (totalItemCount - 1) * mItemHeight) {
+            mVerticalOffset = (totalItemCount - 1) * mItemHeight;
+        } else if (mVerticalOffset < 0)
+            mVerticalOffset = 0;
     }
 
     int findCenterItemPosition() {
@@ -160,7 +182,9 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
         int last = findLastCompletelyVisibleItemPosition();
         if (first == last) return first;
         for (int i = first; i <= last; i++) {
-            View child = mRecyclerView.findViewHolderForAdapterPosition(i).itemView;
+            RecyclerView.ViewHolder holder = mRecyclerView.findViewHolderForAdapterPosition(i);
+            if (null == holder) continue;
+            View child = holder.itemView;
             if (null == child) continue;
             int centerY = getVerticalSpace() / 2;
             int childCenterY = child.getTop() + child.getHeight() / 2;
