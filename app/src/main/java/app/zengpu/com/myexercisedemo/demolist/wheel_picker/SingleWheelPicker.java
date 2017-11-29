@@ -107,7 +107,6 @@ public class SingleWheelPicker extends WheelPicker {
                 for (int i = 0; i < datas.size(); i++) {
                     if (defValues[0].equals(datas.get(i).data)) {
                         defP1 = i;
-                        pickData1 = datas.get(defP1).data;
                         break;
                     }
                 }

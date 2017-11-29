@@ -45,11 +45,11 @@ import app.zengpu.com.myexercisedemo.demolist.wheel_picker.dialog.WheelPicker;
 public class TripleWheelPicker extends WheelPicker {
 
     private TextView tv_cancel, tv_ok;
-    private RecyclerWheelPicker rv_picker1, rv_picker2, rv_picker3;
-    private String pickData1 = "", pickData2 = "", pickData3 = "";
-    private List<Data> datas = new ArrayList<>();
+    protected RecyclerWheelPicker rv_picker1, rv_picker2, rv_picker3;
+    protected String pickData1 = "", pickData2 = "", pickData3 = "";
+    protected List<Data> datas = new ArrayList<>();
 
-    private TripleWheelPicker(Builder builder) {
+     protected TripleWheelPicker(Builder builder) {
         super(builder);
     }
 

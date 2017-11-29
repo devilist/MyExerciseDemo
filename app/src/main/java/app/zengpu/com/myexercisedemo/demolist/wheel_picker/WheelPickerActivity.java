@@ -26,6 +26,7 @@ import android.widget.Toast;
 import app.zengpu.com.myexercisedemo.BaseActivity;
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.demolist.wheel_picker.dialog.WheelPicker;
+import app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget.DateWheelPicker;
 
 /**
  * Created by zengp on 2017/11/22.
@@ -33,7 +34,7 @@ import app.zengpu.com.myexercisedemo.demolist.wheel_picker.dialog.WheelPicker;
 
 public class WheelPickerActivity extends BaseActivity implements View.OnClickListener {
 
-    private TextView tv_single, tv_double, tv_triple;
+    private TextView tv_single, tv_double, tv_triple, tv_triple_date;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,27 +44,30 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
         tv_single = findViewById(R.id.tv_single);
         tv_double = findViewById(R.id.tv_double);
         tv_triple = findViewById(R.id.tv_triple);
+        tv_triple_date = findViewById(R.id.tv_triple_date);
 
         tv_single.setOnClickListener(this);
         tv_double.setOnClickListener(this);
         tv_triple.setOnClickListener(this);
+        tv_triple_date.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.tv_triple:
-                TripleWheelPicker.instance()
+            case R.id.tv_single:
+                SingleWheelPicker.instance()
                         .setGravity(Gravity.BOTTOM)
                         .setResource(R.raw.picker_location)
-                        .setDefPosition(15, 10)
-                        .showAllItem(true)
+                        .showAllItem(false)
+                        .setDefPosition(15, 5)
+                        .setDefValues("浙江", "杭州")
                         .setPickerListener(new WheelPicker.OnPickerListener() {
                             @Override
                             public void onPickResult(String... result) {
-                                Log.d("RecyclerWheelPicker", "result " + result[0] + "-" + result[1] + "-" + result[2]);
+                                Log.d("RecyclerWheelPicker", "result " + result[0]);
                                 Toast.makeText(WheelPickerActivity.this,
-                                        result[0] + "-" + result[1] + "-" + result[2], Toast.LENGTH_SHORT).show();
+                                        result[0], Toast.LENGTH_SHORT).show();
                             }
                         }).build().show(getSupportFragmentManager());
                 break;
@@ -81,22 +85,37 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
                             }
                         }).build().show(getSupportFragmentManager());
                 break;
-            case R.id.tv_single:
-                SingleWheelPicker.instance()
+            case R.id.tv_triple:
+                TripleWheelPicker.instance()
                         .setGravity(Gravity.BOTTOM)
                         .setResource(R.raw.picker_location)
-                        .showAllItem(false)
-                        .setDefPosition(15, 5)
-                        .setDefValues("浙江", "杭州")
+                        .setDefPosition(15, 10)
+                        .showAllItem(true)
                         .setPickerListener(new WheelPicker.OnPickerListener() {
                             @Override
                             public void onPickResult(String... result) {
-                                Log.d("RecyclerWheelPicker", "result " + result[0]);
+                                Log.d("RecyclerWheelPicker", "result " + result[0] + "-" + result[1] + "-" + result[2]);
                                 Toast.makeText(WheelPickerActivity.this,
-                                        result[0], Toast.LENGTH_SHORT).show();
+                                        result[0] + "-" + result[1] + "-" + result[2], Toast.LENGTH_SHORT).show();
                             }
                         }).build().show(getSupportFragmentManager());
                 break;
+            case R.id.tv_triple_date:
+                DateWheelPicker.instance()
+                        .limit(2017, 12, 31)
+                        .setUnits("年","月","日")
+                        .setGravity(Gravity.BOTTOM)
+                        .setResource(R.raw.picker_location)
+                        .setPickerListener(new WheelPicker.OnPickerListener() {
+                            @Override
+                            public void onPickResult(String... result) {
+                                Log.d("RecyclerWheelPicker", "result " + result[0] + "-" + result[1] + "-" + result[2]);
+                                Toast.makeText(WheelPickerActivity.this,
+                                        result[0] + "-" + result[1] + "-" + result[2], Toast.LENGTH_SHORT).show();
+                            }
+                        }).build().show(getSupportFragmentManager());
+                break;
+
         }
     }
 }

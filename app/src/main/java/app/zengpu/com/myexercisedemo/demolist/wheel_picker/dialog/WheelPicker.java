@@ -184,7 +184,7 @@ public class WheelPicker extends DialogFragment implements Runnable,
     }
 
     public static class Builder<T extends WheelPicker> {
-        Class clazz;
+        protected Class clazz;
         public int gravity = Gravity.BOTTOM;
         @RawRes
         public int resInt = 0;

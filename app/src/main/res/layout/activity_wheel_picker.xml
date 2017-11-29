@@ -36,4 +36,14 @@
         android:text="triple"
         android:textSize="20sp" />
 
+    <TextView
+        android:id="@+id/tv_triple_date"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_margin="10dp"
+        android:background="#999999"
+        android:gravity="center"
+        android:text="triple_date"
+        android:textSize="20sp" />
+
 </LinearLayout>
