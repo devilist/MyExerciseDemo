@@ -56,7 +56,7 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
                 TripleWheelPicker.instance()
                         .setGravity(Gravity.BOTTOM)
                         .setResource(R.raw.picker_location)
-                        .setDefPosition(15, 5)
+                        .setDefPosition(15, 10)
                         .showAllItem(true)
                         .setPickerListener(new WheelPicker.OnPickerListener() {
                             @Override
@@ -71,7 +71,7 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
                 DoubleWheelPicker.instance()
                         .setGravity(Gravity.BOTTOM)
                         .setResource(R.raw.picker_location)
-                        .setDefPosition(15, 0)
+                        .setDefPosition(18, 7)
                         .setPickerListener(new WheelPicker.OnPickerListener() {
                             @Override
                             public void onPickResult(String... result) {

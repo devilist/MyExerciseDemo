@@ -21,7 +21,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -132,16 +131,15 @@ public class DoubleWheelPicker extends WheelPicker {
                 }
             }
         }
-        rv_picker1.setData(datas);
         rv_picker2.setData(datas2);
-        rv_picker1.scrollTargetPositionToCenter(defP1);
         rv_picker2.scrollTargetPositionToCenter(defP2);
+        rv_picker1.setData(datas);
+        rv_picker1.scrollTargetPositionToCenter(defP1);
     }
 
     @Override
     public void onWheelScrollChanged(RecyclerWheelPicker wheelPicker, boolean isScrolling, int position, Data data) {
         super.onWheelScrollChanged(wheelPicker, isScrolling, position, data);
-        Log.d("onWheelScrollChanged", " 1 init " + rv_picker1.isInitFinish() + " 2 init " + rv_picker2.isInitFinish());
         if (!rv_picker1.isInitFinish() || !rv_picker2.isInitFinish()) return;
         if (wheelPicker == rv_picker1) {
             if (!isScrolling && null != data) {
@@ -163,14 +161,17 @@ public class DoubleWheelPicker extends WheelPicker {
         if (v.getId() == R.id.tv_ok) {
             if (!rv_picker1.isScrolling() && !rv_picker2.isScrolling() && null != builder.pickerListener) {
                 builder.pickerListener.onPickResult(pickData1, pickData2);
-                rv_picker1.release();
-                rv_picker2.release();
                 dismiss();
             }
         } else {
-            rv_picker1.release();
-            rv_picker2.release();
             dismiss();
         }
+    }
+
+    @Override
+    protected void pickerClose() {
+        super.pickerClose();
+        rv_picker1.release();
+        rv_picker2.release();
     }
 }

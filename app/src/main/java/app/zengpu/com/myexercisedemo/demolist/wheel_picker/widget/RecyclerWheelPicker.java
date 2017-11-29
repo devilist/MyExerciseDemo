@@ -61,6 +61,7 @@ public class RecyclerWheelPicker extends RecyclerView {
     private Rect mDecorationRect;
 
     private SoundPool mSoundPool;
+    private int mSoundId = 0;
     private int mSoundTrigger = -1;
     private boolean mPickerSoundEnabled = true;
 
@@ -140,6 +141,15 @@ public class RecyclerWheelPicker extends RecyclerView {
     public void onScrolled(int dx, int dy) {
         super.onScrolled(dx, dy);
         mIsInitFinish = mAdapter.getItemCount() == 0 || getChildCount() > 0;
+        if (dx == 0 && dy == 0) {
+            int centerPosition = mLayoutManager.findCenterItemPosition();
+            if (centerPosition == NO_POSITION) {
+                dispatchOnScrollEvent(true, NO_POSITION, null);
+            } else
+                dispatchOnScrollEvent(false, centerPosition, mAdapter.getData(centerPosition));
+        } else
+            dispatchOnScrollEvent(true, NO_POSITION, null);
+
         if (Math.abs(dy) > 1 && mLayoutManager.mItemHeight > 0) {
             int currentTrigger = mLayoutManager.mVerticalOffset / mLayoutManager.mItemHeight;
             if (!mLayoutManager.mIsOverScroll && currentTrigger != mSoundTrigger) {
@@ -147,10 +157,6 @@ public class RecyclerWheelPicker extends RecyclerView {
                 mSoundTrigger = currentTrigger;
             }
         }
-        if (dx == 0 && dy == 0)
-            dispatchOnScrollEvent(false, 0, mAdapter.getData(0));
-        else
-            dispatchOnScrollEvent(true, NO_POSITION, null);
     }
 
     private void dispatchOnScrollEvent(boolean isScrolling, int position, Data data) {
@@ -329,9 +335,9 @@ public class RecyclerWheelPicker extends RecyclerView {
     }
 
     private void initSound() {
-        mSoundPool = new SoundPool(10, AudioManager.STREAM_SYSTEM, 5);
+        mSoundPool = new SoundPool(50, AudioManager.STREAM_SYSTEM, 5);
         try {
-            mSoundPool.load(getContext(), R.raw.wheelpickerkeypress, 1);
+            mSoundId = mSoundPool.load(getContext(), R.raw.wheelpickerkeypress, 1);
         } catch (Exception e) {
         }
     }
@@ -342,7 +348,7 @@ public class RecyclerWheelPicker extends RecyclerView {
 
     private void playSound() {
         try {
-            mSoundPool.play(1, 1, 1, 0, 0, 1);
+            mSoundPool.play(mSoundId, 1, 1, 0, 0, 1);
         } catch (Exception e) {
         }
     }

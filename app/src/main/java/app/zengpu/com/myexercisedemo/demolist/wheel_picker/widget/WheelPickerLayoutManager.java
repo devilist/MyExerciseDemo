@@ -141,7 +141,7 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
         detachAndScrapAttachedViews(recycler);
         mIsOverScroll = false;
         // no items, vertical offset must be 0;
-        if (mRecyclerView.getAdapter().getItemCount() == 0) {
+        if (getItemCount() == 0) {
             dy = 0;
             mVerticalOffset = 0;
         }
@@ -157,8 +157,7 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
         }
         // scroll to bottom bound ; dy > 0; mVerticalOffset > 0
         if (dy > 0) {
-            int totalItemCount = mRecyclerView.getAdapter().getItemCount();
-            int verticalOffset = mVerticalOffset - (totalItemCount - 1) * mItemHeight;
+            int verticalOffset = mVerticalOffset - (getItemCount() - 1) * mItemHeight;
             if (verticalOffset + dy >= 0)
                 mIsOverScroll = true;
             if (dy > 0 && verticalOffset + dy >= mMaxOverScrollOffset) {
@@ -175,7 +174,7 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
 
 
     void checkVerticalOffsetBound() {
-        int totalItemCount = mRecyclerView.getAdapter().getItemCount();
+        int totalItemCount = getItemCount();
         if (totalItemCount == 0) mVerticalOffset = 0;
         else if (mVerticalOffset > (totalItemCount - 1) * mItemHeight) {
             mVerticalOffset = (totalItemCount - 1) * mItemHeight;
@@ -184,6 +183,8 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
     }
 
     int findCenterItemPosition() {
+        if (getItemCount() == 0)
+            return 0;
         if (mRecyclerView.getChildCount() == 0)
             return RecyclerView.NO_POSITION;
 
@@ -197,7 +198,8 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
             if (null == child) continue;
             int centerY = getVerticalSpace() / 2;
             int childCenterY = child.getTop() + child.getHeight() / 2;
-            if (centerY == childCenterY) return i;
+            Log.d("onScrolled", "centerY " + centerY + " childCenterY " + childCenterY);
+            if (Math.abs(centerY - childCenterY) <= 1) return i;
         }
         return RecyclerView.NO_POSITION;
     }

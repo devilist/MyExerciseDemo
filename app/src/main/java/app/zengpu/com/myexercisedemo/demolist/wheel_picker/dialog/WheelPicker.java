@@ -91,7 +91,9 @@ public class WheelPicker extends DialogFragment implements Runnable,
     }
 
     protected void parseData() {
+    }
 
+    protected void pickerClose() {
     }
 
     @Override
@@ -176,6 +178,7 @@ public class WheelPicker extends DialogFragment implements Runnable,
     @Override
     final public void run() {
         super.dismiss();
+        this.pickerClose();
         if (null != mListener)
             mListener.onDismiss();
     }
@@ -270,6 +273,7 @@ public class WheelPicker extends DialogFragment implements Runnable,
         @Override
         public void run() {
             super.cancel();
+            pickerClose();
             if (null != mListener)
                 mListener.onDismiss();
         }

@@ -147,12 +147,12 @@ public class TripleWheelPicker extends WheelPicker {
                 }
             }
         }
-        rv_picker1.setData(datas);
-        rv_picker2.setData(datas2);
         rv_picker3.setData(datas3);
-        rv_picker1.scrollTargetPositionToCenter(defP1);
-        rv_picker2.scrollTargetPositionToCenter(defP2);
         rv_picker3.scrollTargetPositionToCenter(defP3);
+        rv_picker2.setData(datas2);
+        rv_picker2.scrollTargetPositionToCenter(defP2);
+        rv_picker1.setData(datas);
+        rv_picker1.scrollTargetPositionToCenter(defP1);
     }
 
     @Override
@@ -193,16 +193,18 @@ public class TripleWheelPicker extends WheelPicker {
                     && !rv_picker3.isScrolling()
                     && null != builder.pickerListener) {
                 builder.pickerListener.onPickResult(pickData1, pickData2, pickData3);
-                rv_picker1.release();
-                rv_picker2.release();
-                rv_picker3.release();
                 dismiss();
             }
         } else {
-            rv_picker1.release();
-            rv_picker2.release();
-            rv_picker3.release();
             dismiss();
         }
+    }
+
+    @Override
+    protected void pickerClose() {
+        super.pickerClose();
+        rv_picker1.release();
+        rv_picker2.release();
+        rv_picker3.release();
     }
 }

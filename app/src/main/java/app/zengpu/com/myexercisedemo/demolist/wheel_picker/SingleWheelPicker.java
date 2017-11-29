@@ -107,6 +107,7 @@ public class SingleWheelPicker extends WheelPicker {
                 for (int i = 0; i < datas.size(); i++) {
                     if (defValues[0].equals(datas.get(i).data)) {
                         defP1 = i;
+                        pickData1 = datas.get(defP1).data;
                         break;
                     }
                 }
@@ -130,12 +131,16 @@ public class SingleWheelPicker extends WheelPicker {
         if (v.getId() == R.id.tv_ok) {
             if (!rv_picker1.isScrolling() && null != builder.pickerListener) {
                 builder.pickerListener.onPickResult(pickData1);
-                rv_picker1.release();
                 dismiss();
             }
         } else {
-            rv_picker1.release();
             dismiss();
         }
+    }
+
+    @Override
+    protected void pickerClose() {
+        super.pickerClose();
+        rv_picker1.release();
     }
 }
