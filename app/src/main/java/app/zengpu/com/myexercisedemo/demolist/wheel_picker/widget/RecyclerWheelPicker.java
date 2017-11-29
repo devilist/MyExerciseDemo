@@ -139,6 +139,7 @@ public class RecyclerWheelPicker extends RecyclerView {
     @Override
     public void onScrolled(int dx, int dy) {
         super.onScrolled(dx, dy);
+        mIsInitFinish = mAdapter.getItemCount() == 0 || getChildCount() > 0;
         if (Math.abs(dy) > 1 && mLayoutManager.mItemHeight > 0) {
             int currentTrigger = mLayoutManager.mVerticalOffset / mLayoutManager.mItemHeight;
             if (!mLayoutManager.mIsOverScroll && currentTrigger != mSoundTrigger) {

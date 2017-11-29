@@ -82,51 +82,105 @@ public class TripleWheelPicker extends WheelPicker {
         rv_picker2.setOnWheelScrollListener(this);
         rv_picker3.setOnWheelScrollListener(this);
 
+        parseData();
+    }
+
+    @Override
+    protected void parseData() {
         // parse data
         datas = DataParser.parserData(getContext(), builder.resInt, builder.isAll);
-        rv_picker1.setData(datas);
-        rv_picker2.setData(datas.get(0).items);
-        rv_picker2.setData(datas.get(0).items.get(0).items);
-
+        List<Data> datas2 = new ArrayList<>(), datas3 = new ArrayList<>();
         // units
         String[] units = builder.units;
         if (null != units) {
             if (units.length > 0)
                 rv_picker1.setUnit(units[0]);
             if (units.length > 1)
-                rv_picker1.setUnit(units[1]);
+                rv_picker2.setUnit(units[1]);
+            if (units.length > 2)
+                rv_picker3.setUnit(units[2]);
         }
-
-        // default position
-        int defP1 = 0, defP2 = 0;
-        int[] defPosition = builder.defPosition;
-        if (null != defPosition) {
-            if (defPosition.length > 0)
-                defP1 = defPosition[0];
-            if (defPosition.length > 1)
-                defP2 = defPosition[1];
+        // default position. find by defPosition firstly, then defValues
+        int defP1 = 0, defP2 = 0, defP3 = 0;
+        if (datas.size() > 0) {
+            int[] defPosition = builder.defPosition;
+            if (null != defPosition) {
+                if (defPosition.length > 0) defP1 = defPosition[0];
+                if (defPosition.length > 1) defP2 = defPosition[1];
+                if (defPosition.length > 2) defP3 = defPosition[2];
+            }
+            defP1 = Math.min(Math.max(0, defP1), datas.size() - 1);
+            datas2 = datas.get(defP1).items;
+            if (datas2.size() > 0) {
+                defP2 = Math.min(Math.max(0, defP2), datas2.size() - 1);
+                datas3 = datas2.get(defP2).items;
+                if (datas3.size() > 0)
+                    defP3 = Math.min(Math.max(0, defP3), datas3.size() - 1);
+            }
         }
-        defP1 = Math.min(Math.max(0, defP1), datas.size() - 1);
-        defP2 = Math.min(Math.max(0, defP2), datas.get(0).items.size() - 1);
-        rv_picker1.smoothScrollToPosition(defP1);
-        rv_picker2.smoothScrollToPosition(defP2);
+        String[] defValues = builder.defValues;
+        if (datas.size() > 0 && null != defValues) {
+            if (defValues.length > 0) {
+                for (int i = 0; i < datas.size(); i++) {
+                    if (defValues[0].equals(datas.get(i).data)) {
+                        defP1 = i;
+                        break;
+                    }
+                }
+            }
+            datas2 = datas.get(defP1).items;
+            if (datas2.size() > 0 && defValues.length > 1) {
+                for (int i = 0; i < datas2.size(); i++) {
+                    if (defValues[1].equals(datas2.get(i).data)) {
+                        defP2 = i;
+                        break;
+                    }
+                }
+                datas3 = datas2.get(defP2).items;
+                if (datas3.size() > 0 && defValues.length > 2) {
+                    for (int i = 0; i < datas3.size(); i++) {
+                        if (defValues[1].equals(datas3.get(i).data)) {
+                            defP3 = i;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        rv_picker1.setData(datas);
+        rv_picker2.setData(datas2);
+        rv_picker3.setData(datas3);
+        rv_picker1.scrollTargetPositionToCenter(defP1);
+        rv_picker2.scrollTargetPositionToCenter(defP2);
+        rv_picker3.scrollTargetPositionToCenter(defP3);
     }
 
     @Override
     public void onWheelScrollChanged(RecyclerWheelPicker wheelPicker, boolean isScrolling, int position, Data data) {
         super.onWheelScrollChanged(wheelPicker, isScrolling, position, data);
+        if (!rv_picker1.isInitFinish()
+                || !rv_picker2.isInitFinish()
+                || !rv_picker3.isInitFinish())
+            return;
+
         if (wheelPicker == rv_picker1) {
-            rv_picker2.setScrollEnabled(!isScrolling);
-            rv_picker3.setScrollEnabled(!isScrolling);
-            if (!isScrolling)
+            if (!isScrolling && null != data) {
                 pickData1 = data.data;
+                rv_picker2.setData(data.items);
+            } else {
+                pickData1 = "";
+            }
         } else if (wheelPicker == rv_picker2) {
-            rv_picker3.setScrollEnabled(!isScrolling);
-            if (!isScrolling)
+            if (!isScrolling && null != data) {
                 pickData2 = data.data;
+                rv_picker3.setData(data.items);
+            } else {
+                pickData2 = "";
+            }
         } else if (wheelPicker == rv_picker3) {
-            if (!isScrolling)
+            if (!isScrolling && null != data)
                 pickData3 = data.data;
+            else pickData3 = "";
         }
     }
 
@@ -139,11 +193,16 @@ public class TripleWheelPicker extends WheelPicker {
                     && !rv_picker3.isScrolling()
                     && null != builder.pickerListener) {
                 builder.pickerListener.onPickResult(pickData1, pickData2, pickData3);
+                rv_picker1.release();
+                rv_picker2.release();
+                rv_picker3.release();
+                dismiss();
             }
+        } else {
+            rv_picker1.release();
+            rv_picker2.release();
+            rv_picker3.release();
+            dismiss();
         }
-        rv_picker1.release();
-        rv_picker2.release();
-        rv_picker3.release();
-        dismiss();
     }
 }

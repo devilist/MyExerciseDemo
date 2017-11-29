@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import app.zengpu.com.myexercisedemo.BaseActivity;
 import app.zengpu.com.myexercisedemo.R;
@@ -54,10 +55,15 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
             case R.id.tv_triple:
                 TripleWheelPicker.instance()
                         .setGravity(Gravity.BOTTOM)
+                        .setResource(R.raw.picker_location)
+                        .setDefPosition(15, 5)
+                        .showAllItem(true)
                         .setPickerListener(new WheelPicker.OnPickerListener() {
                             @Override
-                            public void onPickResult(String pick1, String pick2, String pick3) {
-                                Log.d("RecyclerWheelPicker", "result " + pick1 + "-" + pick2 + "-" + pick3);
+                            public void onPickResult(String... result) {
+                                Log.d("RecyclerWheelPicker", "result " + result[0] + "-" + result[1] + "-" + result[2]);
+                                Toast.makeText(WheelPickerActivity.this,
+                                        result[0] + "-" + result[1] + "-" + result[2], Toast.LENGTH_SHORT).show();
                             }
                         }).build().show(getSupportFragmentManager());
                 break;
@@ -65,13 +71,13 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
                 DoubleWheelPicker.instance()
                         .setGravity(Gravity.BOTTOM)
                         .setResource(R.raw.picker_location)
-                        .showAllItem(true)
-                        .setDefPosition(15, 5)
-                        .setDefValues("浙江", "杭州")
+                        .setDefPosition(15, 0)
                         .setPickerListener(new WheelPicker.OnPickerListener() {
                             @Override
-                            public void onPickResult(String pick1, String pick2, String pick3) {
-                                Log.d("RecyclerWheelPicker", "result " + pick1 + "-" + pick2 + "-" + pick3);
+                            public void onPickResult(String... result) {
+                                Log.d("RecyclerWheelPicker", "result " + result[0] + "-" + result[1]);
+                                Toast.makeText(WheelPickerActivity.this,
+                                        result[0] + "-" + result[1], Toast.LENGTH_SHORT).show();
                             }
                         }).build().show(getSupportFragmentManager());
                 break;
@@ -79,13 +85,15 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
                 SingleWheelPicker.instance()
                         .setGravity(Gravity.BOTTOM)
                         .setResource(R.raw.picker_location)
-                        .showAllItem(true)
+                        .showAllItem(false)
                         .setDefPosition(15, 5)
                         .setDefValues("浙江", "杭州")
                         .setPickerListener(new WheelPicker.OnPickerListener() {
                             @Override
-                            public void onPickResult(String pick1, String pick2, String pick3) {
-                                Log.d("RecyclerWheelPicker", "result " + pick1 + "-" + pick2 + "-" + pick3);
+                            public void onPickResult(String... result) {
+                                Log.d("RecyclerWheelPicker", "result " + result[0]);
+                                Toast.makeText(WheelPickerActivity.this,
+                                        result[0], Toast.LENGTH_SHORT).show();
                             }
                         }).build().show(getSupportFragmentManager());
                 break;

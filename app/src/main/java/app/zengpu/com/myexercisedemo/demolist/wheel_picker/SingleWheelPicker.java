@@ -79,26 +79,30 @@ public class SingleWheelPicker extends WheelPicker {
         rv_picker1 = (RecyclerWheelPicker) getView().findViewById(R.id.rv_picker1);
         rv_picker1.setOnWheelScrollListener(this);
         // parse data
-        datas = DataParser.parserData(getContext(), builder.resInt, builder.isAll);
+        parseData();
+    }
 
+    @Override
+    protected void parseData() {
+        // parse data
+        datas = DataParser.parserData(getContext(), builder.resInt, builder.isAll);
         // units
         String[] units = builder.units;
         if (null != units) {
             if (units.length > 0)
                 rv_picker1.setUnit(units[0]);
         }
-
         // default position. find by defPosition firstly, then defValues
         int defP1 = 0;
-        int[] defPosition = builder.defPosition;
-        if (null != defPosition) {
-            if (defPosition.length > 0)
-                defP1 = defPosition[0];
+        if (datas.size() > 0) {
+            int[] defPosition = builder.defPosition;
+            if (null != defPosition) {
+                if (defPosition.length > 0) defP1 = defPosition[0];
+            }
+            defP1 = Math.min(Math.max(0, defP1), datas.size() - 1);
         }
-        defP1 = Math.min(Math.max(0, defP1), datas.size() - 1);
-
         String[] defValues = builder.defValues;
-        if (null != defValues) {
+        if (datas.size() > 0 && null != defValues) {
             if (defValues.length > 0) {
                 for (int i = 0; i < datas.size(); i++) {
                     if (defValues[0].equals(datas.get(i).data)) {
@@ -125,11 +129,11 @@ public class SingleWheelPicker extends WheelPicker {
         super.onClick(v);
         if (v.getId() == R.id.tv_ok) {
             if (!rv_picker1.isScrolling() && null != builder.pickerListener) {
-                builder.pickerListener.onPickResult(pickData1, "", "");
+                builder.pickerListener.onPickResult(pickData1);
                 rv_picker1.release();
                 dismiss();
             }
-        } else if (v.getId() == R.id.tv_cancel) {
+        } else {
             rv_picker1.release();
             dismiss();
         }

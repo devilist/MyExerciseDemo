@@ -64,7 +64,7 @@ public class WheelPicker extends DialogFragment implements Runnable,
     }
 
     public interface OnPickerListener {
-        void onPickResult(String pick1, String pick2, String pick3);
+        void onPickResult(String... result);
     }
 
     public WheelPicker(Builder builder) {
@@ -90,6 +90,10 @@ public class WheelPicker extends DialogFragment implements Runnable,
         this.mListener = listener;
     }
 
+    protected void parseData() {
+
+    }
+
     @Override
     public void onClick(View v) {
 
@@ -99,6 +103,7 @@ public class WheelPicker extends DialogFragment implements Runnable,
     public void onWheelScrollChanged(RecyclerWheelPicker wheelPicker,
                                      boolean isScrolling, int position, Data data) {
     }
+
 
     public void setEnterAnimDuration(long duration) {
         if (duration < 0) {

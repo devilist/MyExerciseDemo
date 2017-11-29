@@ -80,32 +80,40 @@ public class DoubleWheelPicker extends WheelPicker {
         rv_picker2 = (RecyclerWheelPicker) getView().findViewById(R.id.rv_picker2);
         rv_picker1.setOnWheelScrollListener(this);
         rv_picker2.setOnWheelScrollListener(this);
+
+        // parse data
+        parseData();
+    }
+
+    @Override
+    protected void parseData() {
         // parse data
         datas = DataParser.parserData(getContext(), builder.resInt, builder.isAll);
-
+        List<Data> datas2 = new ArrayList<>();
         // units
         String[] units = builder.units;
         if (null != units) {
             if (units.length > 0)
                 rv_picker1.setUnit(units[0]);
             if (units.length > 1)
-                rv_picker1.setUnit(units[1]);
+                rv_picker2.setUnit(units[1]);
         }
-
         // default position. find by defPosition firstly, then defValues
         int defP1 = 0, defP2 = 0;
-        int[] defPosition = builder.defPosition;
-        if (null != defPosition) {
-            if (defPosition.length > 0)
-                defP1 = defPosition[0];
-            if (defPosition.length > 1)
-                defP2 = defPosition[1];
+        if (datas.size() > 0) {
+            int[] defPosition = builder.defPosition;
+            if (null != defPosition) {
+                if (defPosition.length > 0) defP1 = defPosition[0];
+                if (defPosition.length > 1) defP2 = defPosition[1];
+            }
+            defP1 = Math.min(Math.max(0, defP1), datas.size() - 1);
+            datas2 = datas.get(defP1).items;
+            if (datas2.size() > 0) {
+                defP2 = Math.min(Math.max(0, defP2), datas2.size() - 1);
+            }
         }
-        defP1 = Math.min(Math.max(0, defP1), datas.size() - 1);
-        defP2 = Math.min(Math.max(0, defP2), datas.get(defP1).items.size() - 1);
-
         String[] defValues = builder.defValues;
-        if (null != defValues) {
+        if (datas.size() > 0 && null != defValues) {
             if (defValues.length > 0) {
                 for (int i = 0; i < datas.size(); i++) {
                     if (defValues[0].equals(datas.get(i).data)) {
@@ -114,9 +122,10 @@ public class DoubleWheelPicker extends WheelPicker {
                     }
                 }
             }
-            if (defValues.length > 1) {
-                for (int i = 0; i < datas.size(); i++) {
-                    if (defValues[1].equals(datas.get(defP1).items.get(i).data)) {
+            datas2 = datas.get(defP1).items;
+            if (datas2.size() > 0 && defValues.length > 1) {
+                for (int i = 0; i < datas2.size(); i++) {
+                    if (defValues[1].equals(datas2.get(i).data)) {
                         defP2 = i;
                         break;
                     }
@@ -124,7 +133,7 @@ public class DoubleWheelPicker extends WheelPicker {
             }
         }
         rv_picker1.setData(datas);
-        rv_picker2.setData(datas.get(defP1).items);
+        rv_picker2.setData(datas2);
         rv_picker1.scrollTargetPositionToCenter(defP1);
         rv_picker2.scrollTargetPositionToCenter(defP2);
     }
@@ -132,6 +141,7 @@ public class DoubleWheelPicker extends WheelPicker {
     @Override
     public void onWheelScrollChanged(RecyclerWheelPicker wheelPicker, boolean isScrolling, int position, Data data) {
         super.onWheelScrollChanged(wheelPicker, isScrolling, position, data);
+        Log.d("onWheelScrollChanged", " 1 init " + rv_picker1.isInitFinish() + " 2 init " + rv_picker2.isInitFinish());
         if (!rv_picker1.isInitFinish() || !rv_picker2.isInitFinish()) return;
         if (wheelPicker == rv_picker1) {
             if (!isScrolling && null != data) {
@@ -152,12 +162,12 @@ public class DoubleWheelPicker extends WheelPicker {
         super.onClick(v);
         if (v.getId() == R.id.tv_ok) {
             if (!rv_picker1.isScrolling() && !rv_picker2.isScrolling() && null != builder.pickerListener) {
-                builder.pickerListener.onPickResult(pickData1, pickData2, "");
+                builder.pickerListener.onPickResult(pickData1, pickData2);
                 rv_picker1.release();
                 rv_picker2.release();
                 dismiss();
             }
-        } else if (v.getId() == R.id.tv_cancel) {
+        } else {
             rv_picker1.release();
             rv_picker2.release();
             dismiss();
