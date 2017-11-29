@@ -21,6 +21,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,14 +34,13 @@ import java.util.List;
 
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.demolist.wheel_picker.bean.Data;
-import app.zengpu.com.myexercisedemo.demolist.wheel_picker.core.RecyclerWheelPicker;
+import app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget.RecyclerWheelPicker;
 import app.zengpu.com.myexercisedemo.demolist.wheel_picker.dialog.WheelPicker;
 import app.zengpu.com.myexercisedemo.demolist.wheel_picker.parser.DataParser;
 
 /**
  * Created by zengp on 2017/11/26.
  */
-
 @SuppressLint("ValidFragment")
 public class DoubleWheelPicker extends WheelPicker {
 
@@ -71,16 +71,19 @@ public class DoubleWheelPicker extends WheelPicker {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-
         tv_ok = (TextView) getView().findViewById(R.id.tv_ok);
         tv_cancel = (TextView) getView().findViewById(R.id.tv_cancel);
-        rv_picker1 = (RecyclerWheelPicker) getView().findViewById(R.id.rv_picker1);
-        rv_picker2 = (RecyclerWheelPicker) getView().findViewById(R.id.rv_picker2);
         tv_ok.setOnClickListener(this);
         tv_cancel.setOnClickListener(this);
 
+        rv_picker1 = (RecyclerWheelPicker) getView().findViewById(R.id.rv_picker1);
+        rv_picker2 = (RecyclerWheelPicker) getView().findViewById(R.id.rv_picker2);
+        rv_picker1.setOnWheelScrollListener(this);
+        rv_picker2.setOnWheelScrollListener(this);
+        // parse data
         datas = DataParser.parserData(getContext(), builder.resInt, builder.isAll);
 
+        // units
         String[] units = builder.units;
         if (null != units) {
             if (units.length > 0)
@@ -88,24 +91,59 @@ public class DoubleWheelPicker extends WheelPicker {
             if (units.length > 1)
                 rv_picker1.setUnit(units[1]);
         }
-        rv_picker1.setData(datas);
-        rv_picker2.setData(datas.get(0).items);
 
-        rv_picker1.setOnWheelScrollListener(this);
-        rv_picker2.setOnWheelScrollListener(this);
+        // default position. find by defPosition firstly, then defValues
+        int defP1 = 0, defP2 = 0;
+        int[] defPosition = builder.defPosition;
+        if (null != defPosition) {
+            if (defPosition.length > 0)
+                defP1 = defPosition[0];
+            if (defPosition.length > 1)
+                defP2 = defPosition[1];
+        }
+        defP1 = Math.min(Math.max(0, defP1), datas.size() - 1);
+        defP2 = Math.min(Math.max(0, defP2), datas.get(defP1).items.size() - 1);
+
+        String[] defValues = builder.defValues;
+        if (null != defValues) {
+            if (defValues.length > 0) {
+                for (int i = 0; i < datas.size(); i++) {
+                    if (defValues[0].equals(datas.get(i).data)) {
+                        defP1 = i;
+                        break;
+                    }
+                }
+            }
+            if (defValues.length > 1) {
+                for (int i = 0; i < datas.size(); i++) {
+                    if (defValues[1].equals(datas.get(defP1).items.get(i).data)) {
+                        defP2 = i;
+                        break;
+                    }
+                }
+            }
+        }
+        rv_picker1.setData(datas);
+        rv_picker2.setData(datas.get(defP1).items);
+        rv_picker1.scrollTargetPositionToCenter(defP1);
+        rv_picker2.scrollTargetPositionToCenter(defP2);
     }
 
     @Override
     public void onWheelScrollChanged(RecyclerWheelPicker wheelPicker, boolean isScrolling, int position, Data data) {
         super.onWheelScrollChanged(wheelPicker, isScrolling, position, data);
+        if (!rv_picker1.isInitFinish() || !rv_picker2.isInitFinish()) return;
         if (wheelPicker == rv_picker1) {
             if (!isScrolling && null != data) {
                 pickData1 = data.data;
                 rv_picker2.setData(data.items);
+            } else {
+                pickData1 = "";
             }
         } else if (wheelPicker == rv_picker2) {
             if (!isScrolling && null != data)
                 pickData2 = data.data;
+            else pickData2 = "";
         }
     }
 
@@ -113,14 +151,16 @@ public class DoubleWheelPicker extends WheelPicker {
     public void onClick(View v) {
         super.onClick(v);
         if (v.getId() == R.id.tv_ok) {
-            if (!rv_picker1.isScrolling()
-                    && !rv_picker2.isScrolling()
-                    && null != builder.pickerListener) {
+            if (!rv_picker1.isScrolling() && !rv_picker2.isScrolling() && null != builder.pickerListener) {
                 builder.pickerListener.onPickResult(pickData1, pickData2, "");
+                rv_picker1.release();
+                rv_picker2.release();
+                dismiss();
             }
+        } else if (v.getId() == R.id.tv_cancel) {
+            rv_picker1.release();
+            rv_picker2.release();
+            dismiss();
         }
-        rv_picker1.release();
-        rv_picker2.release();
-        dismiss();
     }
 }

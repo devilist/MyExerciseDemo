@@ -32,21 +32,21 @@ import app.zengpu.com.myexercisedemo.demolist.wheel_picker.dialog.WheelPicker;
 
 public class WheelPickerActivity extends BaseActivity implements View.OnClickListener {
 
-    private TextView tv_double, tv_triple;
+    private TextView tv_single, tv_double, tv_triple;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wheel_picker);
 
+        tv_single = findViewById(R.id.tv_single);
         tv_double = findViewById(R.id.tv_double);
         tv_triple = findViewById(R.id.tv_triple);
 
+        tv_single.setOnClickListener(this);
         tv_double.setOnClickListener(this);
         tv_triple.setOnClickListener(this);
-
     }
-
 
     @Override
     public void onClick(View v) {
@@ -66,6 +66,22 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
                         .setGravity(Gravity.BOTTOM)
                         .setResource(R.raw.picker_location)
                         .showAllItem(true)
+                        .setDefPosition(15, 5)
+                        .setDefValues("浙江", "杭州")
+                        .setPickerListener(new WheelPicker.OnPickerListener() {
+                            @Override
+                            public void onPickResult(String pick1, String pick2, String pick3) {
+                                Log.d("RecyclerWheelPicker", "result " + pick1 + "-" + pick2 + "-" + pick3);
+                            }
+                        }).build().show(getSupportFragmentManager());
+                break;
+            case R.id.tv_single:
+                SingleWheelPicker.instance()
+                        .setGravity(Gravity.BOTTOM)
+                        .setResource(R.raw.picker_location)
+                        .showAllItem(true)
+                        .setDefPosition(15, 5)
+                        .setDefValues("浙江", "杭州")
                         .setPickerListener(new WheelPicker.OnPickerListener() {
                             @Override
                             public void onPickResult(String pick1, String pick2, String pick3) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package app.zengpu.com.myexercisedemo.demolist.wheel_picker.core;
+package app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -35,6 +35,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -63,7 +64,8 @@ public class RecyclerWheelPicker extends RecyclerView {
     private int mSoundTrigger = -1;
     private boolean mPickerSoundEnabled = true;
 
-    private boolean mIsScrolling = false;
+    private boolean mIsScrolling = true;
+    private boolean mIsInitFinish = false;  // whether RecyclerView's children count is over zero
 
     private WheelAdapter mAdapter;
     private WheelPickerLayoutManager mLayoutManager;
@@ -101,6 +103,7 @@ public class RecyclerWheelPicker extends RecyclerView {
         initSound();
 
         setOverScrollMode(OVER_SCROLL_NEVER);
+        setHasFixedSize(true);
 
         mDecorationPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mUnitTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
@@ -111,41 +114,62 @@ public class RecyclerWheelPicker extends RecyclerView {
         mLayoutManager = new WheelPickerLayoutManager(this);
         super.setLayoutManager(mLayoutManager);
         new LinearSnapHelper().attachToRecyclerView(this);
+    }
 
-        addOnScrollListener(new OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (newState == SCROLL_STATE_IDLE) {
-                    int centerPosition = mLayoutManager.findCenterItemPosition();
-                    if (centerPosition == NO_POSITION) {
-                        dispatchOnScrollEvent(true, NO_POSITION, null);
-                    } else
-                        dispatchOnScrollEvent(false, centerPosition, mAdapter.getData(centerPosition));
-                } else
-                    dispatchOnScrollEvent(true, NO_POSITION, null);
-            }
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        // if on child has been attached , do not dispatch touch event
+        return !mIsInitFinish || super.dispatchTouchEvent(ev);
+    }
 
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (Math.abs(dy) > 1 && mLayoutManager.mItemHeight > 0) {
-                    int currentTrigger = mLayoutManager.mVerticalOffset / mLayoutManager.mItemHeight;
-                    if (!mLayoutManager.mIsOverScroll && currentTrigger != mSoundTrigger) {
-                        playSound();
-                        mSoundTrigger = currentTrigger;
-                    }
-                }
-                if (dx == 0 && dy == 0)
-                    dispatchOnScrollEvent(false, 0, mAdapter.getData(0));
-                else
-                    dispatchOnScrollEvent(true, NO_POSITION, null);
+    @Override
+    public void onScrollStateChanged(int state) {
+        super.onScrollStateChanged(state);
+        mIsInitFinish = mAdapter.getItemCount() == 0 || getChildCount() > 0;
+        if (state == SCROLL_STATE_IDLE) {
+            int centerPosition = mLayoutManager.findCenterItemPosition();
+            if (centerPosition == NO_POSITION) {
+                dispatchOnScrollEvent(true, NO_POSITION, null);
+            } else
+                dispatchOnScrollEvent(false, centerPosition, mAdapter.getData(centerPosition));
+        } else
+            dispatchOnScrollEvent(true, NO_POSITION, null);
+    }
+
+    @Override
+    public void onScrolled(int dx, int dy) {
+        super.onScrolled(dx, dy);
+        if (Math.abs(dy) > 1 && mLayoutManager.mItemHeight > 0) {
+            int currentTrigger = mLayoutManager.mVerticalOffset / mLayoutManager.mItemHeight;
+            if (!mLayoutManager.mIsOverScroll && currentTrigger != mSoundTrigger) {
+                playSound();
+                mSoundTrigger = currentTrigger;
             }
-        });
+        }
+        if (dx == 0 && dy == 0)
+            dispatchOnScrollEvent(false, 0, mAdapter.getData(0));
+        else
+            dispatchOnScrollEvent(true, NO_POSITION, null);
     }
 
     private void dispatchOnScrollEvent(boolean isScrolling, int position, Data data) {
         mIsScrolling = isScrolling;
         if (null != mListener)
             mListener.onWheelScrollChanged(RecyclerWheelPicker.this, isScrolling, position, data);
+    }
+
+    public void scrollTargetPositionToCenter(int position) {
+        mLayoutManager.scrollTargetPositionToCenter(position, mAdapter.getItemHeight());
+    }
+
+    @Override
+    public void smoothScrollToPosition(int position) {
+        if (mAdapter.getItemCount() == 0) return;
+        super.smoothScrollToPosition(position);
+    }
+
+    @Override
+    public void setLayoutManager(LayoutManager layout) {
     }
 
     @Override
@@ -160,14 +184,23 @@ public class RecyclerWheelPicker extends RecyclerView {
         this.mUnitText = unitText;
     }
 
+    public boolean isInitFinish() {
+        return mIsInitFinish;
+    }
+
     public void setPickerSoundEnabled(boolean enabled) {
         this.mPickerSoundEnabled = enabled;
     }
 
     public void setData(List<Data> data) {
         mAdapter.setData(data, mTextColor, mTextSize);
-        Log.d("setData", " vertical " + mLayoutManager.mVerticalOffset + " isover " + mLayoutManager.mIsOverScroll);
-        mLayoutManager.updateVerticalOffset();
+        super.setAdapter(mAdapter);
+        // if there is no data, RecyclerView will disable scrolling,
+        // we need manually notify the listener of the scroll status;
+        if (null == data || data.size() == 0)
+            onScrolled(0, 0);
+        // check the scroll border
+        mLayoutManager.checkVerticalOffsetBound();
     }
 
     public void setScrollEnabled(final boolean scrollEnabled) {
@@ -315,19 +348,25 @@ public class RecyclerWheelPicker extends RecyclerView {
 
     private class WheelAdapter extends Adapter<ViewHolder> {
         Context context;
-        List<Data> data;
+        List<Data> datas;
         int textColor;
         float textSize;
+        int itemHeight = 0;
 
         WheelAdapter(Context context) {
             this.context = context;
         }
 
         void setData(List<Data> data, int textColor, float textSize) {
-            this.data = data;
+            this.datas = data;
             this.textColor = textColor;
             this.textSize = textSize;
+            itemHeight = (int) (textSize * 1.3f);
             notifyDataSetChanged();
+        }
+
+        int getItemHeight() {
+            return itemHeight;
         }
 
         @Override
@@ -337,7 +376,7 @@ public class RecyclerWheelPicker extends RecyclerView {
 //                    (int) (textSize * 1.3f));
             ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(getLayoutParams());
             layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            layoutParams.height = (int) (textSize * 1.3f);
+            layoutParams.height = itemHeight;
             textView.setLayoutParams(layoutParams);
             textView.setGravity(Gravity.CENTER);
             return new WheelHolder(textView);
@@ -345,9 +384,9 @@ public class RecyclerWheelPicker extends RecyclerView {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            if (null != data) {
+            if (null != datas) {
                 TextView textView = (TextView) holder.itemView;
-                textView.setText(data.get(position).data);
+                textView.setText(datas.get(position).data);
                 textView.setTextColor(textColor);
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
                 textView.setGravity(Gravity.CENTER);
@@ -355,12 +394,12 @@ public class RecyclerWheelPicker extends RecyclerView {
         }
 
         Data getData(int position) {
-            return null == data || position > data.size() - 1 ? null : data.get(position);
+            return null == datas || position > datas.size() - 1 ? null : datas.get(position);
         }
 
         @Override
         public int getItemCount() {
-            return null == data ? 0 : data.size();
+            return null == datas ? 0 : datas.size();
         }
 
         class WheelHolder extends ViewHolder {

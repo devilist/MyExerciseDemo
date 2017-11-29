@@ -33,7 +33,8 @@ import java.util.List;
 
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.demolist.wheel_picker.bean.Data;
-import app.zengpu.com.myexercisedemo.demolist.wheel_picker.core.RecyclerWheelPicker;
+import app.zengpu.com.myexercisedemo.demolist.wheel_picker.parser.DataParser;
+import app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget.RecyclerWheelPicker;
 import app.zengpu.com.myexercisedemo.demolist.wheel_picker.dialog.WheelPicker;
 
 /**
@@ -46,6 +47,7 @@ public class TripleWheelPicker extends WheelPicker {
     private TextView tv_cancel, tv_ok;
     private RecyclerWheelPicker rv_picker1, rv_picker2, rv_picker3;
     private String pickData1 = "", pickData2 = "", pickData3 = "";
+    private List<Data> datas = new ArrayList<>();
 
     private TripleWheelPicker(Builder builder) {
         super(builder);
@@ -68,34 +70,46 @@ public class TripleWheelPicker extends WheelPicker {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        final List<String> list1 = new ArrayList();
-        for (int i = 1917; i < 2018; i++)
-            list1.add(i + "");
-        final List<String> list2 = new ArrayList();
-        for (int i = 0; i < 13; i++)
-            list2.add(i + "");
-        final List<String> list3 = new ArrayList();
-        for (int i = 1; i < 32; i++)
-            list3.add(i + "");
         tv_ok = (TextView) getView().findViewById(R.id.tv_ok);
         tv_cancel = (TextView) getView().findViewById(R.id.tv_cancel);
-        rv_picker1 = (RecyclerWheelPicker) getView().findViewById(R.id.rv_picker1);
-        rv_picker2 = (RecyclerWheelPicker) getView().findViewById(R.id.rv_picker2);
-        rv_picker3 = (RecyclerWheelPicker) getView().findViewById(R.id.rv_picker3);
-
         tv_ok.setOnClickListener(this);
         tv_cancel.setOnClickListener(this);
 
-        rv_picker1.setUnit("年");
-        rv_picker2.setUnit("月");
-        rv_picker3.setUnit("日");
-//        rv_picker1.setData(list1);
-//        rv_picker2.setData(list2);
-//        rv_picker3.setData(list3);
-
+        rv_picker1 = (RecyclerWheelPicker) getView().findViewById(R.id.rv_picker1);
+        rv_picker2 = (RecyclerWheelPicker) getView().findViewById(R.id.rv_picker2);
+        rv_picker3 = (RecyclerWheelPicker) getView().findViewById(R.id.rv_picker3);
         rv_picker1.setOnWheelScrollListener(this);
         rv_picker2.setOnWheelScrollListener(this);
         rv_picker3.setOnWheelScrollListener(this);
+
+        // parse data
+        datas = DataParser.parserData(getContext(), builder.resInt, builder.isAll);
+        rv_picker1.setData(datas);
+        rv_picker2.setData(datas.get(0).items);
+        rv_picker2.setData(datas.get(0).items.get(0).items);
+
+        // units
+        String[] units = builder.units;
+        if (null != units) {
+            if (units.length > 0)
+                rv_picker1.setUnit(units[0]);
+            if (units.length > 1)
+                rv_picker1.setUnit(units[1]);
+        }
+
+        // default position
+        int defP1 = 0, defP2 = 0;
+        int[] defPosition = builder.defPosition;
+        if (null != defPosition) {
+            if (defPosition.length > 0)
+                defP1 = defPosition[0];
+            if (defPosition.length > 1)
+                defP2 = defPosition[1];
+        }
+        defP1 = Math.min(Math.max(0, defP1), datas.size() - 1);
+        defP2 = Math.min(Math.max(0, defP2), datas.get(0).items.size() - 1);
+        rv_picker1.smoothScrollToPosition(defP1);
+        rv_picker2.smoothScrollToPosition(defP2);
     }
 
     @Override

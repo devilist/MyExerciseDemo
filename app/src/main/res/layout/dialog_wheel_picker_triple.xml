@@ -36,14 +36,14 @@
         android:layout_height="180dp"
         android:background="@android:color/white">
 
-        <app.zengpu.com.myexercisedemo.demolist.wheel_picker.core.RecyclerWheelPicker
+        <app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget.RecyclerWheelPicker
             android:id="@+id/rv_picker1"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             app:rwp_unitSize="18sp" />
 
-        <app.zengpu.com.myexercisedemo.demolist.wheel_picker.core.RecyclerWheelPicker
+        <app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget.RecyclerWheelPicker
             android:id="@+id/rv_picker2"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -51,7 +51,7 @@
             android:paddingRight="10dp"
             app:rwp_unitSize="18sp" />
 
-        <app.zengpu.com.myexercisedemo.demolist.wheel_picker.core.RecyclerWheelPicker
+        <app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget.RecyclerWheelPicker
             android:id="@+id/rv_picker3"
             android:layout_width="0dp"
             android:layout_height="match_parent"

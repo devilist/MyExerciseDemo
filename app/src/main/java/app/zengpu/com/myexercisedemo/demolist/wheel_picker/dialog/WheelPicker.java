@@ -28,7 +28,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RawRes;
 import android.support.annotation.StyleRes;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -38,7 +37,7 @@ import android.view.ViewGroup;
 import java.lang.reflect.Constructor;
 
 import app.zengpu.com.myexercisedemo.demolist.wheel_picker.bean.Data;
-import app.zengpu.com.myexercisedemo.demolist.wheel_picker.core.RecyclerWheelPicker;
+import app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget.RecyclerWheelPicker;
 
 
 /**
@@ -182,7 +181,8 @@ public class WheelPicker extends DialogFragment implements Runnable,
         @RawRes
         public int resInt = 0;
         public boolean isAll = false;
-        public String[] units;
+        public String[] units, defValues;
+        public int[] defPosition;
         public OnPickerListener pickerListener;
 
         public Builder(Class clazz) {
@@ -211,6 +211,16 @@ public class WheelPicker extends DialogFragment implements Runnable,
 
         public Builder setUnits(String... units) {
             this.units = units;
+            return this;
+        }
+
+        public Builder setDefValues(String... values) {
+            this.defValues = values;
+            return this;
+        }
+
+        public Builder setDefPosition(int... defPosition) {
+            this.defPosition = defPosition;
             return this;
         }
 

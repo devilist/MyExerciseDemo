@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package app.zengpu.com.myexercisedemo.demolist.wheel_picker.core;
+package app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget;
 
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -23,9 +23,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 
 
 /**
@@ -36,7 +38,7 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
 
     private RecyclerWheelPicker mRecyclerView;
     int mVerticalOffset = 0; // offset in vertical orientation when scrolling
-    int mItemHeight = 1;
+    int mItemHeight = 0;
     private int mMaxOverScrollOffset = 0;
     boolean mIsOverScroll = false; // whether no item cross the center
     private SparseArray<Rect> mItemAreas; // record all visible child display area
@@ -85,7 +87,7 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
         int topToCenterOffset = getVerticalSpace() / 2 - childHeight / 2;
         int offsetHeight = getPaddingTop() + topToCenterOffset;
         for (int i = 0; i < getItemCount(); i++) {
-            Rect rect = new Rect(getPaddingLeft(), offsetHeight, childWidth, offsetHeight + childHeight);
+            Rect rect = new Rect(getPaddingLeft(), offsetHeight, getPaddingLeft() + childWidth, offsetHeight + childHeight);
             mItemAreas.put(i, rect);
             offsetHeight += childHeight;
         }
@@ -138,6 +140,11 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
         // scrap all attached views and re-layout by scrolling distance
         detachAndScrapAttachedViews(recycler);
         mIsOverScroll = false;
+        // no items, vertical offset must be 0;
+        if (mRecyclerView.getAdapter().getItemCount() == 0) {
+            dy = 0;
+            mVerticalOffset = 0;
+        }
         // scroll to top bound ; dy < 0; mVerticalOffset < 0
         if (dy < 0) {
             if (mVerticalOffset + dy <= -mItemHeight)
@@ -166,9 +173,11 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
         return dy;
     }
 
-    void updateVerticalOffset() {
+
+    void checkVerticalOffsetBound() {
         int totalItemCount = mRecyclerView.getAdapter().getItemCount();
-        if (mVerticalOffset > (totalItemCount - 1) * mItemHeight) {
+        if (totalItemCount == 0) mVerticalOffset = 0;
+        else if (mVerticalOffset > (totalItemCount - 1) * mItemHeight) {
             mVerticalOffset = (totalItemCount - 1) * mItemHeight;
         } else if (mVerticalOffset < 0)
             mVerticalOffset = 0;
@@ -201,8 +210,14 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
         return getWidth() - getPaddingLeft() - getPaddingRight();
     }
 
+    void scrollTargetPositionToCenter(final int position, int itemHeight) {
+        if (position <= 0) return;
+        int distance = itemHeight * position;
+        mRecyclerView.smoothScrollBy(0, distance);
+    }
+
     @Override
-    public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, int position) {
+    public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, final int position) {
         LinearSmoothScroller smoothScroller = new LinearSmoothScroller(recyclerView.getContext()) {
             @Override
             protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {

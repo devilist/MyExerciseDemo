@@ -7,6 +7,16 @@
     android:padding="30dp">
 
     <TextView
+        android:id="@+id/tv_single"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:layout_margin="10dp"
+        android:background="#999999"
+        android:gravity="center"
+        android:text="single"
+        android:textSize="20sp" />
+
+    <TextView
         android:id="@+id/tv_double"
         android:layout_width="100dp"
         android:layout_height="50dp"
