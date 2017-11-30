@@ -33,6 +33,8 @@ import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
 
 import java.lang.reflect.Constructor;
 
@@ -133,29 +135,45 @@ public class WheelPicker extends DialogFragment implements Runnable,
     }
 
     public void doEnterAnim(final View contentView, long animDuration) {
-        ValueAnimator enterAnimator = ValueAnimator.ofFloat(contentView.getHeight(), 0);
-        enterAnimator.setDuration(animDuration);
-        enterAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
-                contentView.setTranslationY(value);
-            }
-        });
-        enterAnimator.start();
+        if (builder.gravity == Gravity.BOTTOM) {
+            ValueAnimator enterAnimator = ValueAnimator.ofFloat(contentView.getHeight(), 0);
+            enterAnimator.setDuration(animDuration);
+            enterAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    float value = (float) animation.getAnimatedValue();
+                    contentView.setTranslationY(value);
+                }
+            });
+            enterAnimator.start();
+        } else {
+            ScaleAnimation scaleAnimation = new ScaleAnimation(0F, 1.0F, 0F, 1.0F,
+                    Animation.RELATIVE_TO_PARENT, 0.5F, Animation.RELATIVE_TO_PARENT, 0.5F);
+            scaleAnimation.setDuration(animDuration);
+            scaleAnimation.setFillAfter(true);
+            contentView.startAnimation(scaleAnimation);
+        }
     }
 
     public void doExitAnim(final View contentView, long animDuration) {
-        ValueAnimator exitAnimator = ValueAnimator.ofFloat(0, contentView.getHeight());
-        exitAnimator.setDuration(animDuration);
-        exitAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                float value = (float) animation.getAnimatedValue();
-                contentView.setTranslationY(value);
-            }
-        });
-        exitAnimator.start();
+        if (builder.gravity == Gravity.BOTTOM) {
+            ValueAnimator exitAnimator = ValueAnimator.ofFloat(0, contentView.getHeight());
+            exitAnimator.setDuration(animDuration);
+            exitAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    float value = (float) animation.getAnimatedValue();
+                    contentView.setTranslationY(value);
+                }
+            });
+            exitAnimator.start();
+        } else {
+            ScaleAnimation scaleAnimation = new ScaleAnimation(1.0F, 0.0F, 1.0F, 0.0F,
+                    Animation.RELATIVE_TO_PARENT, 0.5F, Animation.RELATIVE_TO_PARENT, 0.5F);
+            scaleAnimation.setDuration(animDuration);
+            scaleAnimation.setFillAfter(true);
+            contentView.startAnimation(scaleAnimation);
+        }
     }
 
     @Override

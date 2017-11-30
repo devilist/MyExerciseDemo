@@ -32,7 +32,6 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -68,6 +67,7 @@ public class RecyclerWheelPicker extends RecyclerView {
     private boolean mIsScrolling = true;
     private boolean mIsInitFinish = false;  // whether RecyclerView's children count is over zero
 
+    private IDecoration mDecoration;
     private WheelAdapter mAdapter;
     private WheelPickerLayoutManager mLayoutManager;
     private OnWheelScrollListener mListener;
@@ -109,6 +109,7 @@ public class RecyclerWheelPicker extends RecyclerView {
         mDecorationPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mUnitTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         mDecorationRect = new Rect();
+        mDecoration = new DefaultDecoration();
 
         mAdapter = new WheelAdapter(context);
         super.setAdapter(mAdapter);
@@ -201,6 +202,30 @@ public class RecyclerWheelPicker extends RecyclerView {
         invalidate();
     }
 
+    public void setTextColor(int textColor) {
+        this.mTextColor = textColor;
+    }
+
+    public void setUnitColor(int unitColor) {
+        this.mUnitColor = unitColor;
+    }
+
+    public void setDecorationColor(int decorationColor) {
+        this.mDecorationColor = decorationColor;
+    }
+
+    public void setTextSize(float textSize) {
+        this.mTextSize = textSize;
+    }
+
+    public void setUnitSize(float unitSize) {
+        this.mUnitSize = unitSize;
+    }
+
+    public void setDecorationSize(float decorationSize) {
+        this.mDecorationSize = decorationSize;
+    }
+
     public boolean isInitFinish() {
         return mIsInitFinish;
     }
@@ -247,6 +272,11 @@ public class RecyclerWheelPicker extends RecyclerView {
         return mIsScrolling;
     }
 
+    public void setDecoration(IDecoration mDecoration) {
+        this.mDecoration = mDecoration;
+        invalidate();
+    }
+
     @Override
     public boolean canScrollVertically(int direction) {
         return mScrollEnabled;
@@ -260,13 +290,15 @@ public class RecyclerWheelPicker extends RecyclerView {
     }
 
     private void drawDecoration(Canvas c) {
-        int decorationTop = (int) (getVerticalSpace() / 2 - mDecorationSize / 2);
-        int decorationBottom = (int) (getVerticalSpace() / 2 + mDecorationSize / 2);
-        mDecorationRect.set(-1, decorationTop, getWidth() + 1, decorationBottom);
-        mDecorationPaint.setColor(mDecorationColor);
-        mDecorationPaint.setStyle(Paint.Style.STROKE);
-        mDecorationPaint.setStrokeWidth(0.25f);
-        c.drawRect(mDecorationRect, mDecorationPaint);
+        if (null != mDecoration) {
+            int decorationTop = (int) (getVerticalSpace() / 2 - mDecorationSize / 2);
+            int decorationBottom = (int) (getVerticalSpace() / 2 + mDecorationSize / 2);
+            mDecorationRect.set(-1, decorationTop, getWidth() + 1, decorationBottom);
+            mDecorationPaint.setColor(mDecorationColor);
+            mDecorationPaint.setStyle(Paint.Style.STROKE);
+            mDecorationPaint.setStrokeWidth(0.25f);
+            mDecoration.drawDecoration(this, c, mDecorationRect, mDecorationPaint);
+        }
     }
 
     private void drawUnitText(Canvas c) {
@@ -336,11 +368,11 @@ public class RecyclerWheelPicker extends RecyclerView {
 //        return true;
     }
 
-    private int getVerticalSpace() {
+    public int getVerticalSpace() {
         return getHeight() - getPaddingBottom() - getPaddingTop();
     }
 
-    private int getHorizontalSpace() {
+    public int getHorizontalSpace() {
         return getWidth() - getPaddingLeft() - getPaddingRight();
     }
 
@@ -389,8 +421,6 @@ public class RecyclerWheelPicker extends RecyclerView {
         @Override
         public WheelHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             TextView textView = new TextView(context);
-//            ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-//                    (int) (textSize * 1.3f));
             ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(getLayoutParams());
             layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
             layoutParams.height = itemHeight;

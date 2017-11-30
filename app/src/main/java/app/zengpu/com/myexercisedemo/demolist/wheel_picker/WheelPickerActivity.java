@@ -33,7 +33,7 @@ import app.zengpu.com.myexercisedemo.demolist.wheel_picker.dialog.WheelPicker;
 
 public class WheelPickerActivity extends BaseActivity implements View.OnClickListener {
 
-    private TextView tv_single, tv_double, tv_number_range, tv_triple, tv_triple_date;
+    private TextView tv_single, tv_double, tv_number_range, tv_triple, tv_triple_date, tv_pw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +45,14 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
         tv_number_range = findViewById(R.id.tv_number_range);
         tv_triple = findViewById(R.id.tv_triple);
         tv_triple_date = findViewById(R.id.tv_triple_date);
+        tv_pw = findViewById(R.id.tv_pw);
 
         tv_single.setOnClickListener(this);
         tv_double.setOnClickListener(this);
         tv_number_range.setOnClickListener(this);
         tv_triple.setOnClickListener(this);
         tv_triple_date.setOnClickListener(this);
+        tv_pw.setOnClickListener(this);
     }
 
     @Override
@@ -59,7 +61,7 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
             case R.id.tv_single:
                 SingleWheelPicker.instance()
                         .setGravity(Gravity.BOTTOM)
-                        .setResource(R.raw.picker_location)
+                        .setResource(R.raw.picker_zodiac)
                         .setPickerListener(new WheelPicker.OnPickerListener() {
                             @Override
                             public void onPickResult(String... result) {
@@ -127,7 +129,22 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
                             }
                         }).build().show(getSupportFragmentManager());
                 break;
-
+            case R.id.tv_pw:
+                PasswordPicker.instance()
+                        .itemSize(200, 200)
+                        .length(6)
+                        .abcABC(true)
+                        .setPickerListener(new WheelPicker.OnPickerListener() {
+                            @Override
+                            public void onPickResult(String... result) {
+                                String s = " ";
+                                for (int i = 0; i < result.length; i++)
+                                    s += result[i] + " ";
+                                Log.d("RecyclerWheelPicker", "result " + s);
+                                Toast.makeText(WheelPickerActivity.this, s, Toast.LENGTH_SHORT).show();
+                            }
+                        }).build().show(getSupportFragmentManager());
+                break;
         }
     }
 }
