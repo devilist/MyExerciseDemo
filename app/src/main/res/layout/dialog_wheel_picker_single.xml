@@ -37,8 +37,8 @@
         android:layout_height="180dp"
         android:background="@android:color/white"
         android:layout_weight="1"
-        android:paddingLeft="50dp"
-        android:paddingRight="50dp"
+        android:paddingLeft="100dp"
+        android:paddingRight="100dp"
         app:rwp_unitSize="18sp" />
 
 </LinearLayout>

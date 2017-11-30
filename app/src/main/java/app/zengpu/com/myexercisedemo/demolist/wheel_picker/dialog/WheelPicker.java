@@ -93,12 +93,14 @@ public class WheelPicker extends DialogFragment implements Runnable,
     protected void parseData() {
     }
 
+    protected void inflateData() {
+    }
+
     protected void pickerClose() {
     }
 
     @Override
     public void onClick(View v) {
-
     }
 
     @Override

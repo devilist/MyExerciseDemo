@@ -26,7 +26,6 @@ import android.widget.Toast;
 import app.zengpu.com.myexercisedemo.BaseActivity;
 import app.zengpu.com.myexercisedemo.R;
 import app.zengpu.com.myexercisedemo.demolist.wheel_picker.dialog.WheelPicker;
-import app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget.DateWheelPicker;
 
 /**
  * Created by zengp on 2017/11/22.
@@ -34,7 +33,7 @@ import app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget.DateWheelPicke
 
 public class WheelPickerActivity extends BaseActivity implements View.OnClickListener {
 
-    private TextView tv_single, tv_double, tv_triple, tv_triple_date;
+    private TextView tv_single, tv_double, tv_number_range, tv_triple, tv_triple_date;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +42,13 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
 
         tv_single = findViewById(R.id.tv_single);
         tv_double = findViewById(R.id.tv_double);
+        tv_number_range = findViewById(R.id.tv_number_range);
         tv_triple = findViewById(R.id.tv_triple);
         tv_triple_date = findViewById(R.id.tv_triple_date);
 
         tv_single.setOnClickListener(this);
         tv_double.setOnClickListener(this);
+        tv_number_range.setOnClickListener(this);
         tv_triple.setOnClickListener(this);
         tv_triple_date.setOnClickListener(this);
     }
@@ -59,9 +60,6 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
                 SingleWheelPicker.instance()
                         .setGravity(Gravity.BOTTOM)
                         .setResource(R.raw.picker_location)
-                        .showAllItem(false)
-                        .setDefPosition(15, 5)
-                        .setDefValues("浙江", "杭州")
                         .setPickerListener(new WheelPicker.OnPickerListener() {
                             @Override
                             public void onPickResult(String... result) {
@@ -75,7 +73,21 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
                 DoubleWheelPicker.instance()
                         .setGravity(Gravity.BOTTOM)
                         .setResource(R.raw.picker_location)
-                        .setDefPosition(18, 7)
+                        .setPickerListener(new WheelPicker.OnPickerListener() {
+                            @Override
+                            public void onPickResult(String... result) {
+                                Log.d("RecyclerWheelPicker", "result " + result[0] + "-" + result[1]);
+                                Toast.makeText(WheelPickerActivity.this,
+                                        result[0] + "-" + result[1], Toast.LENGTH_SHORT).show();
+                            }
+                        }).build().show(getSupportFragmentManager());
+                break;
+            case R.id.tv_number_range:
+                NumberRangePicker.instance()
+                        .range(140, 200)
+                        .showAllItem(true)
+                        .setUnits("cm", "cm")
+                        .setGravity(Gravity.BOTTOM)
                         .setPickerListener(new WheelPicker.OnPickerListener() {
                             @Override
                             public void onPickResult(String... result) {
@@ -89,7 +101,7 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
                 TripleWheelPicker.instance()
                         .setGravity(Gravity.BOTTOM)
                         .setResource(R.raw.picker_location)
-                        .setDefPosition(15, 10)
+                        .setDefPosition(13, 7)
                         .showAllItem(true)
                         .setPickerListener(new WheelPicker.OnPickerListener() {
                             @Override
@@ -102,10 +114,10 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
                 break;
             case R.id.tv_triple_date:
                 DateWheelPicker.instance()
-                        .limit(2017, 12, 31)
-                        .setUnits("年","月","日")
+                        .limit(1999)
+                        .showAllItem(true)
+                        .setUnits("年", "月", "日")
                         .setGravity(Gravity.BOTTOM)
-                        .setResource(R.raw.picker_location)
                         .setPickerListener(new WheelPicker.OnPickerListener() {
                             @Override
                             public void onPickResult(String... result) {

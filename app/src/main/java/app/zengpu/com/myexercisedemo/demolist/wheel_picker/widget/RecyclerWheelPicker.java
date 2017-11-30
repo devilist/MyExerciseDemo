@@ -128,11 +128,15 @@ public class RecyclerWheelPicker extends RecyclerView {
         super.onScrollStateChanged(state);
         mIsInitFinish = mAdapter.getItemCount() == 0 || getChildCount() > 0;
         if (state == SCROLL_STATE_IDLE) {
-            int centerPosition = mLayoutManager.findCenterItemPosition();
-            if (centerPosition == NO_POSITION) {
+            if (!mIsInitFinish)
                 dispatchOnScrollEvent(true, NO_POSITION, null);
-            } else
-                dispatchOnScrollEvent(false, centerPosition, mAdapter.getData(centerPosition));
+            else {
+                int centerPosition = mLayoutManager.findCenterItemPosition();
+                if (centerPosition == NO_POSITION) {
+                    dispatchOnScrollEvent(true, NO_POSITION, null);
+                } else
+                    dispatchOnScrollEvent(false, centerPosition, mAdapter.getData(centerPosition));
+            }
         } else
             dispatchOnScrollEvent(true, NO_POSITION, null);
     }
@@ -142,11 +146,15 @@ public class RecyclerWheelPicker extends RecyclerView {
         super.onScrolled(dx, dy);
         mIsInitFinish = mAdapter.getItemCount() == 0 || getChildCount() > 0;
         if (dx == 0 && dy == 0) {
-            int centerPosition = mLayoutManager.findCenterItemPosition();
-            if (centerPosition == NO_POSITION) {
+            if (!mIsInitFinish)
                 dispatchOnScrollEvent(true, NO_POSITION, null);
-            } else
-                dispatchOnScrollEvent(false, centerPosition, mAdapter.getData(centerPosition));
+            else {
+                int centerPosition = mLayoutManager.findCenterItemPosition();
+                if (centerPosition == NO_POSITION) {
+                    dispatchOnScrollEvent(true, NO_POSITION, null);
+                } else
+                    dispatchOnScrollEvent(false, centerPosition, mAdapter.getData(centerPosition));
+            }
         } else
             dispatchOnScrollEvent(true, NO_POSITION, null);
 
@@ -188,7 +196,9 @@ public class RecyclerWheelPicker extends RecyclerView {
     }
 
     public void setUnit(String unitText) {
+        if (mUnitText.equals(unitText)) return;
         this.mUnitText = unitText;
+        invalidate();
     }
 
     public boolean isInitFinish() {
@@ -263,7 +273,7 @@ public class RecyclerWheelPicker extends RecyclerView {
         if (null != mUnitText && !TextUtils.isEmpty(mUnitText)) {
             mUnitTextPaint.setColor(mUnitColor);
             mUnitTextPaint.setTextSize(mUnitSize);
-            float startX = getHorizontalSpace() - StaticLayout.getDesiredWidth(mUnitText, 0, mUnitText.length(), mUnitTextPaint);
+            float startX = getWidth() - getPaddingRight() - StaticLayout.getDesiredWidth(mUnitText, 0, mUnitText.length(), mUnitTextPaint);
             Paint.FontMetrics fontMetrics = mUnitTextPaint.getFontMetrics();
             float startY = getVerticalSpace() / 2 + mUnitSize / 2 - fontMetrics.descent / 2;
             c.drawText(mUnitText, startX, startY, mUnitTextPaint);

@@ -198,7 +198,6 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
             if (null == child) continue;
             int centerY = getVerticalSpace() / 2;
             int childCenterY = child.getTop() + child.getHeight() / 2;
-            Log.d("onScrolled", "centerY " + centerY + " childCenterY " + childCenterY);
             if (Math.abs(centerY - childCenterY) <= 1) return i;
         }
         return RecyclerView.NO_POSITION;
@@ -213,7 +212,7 @@ class WheelPickerLayoutManager extends LinearLayoutManager {
     }
 
     void scrollTargetPositionToCenter(final int position, int itemHeight) {
-        if (position <= 0) return;
+        if (position < 0) return;
         int distance = itemHeight * position;
         mRecyclerView.smoothScrollBy(0, distance);
     }

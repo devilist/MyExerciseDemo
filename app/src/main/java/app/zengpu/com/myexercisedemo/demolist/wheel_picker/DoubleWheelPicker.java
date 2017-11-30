@@ -44,12 +44,12 @@ import app.zengpu.com.myexercisedemo.demolist.wheel_picker.parser.DataParser;
 public class DoubleWheelPicker extends WheelPicker {
 
     private TextView tv_cancel, tv_ok;
-    private RecyclerWheelPicker rv_picker1, rv_picker2;
-    private String pickData1 = "", pickData2 = "";
+    protected RecyclerWheelPicker rv_picker1, rv_picker2;
+    protected String pickData1 = "", pickData2 = "";
+    protected String unit1 = "", unit2 = "";
+    protected List<Data> datas = new ArrayList<>();
 
-    private List<Data> datas = new ArrayList<>();
-
-    private DoubleWheelPicker(Builder builder) {
+    protected DoubleWheelPicker(Builder builder) {
         super(builder);
     }
 
@@ -82,20 +82,23 @@ public class DoubleWheelPicker extends WheelPicker {
 
         // parse data
         parseData();
+        inflateData();
     }
 
     @Override
     protected void parseData() {
         // parse data
         datas = DataParser.parserData(getContext(), builder.resInt, builder.isAll);
+    }
+
+    @Override
+    protected void inflateData() {
         List<Data> datas2 = new ArrayList<>();
         // units
         String[] units = builder.units;
         if (null != units) {
-            if (units.length > 0)
-                rv_picker1.setUnit(units[0]);
-            if (units.length > 1)
-                rv_picker2.setUnit(units[1]);
+            if (units.length > 0) unit1 = units[0];
+            if (units.length > 1) unit2 = units[1];
         }
         // default position. find by defPosition firstly, then defValues
         int defP1 = 0, defP2 = 0;
@@ -106,9 +109,11 @@ public class DoubleWheelPicker extends WheelPicker {
                 if (defPosition.length > 1) defP2 = defPosition[1];
             }
             defP1 = Math.min(Math.max(0, defP1), datas.size() - 1);
+            pickData1 = datas.get(defP1).data;
             datas2 = datas.get(defP1).items;
-            if (datas2.size() > 0) {
+            if (null != datas2 && datas2.size() > 0) {
                 defP2 = Math.min(Math.max(0, defP2), datas2.size() - 1);
+                pickData2 = datas2.get(defP2).data;
             }
         }
         String[] defValues = builder.defValues;
@@ -117,20 +122,24 @@ public class DoubleWheelPicker extends WheelPicker {
                 for (int i = 0; i < datas.size(); i++) {
                     if (defValues[0].equals(datas.get(i).data)) {
                         defP1 = i;
+                        pickData1 = datas.get(defP1).data;
                         break;
                     }
                 }
             }
             datas2 = datas.get(defP1).items;
-            if (datas2.size() > 0 && defValues.length > 1) {
+            if (null != datas2 && datas2.size() > 0 && defValues.length > 1) {
                 for (int i = 0; i < datas2.size(); i++) {
                     if (defValues[1].equals(datas2.get(i).data)) {
                         defP2 = i;
+                        pickData2 = datas2.get(defP2).data;
                         break;
                     }
                 }
             }
         }
+        rv_picker1.setUnit(datas.get(defP1).id == 0 ? "" : unit1);
+        rv_picker2.setUnit(datas.get(defP1).id == 0 ? "" : unit2);
         rv_picker2.setData(datas2);
         rv_picker2.scrollTargetPositionToCenter(defP2);
         rv_picker1.setData(datas);
@@ -144,6 +153,8 @@ public class DoubleWheelPicker extends WheelPicker {
         if (wheelPicker == rv_picker1) {
             if (!isScrolling && null != data) {
                 pickData1 = data.data;
+                rv_picker1.setUnit(data.id == 0 ? "" : unit1);
+                rv_picker2.setUnit(data.id == 0 ? "" : unit2);
                 rv_picker2.setData(data.items);
             } else {
                 pickData1 = "";

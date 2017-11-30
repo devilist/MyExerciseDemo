@@ -45,12 +45,12 @@ import app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget.RecyclerWheelP
 public class SingleWheelPicker extends WheelPicker {
 
     private TextView tv_cancel, tv_ok;
-    private RecyclerWheelPicker rv_picker1;
-    private String pickData1 = "";
+    protected RecyclerWheelPicker rv_picker1;
+    protected String pickData1 = "";
+    protected String unit1 = "";
+    protected List<Data> datas = new ArrayList<>();
 
-    private List<Data> datas = new ArrayList<>();
-
-    private SingleWheelPicker(Builder builder) {
+    protected SingleWheelPicker(Builder builder) {
         super(builder);
     }
 
@@ -80,17 +80,21 @@ public class SingleWheelPicker extends WheelPicker {
         rv_picker1.setOnWheelScrollListener(this);
         // parse data
         parseData();
+        inflateData();
     }
 
     @Override
     protected void parseData() {
         // parse data
         datas = DataParser.parserData(getContext(), builder.resInt, builder.isAll);
+    }
+
+    @Override
+    protected void inflateData() {
         // units
         String[] units = builder.units;
         if (null != units) {
-            if (units.length > 0)
-                rv_picker1.setUnit(units[0]);
+            if (units.length > 0) unit1 = units[0];
         }
         // default position. find by defPosition firstly, then defValues
         int defP1 = 0;
@@ -112,6 +116,7 @@ public class SingleWheelPicker extends WheelPicker {
                 }
             }
         }
+        rv_picker1.setUnit(datas.get(defP1).id == 0 ? "" : unit1);
         rv_picker1.setData(datas);
         rv_picker1.scrollTargetPositionToCenter(defP1);
     }
@@ -121,6 +126,7 @@ public class SingleWheelPicker extends WheelPicker {
         super.onWheelScrollChanged(wheelPicker, isScrolling, position, data);
         if (!isScrolling && null != data) {
             pickData1 = data.data;
+            rv_picker1.setUnit(data.id == 0 ? "" : unit1);
         }
     }
 
