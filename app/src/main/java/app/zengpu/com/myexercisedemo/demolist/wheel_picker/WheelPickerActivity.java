@@ -108,14 +108,12 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
                 break;
             case R.id.tv_triple:
                 TripleWheelPicker.instance()
+                        .setDefPosition(19, 8, 5)
                         .setGravity(Gravity.BOTTOM)
-                        .setResource(R.raw.picker_time)
-                        .setDefPosition(13, 30, 30)
-                        .setUnits("时", "分", "秒")
-                        .setDataRelated(false)
+                        .setResource(R.raw.picker_location_3)
                         .showAllItem(true)
                         .setPickerListener(this).build()
-                        .show(getSupportFragmentManager(), "triple");
+                        .show(getSupportFragmentManager(), "triple_city");
                 break;
             case R.id.tv_triple_date:
                 DateWheelPicker.instance()
@@ -174,7 +172,7 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
                 Toast.makeText(WheelPickerActivity.this,
                         result[0] + "-" + result[1], Toast.LENGTH_SHORT).show();
                 break;
-            case "triple":
+            case "triple_city":
             case "triple_date":
             case "triple_time_3":
                 Log.d("RecyclerWheelPicker", "triple result " + result[0] + "-" + result[1] + "-" + result[2]);

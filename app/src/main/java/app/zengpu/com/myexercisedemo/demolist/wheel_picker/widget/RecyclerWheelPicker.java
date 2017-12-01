@@ -434,9 +434,15 @@ public class RecyclerWheelPicker extends RecyclerView {
         public void onBindViewHolder(ViewHolder holder, int position) {
             if (null != datas) {
                 TextView textView = (TextView) holder.itemView;
-                textView.setText(datas.get(position).data);
+                String data = datas.get(position).data;
+                float finalTextSize = textSize;
+                float dataStringW = StaticLayout.getDesiredWidth(data, 0, data.length(), textView.getPaint());
+                if (getHorizontalSpace() > 0 && dataStringW * 1.5f > getHorizontalSpace()) {
+                    finalTextSize = getHorizontalSpace() / dataStringW / 1.5f * textSize;
+                }
                 textView.setTextColor(textColor);
-                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalTextSize);
+                textView.setText(data);
                 textView.setGravity(Gravity.CENTER);
             }
         }

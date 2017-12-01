@@ -255,6 +255,7 @@ public class TripleWheelPicker extends WheelPicker {
                 rv_picker3.setUnit(data.id == -1 ? "" : unit3);
                 if (builder.dataRelated) {
                     rv_picker2.setData(data.items);
+                    if (data.id == -1) rv_picker3.setData(null);
                 } else {
                     rv_picker2.setData(data.id == -1 ? null : dataList2);
                     rv_picker3.setData(data.id == -1 ? null : dataList3);

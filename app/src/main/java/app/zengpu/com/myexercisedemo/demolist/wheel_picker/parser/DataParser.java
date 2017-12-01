@@ -62,20 +62,15 @@ public class DataParser {
         List<Data> result = new ArrayList<>();
         if (null == jsonArray)
             return result;
-        try {
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.optJSONObject(i);
-                Data data = new Data();
-                data.id = jsonObject.getInt("id");
-                if (!all && data.id == 0)
-                    continue;
-                data.data = jsonObject.getString("data");
-                JSONArray subArray = jsonObject.optJSONArray("items");
-                data.items = parse(subArray, all);
-                result.add(data);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.optJSONObject(i);
+            Data data = new Data();
+            data.id = jsonObject.optInt("id");
+            if (!all && data.id == -1) continue;
+            data.data = jsonObject.optString("data");
+            JSONArray subArray = jsonObject.optJSONArray("items");
+            data.items = parse(subArray, all);
+            result.add(data);
         }
         return result;
     }
