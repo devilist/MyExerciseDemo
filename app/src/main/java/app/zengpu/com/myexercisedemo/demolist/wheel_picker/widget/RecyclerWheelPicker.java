@@ -334,6 +334,18 @@ public class RecyclerWheelPicker extends RecyclerView {
         float offsetY = centerY - childCenterY - rotateRadius * (float) Math.sin(rad) * 1.3f;
         child.setTranslationY(offsetY);
 
+        if (child instanceof TextView) {
+            String data = ((TextView) child).getText().toString();
+            if (((TextView) child).getTextSize() == mTextSize) {
+                float finalTextSize = mTextSize;
+                float dataStringW = StaticLayout.getDesiredWidth(data, 0, data.length(), ((TextView) child).getPaint());
+                if (getHorizontalSpace() > 0 && dataStringW * 1.1f > getHorizontalSpace()) {
+                    finalTextSize = getHorizontalSpace() / dataStringW / 1.1f * mTextSize;
+                }
+                ((TextView) child).setTextSize(TypedValue.COMPLEX_UNIT_PX, finalTextSize);
+            }
+        }
+
         return super.drawChild(canvas, child, drawingTime);
 
 //        // parent centerY ,item centerY
@@ -436,10 +448,10 @@ public class RecyclerWheelPicker extends RecyclerView {
                 TextView textView = (TextView) holder.itemView;
                 String data = datas.get(position).data;
                 float finalTextSize = textSize;
-                float dataStringW = StaticLayout.getDesiredWidth(data, 0, data.length(), textView.getPaint());
-                if (getHorizontalSpace() > 0 && dataStringW * 1.5f > getHorizontalSpace()) {
-                    finalTextSize = getHorizontalSpace() / dataStringW / 1.5f * textSize;
-                }
+//                float dataStringW = StaticLayout.getDesiredWidth(data, 0, data.length(), textView.getPaint());
+//                if (getHorizontalSpace() > 0 && dataStringW * 1.5f > getHorizontalSpace()) {
+//                    finalTextSize = getHorizontalSpace() / dataStringW / 1.5f * textSize;
+//                }
                 textView.setTextColor(textColor);
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, finalTextSize);
                 textView.setText(data);
