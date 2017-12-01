@@ -31,9 +31,10 @@ import app.zengpu.com.myexercisedemo.demolist.wheel_picker.dialog.WheelPicker;
  * Created by zengp on 2017/11/22.
  */
 
-public class WheelPickerActivity extends BaseActivity implements View.OnClickListener {
+public class WheelPickerActivity extends BaseActivity implements View.OnClickListener, WheelPicker.OnPickerListener {
 
-    private TextView tv_single, tv_double, tv_number_range, tv_triple, tv_triple_date, tv_pw;
+    private TextView tv_single, tv_double, tv_number_range_single, tv_number_range_double,
+            tv_triple, tv_triple_date, tv_triple_time_3, tv_triple_time_2, tv_pw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,16 +43,22 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
 
         tv_single = findViewById(R.id.tv_single);
         tv_double = findViewById(R.id.tv_double);
-        tv_number_range = findViewById(R.id.tv_number_range);
+        tv_number_range_single = findViewById(R.id.tv_number_range_single);
+        tv_number_range_double = findViewById(R.id.tv_number_range_double);
         tv_triple = findViewById(R.id.tv_triple);
         tv_triple_date = findViewById(R.id.tv_triple_date);
+        tv_triple_time_3 = findViewById(R.id.tv_triple_time_3);
+        tv_triple_time_2 = findViewById(R.id.tv_triple_time_2);
         tv_pw = findViewById(R.id.tv_pw);
 
         tv_single.setOnClickListener(this);
         tv_double.setOnClickListener(this);
-        tv_number_range.setOnClickListener(this);
+        tv_number_range_single.setOnClickListener(this);
+        tv_number_range_double.setOnClickListener(this);
         tv_triple.setOnClickListener(this);
         tv_triple_date.setOnClickListener(this);
+        tv_triple_time_3.setOnClickListener(this);
+        tv_triple_time_2.setOnClickListener(this);
         tv_pw.setOnClickListener(this);
     }
 
@@ -61,89 +68,125 @@ public class WheelPickerActivity extends BaseActivity implements View.OnClickLis
             case R.id.tv_single:
                 SingleWheelPicker.instance()
                         .setGravity(Gravity.BOTTOM)
+                        .setDefPosition(0)
+                        .setDefValues("兔")
+                        .setUnits("属相")
+                        .showAllItem(true)
                         .setResource(R.raw.picker_zodiac)
-                        .setPickerListener(new WheelPicker.OnPickerListener() {
-                            @Override
-                            public void onPickResult(String... result) {
-                                Log.d("RecyclerWheelPicker", "result " + result[0]);
-                                Toast.makeText(WheelPickerActivity.this,
-                                        result[0], Toast.LENGTH_SHORT).show();
-                            }
-                        }).build().show(getSupportFragmentManager());
+                        .setPickerListener(this).build()
+                        .show(getSupportFragmentManager(), "single");
                 break;
             case R.id.tv_double:
                 DoubleWheelPicker.instance()
                         .setGravity(Gravity.BOTTOM)
+                        .setDefPosition(10, 9)
+                        .setDefValues("浙江", "杭州")
+                        .setUnits("", "")
+                        .showAllItem(true)
                         .setResource(R.raw.picker_location)
-                        .setPickerListener(new WheelPicker.OnPickerListener() {
-                            @Override
-                            public void onPickResult(String... result) {
-                                Log.d("RecyclerWheelPicker", "result " + result[0] + "-" + result[1]);
-                                Toast.makeText(WheelPickerActivity.this,
-                                        result[0] + "-" + result[1], Toast.LENGTH_SHORT).show();
-                            }
-                        }).build().show(getSupportFragmentManager());
+                        .setPickerListener(this).build()
+                        .show(getSupportFragmentManager(), "double");
                 break;
-            case R.id.tv_number_range:
+            case R.id.tv_number_range_single:
                 NumberRangePicker.instance()
-                        .range(140, 200)
+                        .range(30, 200)
+                        .single(true)
+                        .showAllItem(true)
+                        .setUnits("kg")
+                        .setGravity(Gravity.BOTTOM)
+                        .setPickerListener(this).build().
+                        show(getSupportFragmentManager(), "number_range_single");
+                break;
+            case R.id.tv_number_range_double:
+                NumberRangePicker.instance()
+                        .range(100, 200)
                         .showAllItem(true)
                         .setUnits("cm", "cm")
                         .setGravity(Gravity.BOTTOM)
-                        .setPickerListener(new WheelPicker.OnPickerListener() {
-                            @Override
-                            public void onPickResult(String... result) {
-                                Log.d("RecyclerWheelPicker", "result " + result[0] + "-" + result[1]);
-                                Toast.makeText(WheelPickerActivity.this,
-                                        result[0] + "-" + result[1], Toast.LENGTH_SHORT).show();
-                            }
-                        }).build().show(getSupportFragmentManager());
+                        .setPickerListener(this).build().
+                        show(getSupportFragmentManager(), "number_range_double");
                 break;
             case R.id.tv_triple:
                 TripleWheelPicker.instance()
                         .setGravity(Gravity.BOTTOM)
-                        .setResource(R.raw.picker_location)
-                        .setDefPosition(13, 7)
+                        .setResource(R.raw.picker_time)
+                        .setDefPosition(13, 30, 30)
+                        .setUnits("时", "分", "秒")
+                        .setDataRelated(false)
                         .showAllItem(true)
-                        .setPickerListener(new WheelPicker.OnPickerListener() {
-                            @Override
-                            public void onPickResult(String... result) {
-                                Log.d("RecyclerWheelPicker", "result " + result[0] + "-" + result[1] + "-" + result[2]);
-                                Toast.makeText(WheelPickerActivity.this,
-                                        result[0] + "-" + result[1] + "-" + result[2], Toast.LENGTH_SHORT).show();
-                            }
-                        }).build().show(getSupportFragmentManager());
+                        .setPickerListener(this).build()
+                        .show(getSupportFragmentManager(), "triple");
                 break;
             case R.id.tv_triple_date:
                 DateWheelPicker.instance()
-                        .limit(1999)
+                        .limit(2017)
                         .showAllItem(true)
                         .setUnits("年", "月", "日")
+                        .setDefPosition(4, 8, 13)
                         .setGravity(Gravity.BOTTOM)
-                        .setPickerListener(new WheelPicker.OnPickerListener() {
-                            @Override
-                            public void onPickResult(String... result) {
-                                Log.d("RecyclerWheelPicker", "result " + result[0] + "-" + result[1] + "-" + result[2]);
-                                Toast.makeText(WheelPickerActivity.this,
-                                        result[0] + "-" + result[1] + "-" + result[2], Toast.LENGTH_SHORT).show();
-                            }
-                        }).build().show(getSupportFragmentManager());
+                        .setPickerListener(this).build()
+                        .show(getSupportFragmentManager(), "triple_date");
+                break;
+            case R.id.tv_triple_time_3:
+                TimeWheelPicker.instance()
+                        .setDataRelated(false)
+                        .showAllItem(true)
+                        .setUnits("时", "分", "秒")
+                        .setDefPosition(13, 30, 30)
+                        .setGravity(Gravity.BOTTOM)
+                        .setPickerListener(this).build()
+                        .show(getSupportFragmentManager(), "triple_time_3");
+                break;
+            case R.id.tv_triple_time_2:
+                TimeWheelPicker.instance()
+                        .setNoSecond(true)
+                        .showAllItem(true)
+                        .setUnits("时", "分")
+                        .setDefPosition(13, 30)
+                        .setGravity(Gravity.BOTTOM)
+                        .setPickerListener(this).build()
+                        .show(getSupportFragmentManager(), "triple_time_2");
                 break;
             case R.id.tv_pw:
                 PasswordPicker.instance()
-                        .itemSize(200, 200)
+                        .itemSize(160, 180)
                         .length(6)
-                        .abcABC(true)
-                        .setPickerListener(new WheelPicker.OnPickerListener() {
-                            @Override
-                            public void onPickResult(String... result) {
-                                String s = " ";
-                                for (int i = 0; i < result.length; i++)
-                                    s += result[i] + " ";
-                                Log.d("RecyclerWheelPicker", "result " + s);
-                                Toast.makeText(WheelPickerActivity.this, s, Toast.LENGTH_SHORT).show();
-                            }
-                        }).build().show(getSupportFragmentManager());
+                        .onlyNumber(false)
+                        .setPickerListener(this).build()
+                        .show(getSupportFragmentManager(), "password");
+                break;
+        }
+    }
+
+    @Override
+    public void onPickResult(String tag, String... result) {
+        switch (tag) {
+            case "single":
+            case "number_range_single":
+                Log.d("RecyclerWheelPicker", "single result " + result[0]);
+                Toast.makeText(WheelPickerActivity.this,
+                        result[0], Toast.LENGTH_SHORT).show();
+                break;
+            case "double":
+            case "number_range_double":
+            case "triple_time_2":
+                Log.d("RecyclerWheelPicker", "double city result " + result[0] + "-" + result[1]);
+                Toast.makeText(WheelPickerActivity.this,
+                        result[0] + "-" + result[1], Toast.LENGTH_SHORT).show();
+                break;
+            case "triple":
+            case "triple_date":
+            case "triple_time_3":
+                Log.d("RecyclerWheelPicker", "triple result " + result[0] + "-" + result[1] + "-" + result[2]);
+                Toast.makeText(WheelPickerActivity.this,
+                        result[0] + "-" + result[1] + "-" + result[2], Toast.LENGTH_SHORT).show();
+                break;
+            case "password":
+                String s = " ";
+                for (int i = 0; i < result.length; i++)
+                    s += result[i] + " ";
+                Log.d("RecyclerWheelPicker", "password result " + s);
+                Toast.makeText(WheelPickerActivity.this, s, Toast.LENGTH_SHORT).show();
                 break;
         }
     }

@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import app.zengpu.com.myexercisedemo.demolist.wheel_picker.bean.Data;
 import app.zengpu.com.myexercisedemo.demolist.wheel_picker.dialog.WheelPicker;
@@ -36,6 +37,7 @@ public class NumberRangePicker extends DoubleWheelPicker {
 
     protected NumberRangePicker(NumberBuilder builder) {
         super(builder);
+        builder.dataRelated = true;
         numberBuilder = builder;
     }
 
@@ -44,13 +46,20 @@ public class NumberRangePicker extends DoubleWheelPicker {
     }
 
     @Override
-    protected void parseData() {
+    protected void initView() {
+        super.initView();
         if (numberBuilder.single) {
+            rv_picker2.setOnWheelScrollListener(null);
             rv_picker2.setVisibility(View.GONE);
             rv_picker1.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
             int padding = (int) (getResources().getDisplayMetrics().density * 100);
             rv_picker1.setPadding(padding, 0, padding, 0);
         }
+    }
+
+    @Override
+    protected List<Data> parseData() {
+        List<Data> datas = new ArrayList<>();
         int[] ranges = numberBuilder.range;
         int from = 0, to = 100;
         if (null != ranges) {
@@ -60,7 +69,7 @@ public class NumberRangePicker extends DoubleWheelPicker {
         if (builder.isAll) {
             Data data = new Data();
             data.data = "不限";
-            data.id = 0;
+            data.id = -1;
             data.items = new ArrayList<>();
             datas.add(data);
         }
@@ -68,7 +77,7 @@ public class NumberRangePicker extends DoubleWheelPicker {
             for (int i = from; i <= to; i++) {
                 Data d1 = new Data();
                 d1.data = i + "";
-                d1.id = i == 0 ? -1 : i;
+                d1.id = i == -1 ? 0 : i;
                 d1.items = new ArrayList<>();
                 if (!numberBuilder.single && i <= to) {
                     for (int j = i; j <= to; j++) {
@@ -84,7 +93,7 @@ public class NumberRangePicker extends DoubleWheelPicker {
             for (int i = from; i >= to; i--) {
                 Data d1 = new Data();
                 d1.data = i + "";
-                d1.id = i == 0 ? -1 : i;
+                d1.id = i == -1 ? -1 : i;
                 d1.items = new ArrayList<>();
                 if (!numberBuilder.single && i >= to) {
                     for (int j = i; j >= to; j--) {
@@ -97,6 +106,7 @@ public class NumberRangePicker extends DoubleWheelPicker {
                 datas.add(d1);
             }
         }
+        return datas;
     }
 
     public static class NumberBuilder extends Builder {

@@ -37,6 +37,7 @@ public class DateWheelPicker extends TripleWheelPicker {
 
     protected DateWheelPicker(DateBuilder builder) {
         super(builder);
+        builder.dataRelated = true;
         dateBuilder = builder;
     }
 
@@ -45,8 +46,9 @@ public class DateWheelPicker extends TripleWheelPicker {
     }
 
     @Override
-    protected void parseData() {
+    protected List<Data> parseData() {
         // create data
+        List<Data> datas = new ArrayList<>();
         calendar = Calendar.getInstance();
         int currentYear = calendar.get(Calendar.YEAR);
         int currentMonth = calendar.get(Calendar.MONTH) + 1;
@@ -64,7 +66,7 @@ public class DateWheelPicker extends TripleWheelPicker {
 
         if (builder.isAll) {
             Data data = new Data();
-            data.id = 0;
+            data.id = -1;
             data.data = "不限";
             data.items = new ArrayList<>();
             data.items.add(new Data());
@@ -82,7 +84,7 @@ public class DateWheelPicker extends TripleWheelPicker {
             int startMonth = year == maxYear ? maxMonth : 12;
             for (int month = startMonth; month >= 1; month--) {
                 Data data_month = new Data();
-                data_month.data = month + "";
+                data_month.data = (month < 10 ? "0" : "") + month;
                 data_month.id = month;
                 // day
                 List<Data> days = new ArrayList<>();
@@ -92,7 +94,7 @@ public class DateWheelPicker extends TripleWheelPicker {
                     start_day = Math.min(start_day, maxDay);
                 for (int day = start_day; day >= 1; day--) {
                     Data data_day = new Data();
-                    data_day.data = day + "";
+                    data_day.data = (day < 10 ? "0" : "") + day;
                     data_day.id = day;
                     days.add(data_day);
                 }
@@ -102,6 +104,7 @@ public class DateWheelPicker extends TripleWheelPicker {
             data_year.items = months;
             datas.add(data_year);
         }
+        return datas;
     }
 
     public static class DateBuilder extends Builder {

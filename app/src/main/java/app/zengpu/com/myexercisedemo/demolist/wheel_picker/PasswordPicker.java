@@ -47,13 +47,13 @@ import app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget.RecyclerWheelP
 public class PasswordPicker extends WheelPicker {
 
     protected PasswordBuilder passwordBuilder;
-    protected List<Data> datas = new ArrayList<>();
     protected List<RecyclerWheelPicker> pickerList = new ArrayList<>();
     protected String[] pickResult;
     protected int length, itemW, itemH;
 
     protected PasswordPicker(PasswordBuilder builder) {
         super(builder);
+        builder.dataRelated = false;
         passwordBuilder = builder;
         passwordBuilder.gravity = Gravity.CENTER;
     }
@@ -75,14 +75,11 @@ public class PasswordPicker extends WheelPicker {
 
         length = passwordBuilder.length;
         if (length <= 0) length = 6;
-        int[] size = passwordBuilder.itemSize;
-        if (null != size) {
-            if (size.length > 0) itemW = size[0];
-            if (size.length > 1) itemH = size[1];
-            if (itemW <= 0) itemW = 150;
-            if (itemW > width / length) itemW = (int) (0.9f * width / length);
-            if (itemH <= 0) itemH = 150;
-        }
+        itemW = passwordBuilder.itemW;
+        itemH = passwordBuilder.itemH;
+        if (itemW <= 0) itemW = 150;
+        if (itemW > width / length) itemW = (int) (0.9f * width / length);
+        if (itemH <= 0) itemH = 150;
 
         IDecoration decoration = new IDecoration() {
             @Override
@@ -109,7 +106,7 @@ public class PasswordPicker extends WheelPicker {
             picker.getLayoutParams().height = itemH;
             picker.setDecorationSize(itemH);
             picker.setDecoration(decoration);
-            picker.setTextSize(24 * getResources().getDisplayMetrics().scaledDensity);
+            picker.setTextSize(28 * getResources().getDisplayMetrics().scaledDensity);
             pickerList.add(picker);
         }
         return linearLayout;
@@ -122,23 +119,22 @@ public class PasswordPicker extends WheelPicker {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    protected void initView() {
         for (int i = 0; i < length; i++) {
             pickerList.get(i).setOnWheelScrollListener(this);
         }
-        parseData();
-        inflateData();
     }
 
     @Override
-    protected void parseData() {
+    protected List<Data> parseData() {
+        List<Data> datas = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             Data data = new Data();
             data.id = i;
             data.data = i + "";
             datas.add(data);
         }
-        if (passwordBuilder.abcABC) {
+        if (!passwordBuilder.onlyNumber) {
             for (char i = 'a'; i <= 'z'; i++) {
                 Data data = new Data();
                 data.id = Integer.valueOf(i);
@@ -152,10 +148,11 @@ public class PasswordPicker extends WheelPicker {
                 datas.add(data);
             }
         }
+        return datas;
     }
 
     @Override
-    protected void inflateData() {
+    protected void inflateData(List<Data> datas) {
         pickResult = new String[length];
         for (int i = 0; i < length; i++) {
             pickerList.get(i).setData(datas);
@@ -177,7 +174,7 @@ public class PasswordPicker extends WheelPicker {
     @Override
     protected void pickerClose() {
         if (builder.pickerListener != null) {
-            builder.pickerListener.onPickResult(pickResult);
+            builder.pickerListener.onPickResult(tag, pickResult);
         }
         for (int i = 0; i < length; i++) {
             pickerList.get(i).release();
@@ -187,8 +184,8 @@ public class PasswordPicker extends WheelPicker {
     public static class PasswordBuilder extends Builder {
 
         public int length;
-        public boolean abcABC = false;
-        public int[] itemSize;
+        public boolean onlyNumber = true;
+        public int itemW = 150, itemH = 150;
 
         public PasswordBuilder(Class clazz) {
             super(clazz);
@@ -199,13 +196,14 @@ public class PasswordPicker extends WheelPicker {
             return this;
         }
 
-        public PasswordBuilder abcABC(boolean abcABC) {
-            this.abcABC = abcABC;
+        public PasswordBuilder onlyNumber(boolean only) {
+            this.onlyNumber = only;
             return this;
         }
 
-        public PasswordBuilder itemSize(int... itemSize) {
-            this.itemSize = itemSize;
+        public PasswordBuilder itemSize(int itemW, int itemH) {
+            this.itemW = itemW;
+            this.itemH = itemH;
             return this;
         }
 

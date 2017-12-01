@@ -25,10 +25,12 @@ import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RawRes;
 import android.support.annotation.StyleRes;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
@@ -37,6 +39,7 @@ import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 
 import java.lang.reflect.Constructor;
+import java.util.List;
 
 import app.zengpu.com.myexercisedemo.demolist.wheel_picker.bean.Data;
 import app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget.RecyclerWheelPicker;
@@ -48,7 +51,7 @@ import app.zengpu.com.myexercisedemo.demolist.wheel_picker.widget.RecyclerWheelP
  * Created by zengp on 2017/9/5.
  */
 @SuppressLint("ValidFragment")
-public class WheelPicker extends DialogFragment implements Runnable,
+abstract public class WheelPicker extends DialogFragment implements Runnable,
         View.OnClickListener, RecyclerWheelPicker.OnWheelScrollListener {
 
     private long mEnterAnimDuration = 400, mExitAnimDuration = 300;
@@ -56,6 +59,7 @@ public class WheelPicker extends DialogFragment implements Runnable,
     private boolean isEnterAnimFinish = false;
     private boolean isEXitAnimFinish = false;
     protected int width, height;
+    protected String tag = "";
 
     protected Builder builder;
 
@@ -66,7 +70,7 @@ public class WheelPicker extends DialogFragment implements Runnable,
     }
 
     public interface OnPickerListener {
-        void onPickResult(String... result);
+        void onPickResult(String tag, String... result);
     }
 
     public WheelPicker(Builder builder) {
@@ -85,18 +89,21 @@ public class WheelPicker extends DialogFragment implements Runnable,
         }
         width = realPoint.x;
         height = realPoint.y;
-
     }
 
-    public void setOnDismissListener(OnDismissListener listener) {
-        this.mListener = listener;
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        List<Data> datas = parseData();
+        initView();
+        inflateData(datas);
     }
 
-    protected void parseData() {
-    }
+    abstract protected List<Data> parseData();
 
-    protected void inflateData() {
-    }
+    abstract protected void initView();
+
+    abstract protected void inflateData(List<Data> datas);
 
     protected void pickerClose() {
     }
@@ -110,6 +117,9 @@ public class WheelPicker extends DialogFragment implements Runnable,
                                      boolean isScrolling, int position, Data data) {
     }
 
+    public void setOnDismissListener(OnDismissListener listener) {
+        this.mListener = listener;
+    }
 
     public void setEnterAnimDuration(long duration) {
         if (duration < 0) {
@@ -185,8 +195,24 @@ public class WheelPicker extends DialogFragment implements Runnable,
         }
     }
 
+    @Override
+    public void show(FragmentManager manager, String tag) {
+        this.tag = tag;
+        super.show(manager, tag);
+    }
+
+    @Override
+    public int show(FragmentTransaction transaction, String tag) {
+        this.tag = tag;
+        return super.show(transaction, tag);
+    }
+
     public void show(FragmentManager manager) {
-        super.show(manager, builder.clazz.getName());
+        show(manager, builder.clazz.getName());
+    }
+
+    public void show(FragmentTransaction transaction) {
+        show(transaction, builder.clazz.getName());
     }
 
     @NonNull
@@ -204,13 +230,14 @@ public class WheelPicker extends DialogFragment implements Runnable,
     }
 
     public static class Builder<T extends WheelPicker> {
-        protected Class clazz;
+        Class clazz;
         public int gravity = Gravity.BOTTOM;
         @RawRes
         public int resInt = 0;
         public boolean isAll = false;
         public String[] units, defValues;
         public int[] defPosition;
+        public boolean dataRelated = true;
         public OnPickerListener pickerListener;
 
         public Builder(Class clazz) {
@@ -249,6 +276,11 @@ public class WheelPicker extends DialogFragment implements Runnable,
 
         public Builder setDefPosition(int... defPosition) {
             this.defPosition = defPosition;
+            return this;
+        }
+
+        public Builder setDataRelated(boolean dataRelated) {
+            this.dataRelated = dataRelated;
             return this;
         }
 

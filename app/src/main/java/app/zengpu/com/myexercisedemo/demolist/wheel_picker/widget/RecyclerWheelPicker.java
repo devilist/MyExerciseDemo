@@ -379,7 +379,7 @@ public class RecyclerWheelPicker extends RecyclerView {
     private void initSound() {
         mSoundPool = new SoundPool(50, AudioManager.STREAM_SYSTEM, 5);
         try {
-            mSoundId = mSoundPool.load(getContext(), R.raw.wheelpickerkeypress, 1);
+            mSoundPool.load(getContext(), R.raw.wheelpickerkeypress, 1);
         } catch (Exception e) {
         }
     }
@@ -390,7 +390,8 @@ public class RecyclerWheelPicker extends RecyclerView {
 
     private void playSound() {
         try {
-            mSoundPool.play(mSoundId, 1, 1, 0, 0, 1);
+            mSoundPool.stop(mSoundId);
+            mSoundId = mSoundPool.play(1, 1, 1, 0, 0, 1);
         } catch (Exception e) {
         }
     }

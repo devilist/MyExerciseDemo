@@ -48,7 +48,6 @@ public class SingleWheelPicker extends WheelPicker {
     protected RecyclerWheelPicker rv_picker1;
     protected String pickData1 = "";
     protected String unit1 = "";
-    protected List<Data> datas = new ArrayList<>();
 
     protected SingleWheelPicker(Builder builder) {
         super(builder);
@@ -70,7 +69,7 @@ public class SingleWheelPicker extends WheelPicker {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    protected void initView() {
         tv_ok = (TextView) getView().findViewById(R.id.tv_ok);
         tv_cancel = (TextView) getView().findViewById(R.id.tv_cancel);
         tv_ok.setOnClickListener(this);
@@ -78,19 +77,16 @@ public class SingleWheelPicker extends WheelPicker {
 
         rv_picker1 = (RecyclerWheelPicker) getView().findViewById(R.id.rv_picker1);
         rv_picker1.setOnWheelScrollListener(this);
-        // parse data
-        parseData();
-        inflateData();
     }
 
     @Override
-    protected void parseData() {
+    protected List<Data> parseData() {
         // parse data
-        datas = DataParser.parserData(getContext(), builder.resInt, builder.isAll);
+        return DataParser.parserData(getContext(), builder.resInt, builder.isAll);
     }
 
     @Override
-    protected void inflateData() {
+    protected void inflateData(List<Data> datas) {
         // units
         String[] units = builder.units;
         if (null != units) {
@@ -102,21 +98,22 @@ public class SingleWheelPicker extends WheelPicker {
             int[] defPosition = builder.defPosition;
             if (null != defPosition) {
                 if (defPosition.length > 0) defP1 = defPosition[0];
-            }
-            defP1 = Math.min(Math.max(0, defP1), datas.size() - 1);
-        }
-        String[] defValues = builder.defValues;
-        if (datas.size() > 0 && null != defValues) {
-            if (defValues.length > 0) {
-                for (int i = 0; i < datas.size(); i++) {
-                    if (defValues[0].equals(datas.get(i).data)) {
-                        defP1 = i;
-                        break;
+                defP1 = Math.min(Math.max(0, defP1), datas.size() - 1);
+            } else {
+                String[] defValues = builder.defValues;
+                if (datas.size() > 0 && null != defValues) {
+                    if (defValues.length > 0) {
+                        for (int i = 0; i < datas.size(); i++) {
+                            if (defValues[0].equals(datas.get(i).data)) {
+                                defP1 = i;
+                                break;
+                            }
+                        }
                     }
                 }
             }
         }
-        rv_picker1.setUnit(datas.get(defP1).id == 0 ? "" : unit1);
+        rv_picker1.setUnit(datas.get(defP1).id == -1 ? "" : unit1);
         rv_picker1.setData(datas);
         rv_picker1.scrollTargetPositionToCenter(defP1);
     }
@@ -126,7 +123,7 @@ public class SingleWheelPicker extends WheelPicker {
         super.onWheelScrollChanged(wheelPicker, isScrolling, position, data);
         if (!isScrolling && null != data) {
             pickData1 = data.data;
-            rv_picker1.setUnit(data.id == 0 ? "" : unit1);
+            rv_picker1.setUnit(data.id == -1 ? "" : unit1);
         }
     }
 
@@ -135,7 +132,7 @@ public class SingleWheelPicker extends WheelPicker {
         super.onClick(v);
         if (v.getId() == R.id.tv_ok) {
             if (!rv_picker1.isScrolling() && null != builder.pickerListener) {
-                builder.pickerListener.onPickResult(pickData1);
+                builder.pickerListener.onPickResult(tag, pickData1);
                 dismiss();
             }
         } else {
