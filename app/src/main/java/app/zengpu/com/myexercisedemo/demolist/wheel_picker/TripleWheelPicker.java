@@ -242,9 +242,7 @@ public class TripleWheelPicker extends WheelPicker {
     @Override
     public void onWheelScrollChanged(RecyclerWheelPicker wheelPicker, boolean isScrolling, int position, Data data) {
         super.onWheelScrollChanged(wheelPicker, isScrolling, position, data);
-        if (!rv_picker1.isInitFinish()
-                || !rv_picker2.isInitFinish()
-                || !rv_picker3.isInitFinish())
+        if (!rv_picker1.isInitFinish() || !rv_picker2.isInitFinish() || !rv_picker3.isInitFinish())
             return;
 
         if (wheelPicker == rv_picker1) {
@@ -255,7 +253,8 @@ public class TripleWheelPicker extends WheelPicker {
                 rv_picker3.setUnit(data.id == -1 ? "" : unit3);
                 if (builder.dataRelated) {
                     rv_picker2.setData(data.items);
-                    if (data.id == -1) rv_picker3.setData(null);
+                    if (data.id == -1 || data.items == null || data.items.size() == 0)
+                        rv_picker3.setData(null);
                 } else {
                     rv_picker2.setData(data.id == -1 ? null : dataList2);
                     rv_picker3.setData(data.id == -1 ? null : dataList3);
