@@ -27,6 +27,8 @@ public class RichTextViewActivity extends BaseActivity {
     private PrefixEditText pet_text;
     private TextView tv_left_count;
 
+    private NoFocusDialog dialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +44,15 @@ public class RichTextViewActivity extends BaseActivity {
             @Override
             public void onPrefixClick(View v, String text) {
                 Toast.makeText(RichTextViewActivity.this, "点击了前缀区域", Toast.LENGTH_SHORT).show();
+
+                if (null == dialog) {
+                    dialog = NoFocusDialog.newInstance();
+                    dialog.setCancelable(false);
+                }
+
+                if (!dialog.isVisible())
+                    dialog.show(getSupportFragmentManager(), "");
+
             }
         });
         rtv_0.setOnClickListener(new View.OnClickListener() {
@@ -80,5 +91,13 @@ public class RichTextViewActivity extends BaseActivity {
                 pet_text.addPrefixText(et_prefix.getText().toString());
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (dialog.isVisible())
+            dialog.dismiss();
+        else
+            super.onBackPressed();
     }
 }
