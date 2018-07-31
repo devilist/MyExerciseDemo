@@ -18,6 +18,7 @@ import app.zengpu.com.myexercisedemo.demolist.cardlistview.CardListViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.design_support_library.adapter.OneRecyclerViewAdapter;
 import app.zengpu.com.myexercisedemo.demolist.glide_with_progress.ProgressLoadingActivity;
 import app.zengpu.com.myexercisedemo.demolist.imageview_crop.CropImageViewActivity;
+import app.zengpu.com.myexercisedemo.demolist.matrix.MatrixActivity;
 import app.zengpu.com.myexercisedemo.demolist.multi_drawer.MultiDrawerActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop0.PhotoLoopActivity;
 import app.zengpu.com.myexercisedemo.demolist.photoloop1.ImageLoopActivity;
@@ -107,5 +108,6 @@ public class OneFragment extends Fragment {
         list.add(new String[]{"ScaleImageView", ScaleImageViewActivity.class.getName()});
         list.add(new String[]{"CropImageView", CropImageViewActivity.class.getName()});
         list.add(new String[]{"WheelPicker", WheelPickerActivity.class.getName()});
+        list.add(new String[]{"Matrix", MatrixActivity.class.getName()});
     }
 }

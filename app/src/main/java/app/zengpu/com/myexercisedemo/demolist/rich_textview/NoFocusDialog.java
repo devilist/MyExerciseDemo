@@ -19,6 +19,7 @@ package app.zengpu.com.myexercisedemo.demolist.rich_textview;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,6 +49,7 @@ public class NoFocusDialog extends DialogFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Log.d("onViewCreated","onViewCreated");
         getDialog().getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
         getDialog().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
 
