@@ -159,6 +159,7 @@
             android:label="WheelPicker"
             android:screenOrientation="portrait" />
         <activity android:name=".demolist.matrix.MatrixActivity" />
+        <activity android:name=".demolist.sensor.SensorActivity" />
 
     </application>
 

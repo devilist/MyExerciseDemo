@@ -28,6 +28,7 @@ import app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.snap.SnapHelperA
 import app.zengpu.com.myexercisedemo.demolist.recyclerViewPager.ThreeDViewPagerActivity;
 import app.zengpu.com.myexercisedemo.demolist.rich_textview.RichTextViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.selected_textview.SelectedTextViewActivity;
+import app.zengpu.com.myexercisedemo.demolist.sensor.SensorActivity;
 import app.zengpu.com.myexercisedemo.demolist.snakeview.SnakeViewActivity;
 import app.zengpu.com.myexercisedemo.demolist.svg_path_anim.SvgAnimActivity;
 import app.zengpu.com.myexercisedemo.demolist.vertical_textview.VerticalTextViewActivity;
@@ -109,5 +110,6 @@ public class OneFragment extends Fragment {
         list.add(new String[]{"CropImageView", CropImageViewActivity.class.getName()});
         list.add(new String[]{"WheelPicker", WheelPickerActivity.class.getName()});
         list.add(new String[]{"Matrix", MatrixActivity.class.getName()});
+        list.add(new String[]{"sensor", SensorActivity.class.getName()});
     }
 }
